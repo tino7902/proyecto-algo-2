@@ -23,7 +23,7 @@ combinacionesLetras=[
 
 #Clase para usarla luego con el times
 class TimerState:
-    def _init_(self):
+    def __init__(self):
         self.tiempo_inicio = time.time()
         self.tiempo_pausado = 0
         self.activo = True
