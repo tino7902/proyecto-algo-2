@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-print("prueba !")
 
 class Usuario:
     def __init__(self, user, pw):
