@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+
 class Usuario:
     def __init__(self, user, pw):
         self.user = user
