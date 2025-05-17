@@ -1,4 +1,3 @@
-abaá
 ababol
 abacá
 abacal
@@ -7,8 +6,6 @@ abacero
 abacial
 ábaco
 abacora
-abad
-abada
 abadejo
 abadesa
 abadí
@@ -627,7 +624,6 @@ adrezo
 adrián
 adrizar
 adrolla
-ADSL
 aduana
 aduanal
 aduanar
