@@ -85,15 +85,21 @@ def iniciarJuego():
 
     seleccionadas= []
     #Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en seleccionadas
-    with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
+    with open("palabras.txt", "r", encoding="utf-8") as archivo:
         for linea in archivo:
             palabra = linea.strip().upper()
             es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
             if es_valida:
                 seleccionadas.append(palabra)
 
+    #Contador para los puntos totales
+    ptsTotal = 0
     #Lista para almacenar las palabras que se vayan ingresando en el juego
     palabrasElegidas = []
+    #Variable que almacena el puntaje por cada palabra
+    pts= 0
+
+    palabrasElegidasSinEspacios= []
 
     print(seleccionadas)
     print("                  ↑                  ")
@@ -101,9 +107,8 @@ def iniciarJuego():
 
     #Verifica si la palabra ingresada al clickear los botones, está en la lista de palabrasElegidas, y si cumple las condiciones necesarias
     #Además de Imprimir los pts obtenidos, totales, y verificar si se encontraron todas las palabras para terminar el juego
-    def iniciarReto(palIngresada, mensajeLabel1, mensajeLabel2): 
-        global ptsTotal
-        ptsTotal= 0
+    def iniciarReto(palIngresada, mensajeLabel1, mensajeLabel2):
+        nonlocal ptsTotal
 
         Pal = palIngresada
         if Pal in seleccionadas and Pal not in palabrasElegidas:
@@ -112,10 +117,10 @@ def iniciarJuego():
                 ptsTotal= ptsTotal + pts
                 palabrasElegidas.append(Pal)
                 palabrasElegidasSinEspacios= ", ".join(palabrasElegidas)
-                """if esHeptacrack(Pal):
+                if esHeptacrack==True:
                     mensajeLabel1.config(text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s || Tienes {ptsTotal} punto/s en total")
-                else:"""
-                mensajeLabel1.config(text=f"Haz obtenido {pts} punto/s || Tienes {ptsTotal} punto/s en total")
+                else:
+                    mensajeLabel1.config(text=f"Haz obtenido {pts} punto/s || Tienes {ptsTotal} punto/s en total")
                 mensajeLabel2.config(text=f"Palabras encontradas: {len(palabrasElegidas)}/{len(seleccionadas)}")
                 mensajePalabrasElegidas.config(text=f"Palabras encontradas: {palabrasElegidasSinEspacios}")
                 if len(palabrasElegidas) == len(seleccionadas):
@@ -157,7 +162,6 @@ def iniciarJuego():
 
     #Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
     def mostrarFelicitacionFinal():
-        global ptsTotal
         capa = tk.Frame(
             app, 
             bg='white'
