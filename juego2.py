@@ -36,6 +36,8 @@ def iniciarJuego():
 
     #Calcula el puntaje
     def calcularPuntaje(palabraIngresada):
+        if esHeptacrack(palabraIngresada):
+            return 10
         if (len(palabraIngresada)>=7):
             return len(palabraIngresada)
         elif(len(palabraIngresada)==6):
@@ -66,17 +68,6 @@ def iniciarJuego():
 
         return letras_resultado
 
-    #Calcula si la palabra es Heptacrack (Contiene 7 letras distintas)
-    def esHeptacrack(palabraIngresada):
-        letrasUnicas= obtenerLetras(seleccionadas)
-        letrasDiferentes= 0
-        if letra in palabraIngresada:
-            if letra in letrasUnicas:
-                letrasDiferentes= letrasDiferentes + 1
-        if letrasDiferentes == len(letrasUnicas):
-            return True
-        return False
-
     listaAleatoriaCombinaciones= []
     for letra in choice(combinacionesLetras):
         listaAleatoriaCombinaciones.append(letra.upper())
@@ -85,24 +76,46 @@ def iniciarJuego():
 
     seleccionadas= []
     #Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en seleccionadas
-    with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
+    with open("palabras.txt", "r", encoding="utf-8") as archivo:
         for linea in archivo:
             palabra = linea.strip().upper()
             es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
             if es_valida:
                 seleccionadas.append(palabra)
 
+    #Calcula si la palabra es Heptacrack (Contiene 7 letras distintas)
+    def esHeptacrack(palabraIngresada):
+        letrasUnicas = listaAleatoriaCombinaciones[:]
+        for letra in letrasUnicas:
+            if letra not in palabraIngresada.upper():
+                return False
+        return True
+
+
     #Contador para los puntos totales
     ptsTotal = 0
-    #Lista para almacenar las palabras que se vayan ingresando en el juego
-    palabrasElegidas = []
+    #Listas para almacenar las palabras que se vayan ingresando en el juego
+    palabrasElegidas0= []
+    palabrasElegidas1 = []
+    palabrasElegidas2 = []
+    palabrasElegidas3 = []
+    palabrasElegidas4 = []
+    palabrasElegidas5 = []
+    palabrasElegidas6 = []
+    palabrasElegidas7 = []
     #Variable que almacena el puntaje por cada palabra
     pts= 0
 
-    palabrasElegidasSinEspacios= []
+    palabrasElegidasSinEspacios1= []
+    palabrasElegidasSinEspacios2= []
+    palabrasElegidasSinEspacios3= []
+    palabrasElegidasSinEspacios4= []
+    palabrasElegidasSinEspacios5= []
+    palabrasElegidasSinEspacios6= []
+    palabrasElegidasSinEspacios7= []
 
     print(seleccionadas)
-    print("                  ↑                  ")
+    print("                               ↑                               ")
     print("Lista de seleccionados (solo de guía para completar el juego)\n")
 
     #Verifica si la palabra ingresada al clickear los botones, está en la lista de palabrasElegidas, y si cumple las condiciones necesarias
@@ -111,23 +124,62 @@ def iniciarJuego():
         nonlocal ptsTotal
 
         Pal = palIngresada
-        if Pal in seleccionadas and Pal not in palabrasElegidas:
+        if Pal in seleccionadas and Pal not in palabrasElegidas0:
             if verificarPalabra(Pal.upper(), listaAleatoriaCombinaciones, letraCentral):
                 pts = calcularPuntaje(Pal)
                 ptsTotal= ptsTotal + pts
-                palabrasElegidas.append(Pal)
-                palabrasElegidasSinEspacios= ", ".join(palabrasElegidas)
-                if esHeptacrack==True:
-                    mensajeLabel1.config(text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s || Tienes {ptsTotal} punto/s en total")
+                palabrasElegidas0.append(Pal)
+                letra_inicial= Pal[0]
+                if letra_inicial==listaAleatoriaCombinaciones[0]:
+                    palabrasElegidas1.append(Pal)
+                elif letra_inicial==listaAleatoriaCombinaciones[1]:
+                    palabrasElegidas2.append(Pal)
+                elif letra_inicial==listaAleatoriaCombinaciones[2]:
+                    palabrasElegidas3.append(Pal)
+                elif letra_inicial==listaAleatoriaCombinaciones[3]:
+                    palabrasElegidas4.append(Pal)
+                elif letra_inicial==listaAleatoriaCombinaciones[4]:
+                    palabrasElegidas5.append(Pal)
+                elif letra_inicial==listaAleatoriaCombinaciones[5]:
+                    palabrasElegidas6.append(Pal)
+                elif letra_inicial==listaAleatoriaCombinaciones[6]:
+                    palabrasElegidas7.append(Pal)
+                palabrasElegidasSinEspacios1= ", ".join(palabrasElegidas1)
+                palabrasElegidasSinEspacios2= ", ".join(palabrasElegidas2)
+                palabrasElegidasSinEspacios3= ", ".join(palabrasElegidas3)
+                palabrasElegidasSinEspacios4= ", ".join(palabrasElegidas4)
+                palabrasElegidasSinEspacios5= ", ".join(palabrasElegidas5)
+                palabrasElegidasSinEspacios6= ", ".join(palabrasElegidas6)
+                palabrasElegidasSinEspacios7= ", ".join(palabrasElegidas7)
+                if esHeptacrack(Pal)==True:
+                    mensaje1.config(text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s\nTienes {ptsTotal} punto/s en total")
                 else:
-                    mensajeLabel1.config(text=f"Haz obtenido {pts} punto/s || Tienes {ptsTotal} punto/s en total")
-                mensajeLabel2.config(text=f"Palabras encontradas: {len(palabrasElegidas)}/{len(seleccionadas)}")
-                mensajePalabrasElegidas.config(text=f"Palabras encontradas: {palabrasElegidasSinEspacios}")
-                if len(palabrasElegidas) == len(seleccionadas):
+                    mensaje1.config(text=f"Haz obtenido {pts} punto/s\nTienes {ptsTotal} punto/s en total")
+                mensajeLabel2.config(text=f"Palabras encontradas: {len(palabrasElegidas0)}/{len(seleccionadas)}")
+                todas_letras = listaAleatoriaCombinaciones
+                listasPalabrasSinEspacios = [palabrasElegidas1, palabrasElegidas2, palabrasElegidas3, palabrasElegidas4, palabrasElegidas5, palabrasElegidas6, palabrasElegidas7]
+                for i in range(len(todas_letras)):
+                    if i < len(listasPalabrasSinEspacios):
+                        texto = f"Palabras encontradas con {todas_letras[i]}: {', '.join(listasPalabrasSinEspacios[i])}"
+                        if i == 0:
+                            mensajePalabrasElegidas1.config(text=texto)
+                        elif i == 1:
+                            mensajePalabrasElegidas2.config(text=texto)
+                        elif i == 2:
+                            mensajePalabrasElegidas3.config(text=texto)
+                        elif i == 3:
+                            mensajePalabrasElegidas4.config(text=texto)
+                        elif i == 4:
+                            mensajePalabrasElegidas5.config(text=texto)
+                        elif i == 5:
+                            mensajePalabrasElegidas6.config(text=texto)
+                        elif i == 6:
+                            mensajePalabrasElegidas7.config(text=texto)
+                if len(palabrasElegidas0) == len(seleccionadas):
                     mostrarFelicitacionFinal()
             else:
                 mensajeLabel1.config(text=f"La palabra no contiene la letra {letraCentral} o es demasiado corta.")
-        elif Pal in palabrasElegidas:
+        elif Pal in palabrasElegidas0:
             mensajeLabel1.config(text="Ya ingresaste esa palabra")
         else:
             mensajeLabel1.config(text="Palabra inválida")
@@ -159,6 +211,33 @@ def iniciarJuego():
         texto_actual = letra.get()
         if len(texto_actual) > 0:
             letra.set(texto_actual[:-1])
+
+    #Funciones para cambiar el color de los botones cada que el cursor pase sobre ellos
+    def onEnterLetrasApli(event):
+        event.widget.config(bg="#4A90E2", fg='white')
+    def onLeaveLetrasApli(event):
+        event.widget.config(bg='SystemButtonFace', fg='black')
+
+    def onEnterPausaIns(event):
+        event.widget.config(bg="#999999", fg='white')
+    def onLeavePausaIns(event):
+        event.widget.config(bg='#999999', fg='black')
+
+    def onEnterContinuar(event):
+        event.widget.config(bg="#61d061", fg='black')
+    def onLeaveContinuar(event):
+        event.widget.config(bg='#44cc44', fg='white')
+
+    def onEnterCerrar(event):
+        event.widget.config(bg="#db6060", fg='black')
+    def onLeaveCerrar(event):
+        event.widget.config(bg='#cc4444', fg='white')
+
+    def onEnterCentral(event):
+        event.widget.config(bg="#fed155", fg='white')
+    def onLeaveCentral(event):
+        event.widget.config(bg='#ffc733', fg='black')
+
 
     #Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
     def mostrarFelicitacionFinal():
@@ -192,7 +271,12 @@ def iniciarJuego():
             fg="white",
             command=app.destroy
         )
-        cerrar_btn.pack(pady=20)
+        cerrar_btn.pack(
+            pady=20
+        )
+
+        cerrar_btn.bind("<Enter>", onEnterCerrar) 
+        cerrar_btn.bind("<Leave>", onLeaveCerrar)
 
     #Función para cuando se de clic al botón de "actualizar" (Línea 476), genere una nueva letra de las elegidas para cada botón
     def mezclarLetras():
@@ -208,6 +292,7 @@ def iniciarJuego():
 
     #Inicio de la aplicación o ventana o widget o como se quiera llamar
     app= tk.Tk()
+
     letra= tk.StringVar(app)
     letra.set("")
     entrada= tk.StringVar(app)
@@ -267,7 +352,7 @@ def iniciarJuego():
         mensaje_pausa.pack(pady=50)
 
         #Botón para continuar el juego y el timer
-        boton_continuar = tk.Button(
+        boton_continuar_pausa = tk.Button(
             pausa_capa,
             text="Continuar",
             font=("Courier", 14),
@@ -275,10 +360,15 @@ def iniciarJuego():
             fg="white",
             command=lambda: [pausa_capa.destroy(), reanudar_timer()]
         )
-        boton_continuar.pack(pady=20)
+        boton_continuar_pausa.pack(
+            pady=20
+        )
+
+        boton_continuar_pausa.bind("<Enter>", onEnterContinuar) 
+        boton_continuar_pausa.bind("<Leave>", onLeaveContinuar)
 
         #Botón para salir de la aplicación
-        boton_salir = tk.Button(
+        boton_salir_pausa = tk.Button(
             pausa_capa,
             text="Salir del Juego",
             font=("Courier", 14),
@@ -286,14 +376,63 @@ def iniciarJuego():
             fg="white",
             command=app.destroy
         )
-        boton_salir.pack(pady=10)
+        boton_salir_pausa.pack(
+            pady=10
+        )
+
+        boton_salir_pausa.bind("<Enter>", onEnterCerrar) 
+        boton_salir_pausa.bind("<Leave>", onLeaveCerrar)
+
+    def Instrucciones():
+        instruccionesCapa= tk.Frame(app, bg="#222222")
+        instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        mensajeInstrucciones = tk.Label(
+            instruccionesCapa,
+            text="Cómo se juega",
+            font=("Courier", 19, "bold"),
+            fg="white",
+            bg="#222222"
+        )
+        mensajeInstrucciones.pack(
+            pady= 40
+        )
+
+        mensajeInstrucciones = tk.Label(
+            instruccionesCapa,
+            text="Forma palabras de al menos 3 letras. Puedes repetir las letras, pero siempre incluyendo la letra central.\n No se admiten nombres propios, plurales y formas verbales conjugadas (solo infinitivos).\n Encuentra palabras que incluyan las 7 letras (¡Heptacrack!).\n Puntuación: las palabras de 3 letras dan 1 punto y las de 4 letras, 2 puntos. A partir de 5 letras, obtendrás tantos puntos como letras tenga la palabra. Los heptacracks valen 10 puntos.",
+            font=("Courier", 15),
+            fg="white",
+            bg="#222222",
+            justify="center",
+            wraplength=600,
+        )
+        mensajeInstrucciones.pack(
+            pady= 10
+        )
+
+        #Botón para continuar el juego
+        boton_continuar_instrucciones = tk.Button(
+            instruccionesCapa,
+            text="Continuar",
+            font=("Courier", 14),
+            bg="#44cc44",
+            fg="white",
+            command=lambda: [instruccionesCapa.destroy()]
+        )
+        boton_continuar_instrucciones.pack(
+            pady=25
+        )
+
+        boton_continuar_instrucciones.bind("<Enter>", onEnterContinuar) 
+        boton_continuar_instrucciones.bind("<Leave>", onLeaveContinuar)
 
     #Hace que el timer empieze nada más abrir el juego
     actualizar_timer()
 
     #Da un tamaño a la aplicación
-    app.geometry("880x600")
-    tk.Wm.wm_title(app, "Lexi Reto")
+    app.geometry("1300x700")
+    tk.Wm.wm_title(app, "LexiReto")
 
     #Botón que ejecuta la función "pausarJuego"
     boton_pausa = tk.Button(
@@ -304,26 +443,14 @@ def iniciarJuego():
         command=pausarJuego
     )
     boton_pausa.place(
-        x= 780,
+        x= 1200,
         y= 0,
         width=100,
         height=30
     )
 
-    #Botón que manda a la función "iniciarReto" la palabra ingresada
-    aplicar= tk.Button(
-        app,
-        text=("Aplicar"),
-        font=("Courier", 14),
-        fg=("black"),
-        command=aplicarEntrada ,
-        relief="ridge"
-    ).place(
-        x= 300,
-        y= 130,
-        width= 100,
-        height= 40
-    )
+    boton_pausa.bind("<Enter>", onEnterPausaIns) 
+    boton_pausa.bind("<Leave>", onLeavePausaIns)
 
     #Espacio en donde se mostrarán las letras que se vayan ingresando mediante los botones
     ingresoLetras= tk.Label(
@@ -336,13 +463,13 @@ def iniciarJuego():
         relief="ridge",
         justify="center",
         wraplength=190,
-        width=10,
-        height=5,
+        width=30,
+        height=3,
     )
     ingresoLetras.place(
         x= 10,
         y= 60,
-        width= 190,
+        width= 250,
         height= 50
     )
 
@@ -356,11 +483,14 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letras_botones[0])
     )
     boton1.place(
-        x= 45,
+        x= 75,
         y= 120,
         width= 60,
         height= 40
     )
+
+    boton1.bind("<Enter>", onEnterLetrasApli) 
+    boton1.bind("<Leave>", onLeaveLetrasApli)
 
     boton2 = tk.Button(
         app,
@@ -371,11 +501,14 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letras_botones[1])
     )
     boton2.place(
-        x= 110,
+        x= 140,
         y= 120,
         width= 60,
         height= 40
     )
+
+    boton2.bind("<Enter>", onEnterLetrasApli) 
+    boton2.bind("<Leave>", onLeaveLetrasApli)
 
     boton3 = tk.Button(
         app,
@@ -386,11 +519,14 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letras_botones[2])
     )
     boton3.place(
-        x= 10,
+        x= 40,
         y= 185,
         width= 60,
         height= 40
     )
+
+    boton3.bind("<Enter>", onEnterLetrasApli) 
+    boton3.bind("<Leave>", onLeaveLetrasApli)
 
     boton4 = tk.Button(
         app,
@@ -402,11 +538,14 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letraCentral.upper())
     )
     boton4.place(
-        x= 75,
+        x= 105,
         y= 185,
         width= 60,
         height= 40
     )
+
+    boton4.bind("<Enter>", onEnterCentral) 
+    boton4.bind("<Leave>", onLeaveCentral)
 
     boton5 = tk.Button(
         app,
@@ -417,11 +556,14 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letras_botones[3])
     )
     boton5.place(
-        x= 140,
+        x= 170,
         y= 185,
         width= 60,
         height= 40
     )
+
+    boton5.bind("<Enter>", onEnterLetrasApli) 
+    boton5.bind("<Leave>", onLeaveLetrasApli)
 
     boton6 = tk.Button(
         app,
@@ -432,11 +574,14 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letras_botones[4])
     )
     boton6.place(
-        x= 45,
+        x= 75,
         y= 250,
         width= 60,
         height= 40
     )
+
+    boton6.bind("<Enter>", onEnterLetrasApli) 
+    boton6.bind("<Leave>", onLeaveLetrasApli)
 
     boton7 = tk.Button(
         app,
@@ -447,11 +592,33 @@ def iniciarJuego():
         command=lambda: actualizarLetra(letras_botones[5])
     )
     boton7.place(
-        x= 110,
+        x= 140,
         y= 250,
         width= 60,
         height= 40
     )
+
+    boton7.bind("<Enter>", onEnterLetrasApli) 
+    boton7.bind("<Leave>", onLeaveLetrasApli)
+
+    #Botón que manda a la función "iniciarReto" la palabra ingresada
+    aplicar= tk.Button(
+        app,
+        text=("Aplicar"),
+        font=("Courier", 14),
+        fg=("black"),
+        command=aplicarEntrada ,
+        relief="ridge"
+    )
+    aplicar.place(
+        x= 10,
+        y= 380,
+        width= 100,
+        height= 40
+    )
+
+    aplicar.bind("<Enter>", onEnterLetrasApli) 
+    aplicar.bind("<Leave>", onLeaveLetrasApli)
 
     #Botón para mezclar las letras generadas entre los botones
     actualizar= tk.Button(
@@ -461,12 +628,16 @@ def iniciarJuego():
         fg=("black"),
         command=mezclarLetras,
         relief="ridge"
-    ).place(
-        x= 405,
-        y= 130,
+    )
+    actualizar.place(
+        x= 115,
+        y= 380,
         width= 50,
         height= 40
     )
+
+    actualizar.bind("<Enter>", onEnterLetrasApli) 
+    actualizar.bind("<Leave>", onLeaveLetrasApli)
 
     #Botón para borrar la última letra ingresada
     borrar= tk.Button(
@@ -476,12 +647,34 @@ def iniciarJuego():
         fg=("black"),
         command=borrarUltimaLetra,
         relief="ridge"
-    ).place(
-        x= 460,
-        y= 130,
+    )
+    borrar.place(
+        x= 170,
+        y= 380,
         width= 90,
         height= 40
     )
+
+    borrar.bind("<Enter>", onEnterLetrasApli) 
+    borrar.bind("<Leave>", onLeaveLetrasApli)
+
+    comoJugar= tk.Button(
+        app,
+        text=("Cómo se juega"),
+        font=("Courier", 10),
+        bg="#999999",
+        fg=("black"),
+        command=Instrucciones
+    )
+    comoJugar.place(
+        x= 650,
+        y= 0,
+        width= 130,
+        height= 30
+    )
+
+    comoJugar.bind("<Enter>", onEnterPausaIns) 
+    comoJugar.bind("<Leave>", onLeavePausaIns)
 
     #Imprime en un espacio la cantidad de puntos que se ganó en caso de acertar una palabra, y cuantos puntos tiene en total.
     #Esta opción técnicamente no está en el juego original, pero se puede dejar como un extra
@@ -498,16 +691,16 @@ def iniciarJuego():
         height=3,
     )
     mensaje1.place(
-        x= 300,
-        y= 200,
+        x= 10,
+        y= 440,
         width= 250,
-        height= 50
+        height= 60
     )
 
     #Imprime en un espacio la cantidad de palabras que lleva encontradas el usuario
     mensaje2 = tk.Label(
         app,
-        text=f"Palabras encontradas: {len(palabrasElegidas)}/{len(seleccionadas)}",
+        text=f"Palabras encontradas: {len(palabrasElegidas0)}/{len(seleccionadas)}",
         font=("Courier", 10),
         fg="white",
         bg="#333333",
@@ -518,48 +711,143 @@ def iniciarJuego():
         height=5
     )
     mensaje2.place(
-        x= 300,
-        y= 60,
+        x= 10,
+        y= 310,
         width= 250,
         height= 50
     )
 
-    mensajePalabrasElegidas = tk.Label(
+    mensajePalabrasElegidas1 = tk.Label(
         app,
-        text="",
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[0]}:",
         font=("Courier", 10),
         fg="white",
         bg="#333333",
         relief="ridge",
         justify="center",
-        wraplength=245,
+        wraplength=950,
         width=35,
         height=5
     )
-    mensajePalabrasElegidas.place(
-        x= 620,
+    mensajePalabrasElegidas1.place(
+        x= 300,
         y= 60,
-        width= 250,
-        height= 520
+        width= 990,
+        height= 80
     )
 
-    mensajeInstrucciones = tk.Label(
+    mensajePalabrasElegidas2 = tk.Label(
         app,
-        text="Cómo se juega:\nForma palabras de al menos 3 letras. Puedes repetir las letras, pero siempre incluyendo la letra central.\n No se admiten nombres propios, plurales y formas verbales conjugadas (solo infinitivos).\n Encuentra palabras que incluyan las 7 letras (¡Heptacrack!).\n Puntuación: las palabras de 3 letras dan 1 punto y las de 4 letras, 2 puntos. A partir de 5 letras, obtendrás tantos puntos como letras tenga la palabra. Los heptacracks valen 10 puntos.\n ATENCIÓN. Solo podrás resolver los lexi retos durante el día en que se publican. A las 12 de la noche quedan inactivos y solo se pueden consultar.",
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[1]}:",
         font=("Courier", 10),
         fg="white",
         bg="#333333",
         relief="ridge",
         justify="center",
-        wraplength=500,
+        wraplength=950,
         width=35,
         height=5
     )
-    mensajeInstrucciones.place(
-        x= 10,
-        y= 320,
-        width= 540,
-        height= 220
+    mensajePalabrasElegidas2.place(
+        x= 300,
+        y= 150,
+        width= 990,
+        height= 80
+    )
+
+    mensajePalabrasElegidas3 = tk.Label(
+        app,
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[2]}:",
+        font=("Courier", 10),
+        fg="white",
+        bg="#333333",
+        relief="ridge",
+        justify="center",
+        wraplength=950,
+        width=35,
+        height=5
+    )
+    mensajePalabrasElegidas3.place(
+        x= 300,
+        y= 240,
+        width= 990,
+        height= 80
+    )
+
+    mensajePalabrasElegidas4 = tk.Label(
+        app,
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[3]}:",
+        font=("Courier", 10),
+        fg="white",
+        bg="#333333",
+        relief="ridge",
+        justify="center",
+        wraplength=950,
+        width=35,
+        height=5
+    )
+    mensajePalabrasElegidas4.place(
+        x= 300,
+        y= 330,
+        width= 990,
+        height= 80
+    )
+
+    mensajePalabrasElegidas5 = tk.Label(
+        app,
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[4]}:",
+        font=("Courier", 10),
+        fg="white",
+        bg="#333333",
+        relief="ridge",
+        justify="center",
+        wraplength=950,
+        width=35,
+        height=5
+    )
+    mensajePalabrasElegidas5.place(
+        x= 300,
+        y= 420,
+        width= 990,
+        height= 80
+    )
+
+    mensajePalabrasElegidas6 = tk.Label(
+        app,
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[5]}:",
+        font=("Courier", 10),
+        fg="white",
+        bg="#333333",
+        relief="ridge",
+        justify="center",
+        wraplength=950,
+        width=35,
+        height=5
+    )
+    mensajePalabrasElegidas6.place(
+        x= 300,
+        y= 510,
+        width= 990,
+        height= 80
+    )
+
+    mensajePalabrasElegidas7 = tk.Label(
+        app,
+        text=f"Palabras encontradas con {listaAleatoriaCombinaciones[6]}:",
+        font=("Courier", 10),
+        fg="white",
+        bg="#333333",
+        relief="ridge",
+        justify="center",
+        wraplength=950,
+        width=35,
+        height=5
+    )
+    mensajePalabrasElegidas7.place(
+        x= 300,
+        y= 600,
+        width= 990,
+        height= 80
     )
 
     app.mainloop()
