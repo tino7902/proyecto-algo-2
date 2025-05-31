@@ -114,9 +114,9 @@ def iniciarJuego():
     palabrasElegidasSinEspacios6= []
     palabrasElegidasSinEspacios7= []
 
-    print(seleccionadas)
+    """print(seleccionadas)
     print("                               ↑                               ")
-    print("Lista de seleccionados (solo de guía para completar el juego)\n")
+    print("Lista de seleccionados (solo de guía para completar el juego)\n")"""
 
     #Verifica si la palabra ingresada al clickear los botones, está en la lista de palabrasElegidas, y si cumple las condiciones necesarias
     #Además de Imprimir los pts obtenidos, totales, y verificar si se encontraron todas las palabras para terminar el juego
@@ -851,5 +851,3 @@ def iniciarJuego():
     )
 
     app.mainloop()
-
-iniciarJuego()
