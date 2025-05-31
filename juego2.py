@@ -851,5 +851,3 @@ def iniciarJuego():
     )
 
     app.mainloop()
-
-iniciarJuego()
