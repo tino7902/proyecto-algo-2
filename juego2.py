@@ -3,7 +3,7 @@ import tkinter as tk
 import time
 
 
-def iniciarJuego():
+def iniciarJuego2():
     combinacionesLetras=[
     ["u", "a", "e", "r", "d", "j", "q"],
     ["p", "o", "u", "g", "e", "i", "s"],
