@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from juego1 import iniciarJuego1
 from juego2 import iniciarJuego2
 
 
@@ -35,7 +36,7 @@ def elegir_juego(user):
     coso = tk.Toplevel()
     ttk.Label(coso, text=f"Bienvenido, {user} !").grid(row=0, column=1)
     ttk.Label(coso, text="Elegí el juego que quieras jugar !").grid(row=1, column=1)
-    ttk.Button(coso, text="Juego 1").grid(row=2, column=0)
+    ttk.Button(coso, text="Juego 1", command=iniciarJuego1).grid(row=2, column=0)
     ttk.Button(coso, text="Juego 2", command=iniciarJuego2).grid(row=2, column=2)
     coso.mainloop()
 

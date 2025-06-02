@@ -214,9 +214,9 @@ def iniciarJuego2():
 
     #Funciones para cambiar el color de los botones cada que el cursor pase sobre ellos
     def onEnterLetrasApli(event):
-        event.widget.config(bg="#4A90E2", fg='white')
+        event.widget.config(bg="white", fg='white')
     def onLeaveLetrasApli(event):
-        event.widget.config(bg='SystemButtonFace', fg='black')
+        event.widget.config(bg='#4A90E2', fg='black')
 
     def onEnterPausaIns(event):
         event.widget.config(bg="#999999", fg='white')
