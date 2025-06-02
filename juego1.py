@@ -6,8 +6,8 @@ import string
 from generar import generar_sopa_final
 
 class JuegoLetras:
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
+        self.root = tk.Tk()
         self.root.title("Juego de Letras")
         self.root.geometry("800x600")
         self.root.configure(bg='navy')  # Fondo azul marino
@@ -158,13 +158,13 @@ class JuegoLetras:
         palabra = self.obtener_palabra_actual()
         
         if not palabra:
-            messagebox.showwarning("Atención", "No has seleccionado ninguna letra.")
+            messagebox.showwarning("Atención", "No has seleccionado ninguna letra.", parent=self.root)
             return
         
         if palabra in self.palabras_validas and palabra not in self.palabras_encontradas:
             self.palabras_encontradas.append(palabra)
             self.lista_palabras.insert(tk.END, palabra)
-            messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!")
+            messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!", parent=self.root)
             self.borrar_seleccion()
         else:
             # Cambiar a rojo las letras seleccionadas
@@ -173,7 +173,7 @@ class JuegoLetras:
             
             # Volver al color original después de 1,5 seg
             self.root.after(1500, self.borrar_seleccion)
-            messagebox.showwarning("Incorrecto", "La palabra no es válida o ya fue encontrada.")
+            messagebox.showwarning("Incorrecto", "La palabra no es válida o ya fue encontrada.", parent=self.root)
         
         self.actualizar_estadisticas()
     
@@ -234,14 +234,14 @@ class JuegoLetras:
     def mostrar_pista(self):
         posibles = [p for p in self.palabras_validas if p not in self.palabras_encontradas]
         if not posibles:
-            messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!")
+            messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!", parent=self.root)
             return
     
         palabra = random.choice(posibles)
         camino = self.buscar_palabra_en_matriz(palabra)
 
         if not camino:
-            messagebox.showwarning("Pista", f"No se pudo encontrar la palabra '{palabra}' en la matriz.")
+            messagebox.showwarning("Pista", f"No se pudo encontrar la palabra '{palabra}' en la matriz.", parent=self.root)
             return
 
         for f, c in camino:
@@ -256,7 +256,6 @@ class JuegoLetras:
             color = 'lightgreen' if (f, c) in self.letras_seleccionadas else 'lightblue'
             self.botones_letras[f][c].config(bg=color)
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    juego = JuegoLetras(root)
-    root.mainloop()
+def iniciarJuego1(user):
+    juego = JuegoLetras()
+    juego.root.mainloop()
