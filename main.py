@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, font
 from juego1 import iniciarJuego1
 from juego2 import iniciarJuego2
 
@@ -33,11 +33,20 @@ def check_user_pw(user, pw):
     return existe_user, pw_correcta
 
 def elegir_juego(user):
+    fontLabel = font.Font(family="Helvetica", size=24)
+    style = ttk.Style()
+    style.configure(
+        "ElegirJuego.TButton",
+        font=("Helvetica", 22, "bold")
+    )
     coso = tk.Toplevel()
-    ttk.Label(coso, text=f"Bienvenido, {user} !").grid(row=0, column=1)
-    ttk.Label(coso, text="Elegí el juego que quieras jugar !").grid(row=1, column=1)
-    ttk.Button(coso, text="Juego 1", command=lambda: iniciarJuego1(user)).grid(row=2, column=0)
-    ttk.Button(coso, text="Juego 2", command=iniciarJuego2).grid(row=2, column=2)
+    coso.geometry("1200x800")
+    frame = tk.Frame(coso)
+    ttk.Label(frame, text=f"Bienvenido, {user} !", font=fontLabel).grid(row=0, column=1)
+    ttk.Label(frame, text="Elegí el juego que quieras jugar !", font=fontLabel).grid(row=1, column=1)
+    ttk.Button(frame, text="Juego 1", command=lambda: iniciarJuego1(user), style="ElegirJuego.TButton").grid(row=2, column=0, padx=15, pady=15)
+    ttk.Button(frame, text="Juego 2", command=iniciarJuego2, style="ElegirJuego.TButton").grid(row=2, column=2, padx=15, pady=15)
+    frame.pack(anchor="center", expand=1)
     coso.mainloop()
 
 def login(entry_user, entry_pw):
