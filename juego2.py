@@ -76,7 +76,7 @@ def iniciarJuego2():
 
     seleccionadas= []
     #Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en seleccionadas
-    with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
+    with open("palabras_potente.txt", "r") as archivo:
         for linea in archivo:
             palabra = linea.strip().upper()
             es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
@@ -432,6 +432,7 @@ def iniciarJuego2():
 
     #Da un tamaño a la aplicación
     app.geometry("1300x700")
+    app.attributes('-fullscreen', True) #hace que sea pantalla completa
     tk.Wm.wm_title(app, "LexiReto")
 
     #Botón que ejecuta la función "pausarJuego"
