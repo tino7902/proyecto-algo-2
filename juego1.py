@@ -1,12 +1,44 @@
 import tkinter as tk
 from tkinter import messagebox, font
+import os
+import json
+
+DIR_PARTIDAS = "partidas/juego1"
+
+def guardar_partida(user, estado_juego):
+    os.makedirs(DIR_PARTIDAS, exist_ok=True)
+    dir_archivo = os.path.join(DIR_PARTIDAS, f"{user}.json")
+    try:
+        with open(dir_archivo, 'w') as f:
+            json.dump(estado_juego, f, indent=2)
+        print(f"partida de {user} guardada en {dir_archivo}")
+    except IOError as e:
+        print(f"error al guardar la partido: {e}")
+
+def cargar_partida(user):
+    dir_archivo = os.path.join(DIR_PARTIDAS, f"{user}.json")
+    if not os.path.exists(dir_archivo):
+        print("no hay partida guardada de {user}")
+        return None
+    
+    try:
+        with open(dir_archivo, 'r') as f:
+            estado_juego = json.load(f)
+        print(f"partida de {user} cargada")
+        return estado_juego
+    except json.JSONDecodeError as e:
+        print(f"error al leer el json: {e}")
+        return None
+    except IOError as e:
+        print(f"error al cargar la partida: {e}")
+        return None
 
 class JuegoLetras:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Juego de Letras")
-        self.root.geometry("800x600")
-        self.root.configure(bg='navy')  # Fondo azul marino
+    def __init__(self):
+        self.app = tk.Tk()
+        self.app.title("Juego de Letras")
+        self.app.geometry("800x600")
+        self.app.configure(bg='navy')  # Fondo azul marino
         
         # Configuración de estilos
         self.fuente_letras = font.Font(family='Helvetica', size=16, weight='bold')
@@ -23,7 +55,7 @@ class JuegoLetras:
     
     def crear_interfaz(self):
         # Frame principal
-        self.frame_principal = tk.Frame(self.root, padx=20, pady=20, bg='navy')
+        self.frame_principal = tk.Frame(self.app, padx=20, pady=20, bg='navy')
         self.frame_principal.pack(expand=True, fill=tk.BOTH)
         
         # Título
@@ -131,13 +163,13 @@ class JuegoLetras:
         palabra = self.obtener_palabra_actual()
         
         if not palabra:
-            messagebox.showwarning("Atención", "No has seleccionado ninguna letra.")
+            messagebox.showwarning("Atención", "No has seleccionado ninguna letra.", parent=self.app)
             return
         
         if palabra in self.palabras_validas and palabra not in self.palabras_encontradas:
             self.palabras_encontradas.append(palabra)
             self.lista_palabras.insert(tk.END, palabra)
-            messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!")
+            messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!", parent=self.app)
             self.borrar_seleccion()
         else:
             # Cambiar a rojo las letras seleccionadas
@@ -145,8 +177,8 @@ class JuegoLetras:
                 self.botones_letras[fila][col].config(bg='firebrick1')
             
             # Volver al color original después de 1,5 seg
-            self.root.after(1500, self.borrar_seleccion)
-            messagebox.showwarning("Incorrecto", "La palabra no es válida o ya fue encontrada.")
+            self.app.after(1500, self.borrar_seleccion)
+            messagebox.showwarning("Incorrecto", "La palabra no es válida o ya fue encontrada.", parent=self.app)
         
         self.actualizar_estadisticas()
     
@@ -162,7 +194,6 @@ class JuegoLetras:
         porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
         self.label_stats.config(text=f"Jugados: {encontradas}\nCompletados: {porcentaje:.2f}%")
 
-def iniciarJuego1():
-    root = tk.Tk()
-    juego = JuegoLetras(root)
-    root.mainloop()
+def iniciarJuego1(user):
+    juego = JuegoLetras()
+    juego.app.mainloop()
