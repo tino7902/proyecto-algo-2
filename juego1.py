@@ -256,7 +256,7 @@ class JuegoLetras:
             color = 'lightgreen' if (f, c) in self.letras_seleccionadas else 'lightblue'
             self.botones_letras[f][c].config(bg=color)
 
-if _name_ == "_main_":
+if __name__ == "_main_":
     root = tk.Tk()
     juego = JuegoLetras(root)
     root.mainloop()

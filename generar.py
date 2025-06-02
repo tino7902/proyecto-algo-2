@@ -151,7 +151,7 @@ def generar_sopa_final(diccionario_path="diccionario_curado.txt", max_reintentos
 
     raise RuntimeError("No se pudo generar una sopa válida tras múltiples intentos.")
 
-if _name_ == "_main_":
+if __name__ == "_main_":
     matriz, palabras = generar_sopa_final("diccionario_curado.txt")
     for fila in matriz:
         print(' '.join(fila))
