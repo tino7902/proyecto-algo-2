@@ -4,9 +4,11 @@ import random
 from collections import defaultdict
 import string
 from generar import generar_sopa_final
+import manejo_partida as mp
 
 class JuegoLetras:
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.root = tk.Tk()
         self.root.title("Juego de Letras")
         self.root.geometry("800x600")
@@ -18,6 +20,7 @@ class JuegoLetras:
         self.fuente_titulo = font.Font(family='Helvetica', size=20, weight='bold')
         
         # Variables del juego
+        #self.partida = {}
         self.palabras_encontradas = []
         self.letras_seleccionadas = []
         
@@ -25,8 +28,10 @@ class JuegoLetras:
         self.crear_interfaz()
     
     def generar_tablero_dinamico(self):
-        self.matriz_letras, self.palabras_validas = generar_sopa_final()
-        print(self.palabras_validas)
+        self.partida = mp.cargar_partida(self.user, "juego1")
+        if not self.partida:
+            self.partida = generar_sopa_final()
+        print(self.partida["palabras_colocadas"])
 
         
     
@@ -50,12 +55,12 @@ class JuegoLetras:
         self.botones_letras = []
         self.generar_tablero_dinamico()
         
-        for i in range(len(self.matriz_letras)):
+        for i in range(len(self.partida["tablero"])):
             fila_botones = []
-            for j in range(len(self.matriz_letras[i])):
+            for j in range(len(self.partida["tablero"][i])):
                 btn = tk.Button(
                     self.frame_tablero, 
-                    text=self.matriz_letras[i][j], 
+                    text=self.partida["tablero"][i][j], 
                     font=self.fuente_letras,
                     width=4, 
                     height=2,
@@ -145,7 +150,7 @@ class JuegoLetras:
             self.label_palabra.config(text=self.obtener_palabra_actual())
 
     def obtener_palabra_actual(self):
-        return ''.join([self.matriz_letras[fila][col] for fila, col in self.letras_seleccionadas])
+        return ''.join([self.partida["tablero"][fila][col] for fila, col in self.letras_seleccionadas])
     
     def borrar_seleccion(self):
         for fila, col in self.letras_seleccionadas:
@@ -161,10 +166,11 @@ class JuegoLetras:
             messagebox.showwarning("Atención", "No has seleccionado ninguna letra.", parent=self.root)
             return
         
-        if palabra in self.palabras_validas and palabra not in self.palabras_encontradas:
+        if palabra in self.partida["palabras_colocadas"] and palabra not in self.palabras_encontradas:
             self.palabras_encontradas.append(palabra)
             self.lista_palabras.insert(tk.END, palabra)
             messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!", parent=self.root)
+            mp.guardar_partida(self.user, self.partida, "juego1")
             self.borrar_seleccion()
         else:
             # Cambiar a rojo las letras seleccionadas
@@ -180,9 +186,9 @@ class JuegoLetras:
     def reiniciar_juego(self):
         self.generar_tablero_dinamico()
 
-        for i in range(len(self.matriz_letras)):
-            for j in range(len(self.matriz_letras[i])):
-                letra = self.matriz_letras[i][j]
+        for i in range(len(self.partida["tablero"])):
+            for j in range(len(self.partida["tablero"][i])):
+                letra = self.partida["tablero"][i][j]
                 btn = self.botones_letras[i][j]
                 btn.config(text=letra, relief=tk.RAISED, bg='lightblue', state=tk.NORMAL)
 
@@ -192,14 +198,14 @@ class JuegoLetras:
         self.actualizar_estadisticas()
     
     def actualizar_estadisticas(self):
-        total_palabras = len(self.palabras_validas)
+        total_palabras = len(self.partida["palabras_colocadas"])
         encontradas = len(self.palabras_encontradas)
         porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
         self.label_stats.config(text=f"Jugados: {encontradas}\nCompletados: {porcentaje:.2f}%")
 
     def buscar_palabra_en_matriz(self, palabra):
-        FILAS = len(self.matriz_letras)
-        COLUMNAS = len(self.matriz_letras[0])
+        FILAS = len(self.partida["tablero"])
+        COLUMNAS = len(self.partida["tablero"][0])
         DIRECCIONES = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
         def dfs(f, c, indice, visitado):
@@ -207,7 +213,7 @@ class JuegoLetras:
                 return None
             if (f, c) in visitado:
                 return None
-            if self.matriz_letras[f][c] != palabra[indice]:
+            if self.partida["tablero"][f][c] != palabra[indice]:
                 return None
 
             visitado.add((f, c))
@@ -225,14 +231,14 @@ class JuegoLetras:
 
         for i in range(FILAS):
             for j in range(COLUMNAS):
-                if self.matriz_letras[i][j] == palabra[0]:
+                if self.partida["tablero"][i][j] == palabra[0]:
                     camino = dfs(i, j, 0, set())
                     if camino:
                         return camino
         return None
 
     def mostrar_pista(self):
-        posibles = [p for p in self.palabras_validas if p not in self.palabras_encontradas]
+        posibles = [p for p in self.partida["palabras_colocadas"] if p not in self.palabras_encontradas]
         if not posibles:
             messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!", parent=self.root)
             return
@@ -257,5 +263,5 @@ class JuegoLetras:
             self.botones_letras[f][c].config(bg=color)
 
 def iniciarJuego1(user):
-    juego = JuegoLetras()
+    juego = JuegoLetras(user)
     juego.root.mainloop()

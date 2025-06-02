@@ -1,0 +1,53 @@
+{
+  "tablero": [
+    [
+      "A",
+      "S",
+      "R",
+      "A",
+      "N",
+      "J"
+    ],
+    [
+      "S",
+      "E",
+      "S",
+      "C",
+      "A",
+      "R"
+    ],
+    [
+      "A",
+      "N",
+      "O",
+      "O",
+      "R",
+      "P"
+    ],
+    [
+      "M",
+      "A",
+      "S",
+      "E",
+      "R",
+      "A"
+    ],
+    [
+      "O",
+      "T",
+      "O",
+      "R",
+      "C",
+      "S"
+    ]
+  ],
+  "palabras_colocadas": [
+    "ARRANARSE",
+    "TORESANA",
+    "SAMANESA",
+    "ESCARPA",
+    "OTOMANO",
+    "ASCREO",
+    "SOSERO"
+  ]
+}

@@ -103,6 +103,7 @@ def insertar_palabra_por_patron(matriz, palabra, camino):
         matriz[f][c] = letra
 
 def generar_sopa_final(diccionario_path="diccionario_curado.txt", max_reintentos=50):
+    estado_juego = {}
     for _ in range(max_reintentos):
         matriz = crear_matriz_vacia()
         palabras_colocadas = []
@@ -147,7 +148,10 @@ def generar_sopa_final(diccionario_path="diccionario_curado.txt", max_reintentos
                 for j in range(COLUMNAS):
                     if matriz[i][j] == '':
                         matriz[i][j] = random.choice(string.ascii_uppercase)
-            return matriz, palabras_colocadas
+
+            estado_juego["tablero"] = matriz
+            estado_juego["palabras_colocadas"] = palabras_colocadas
+            return estado_juego
 
     raise RuntimeError("No se pudo generar una sopa válida tras múltiples intentos.")
 

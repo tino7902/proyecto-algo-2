@@ -1,6 +1,20 @@
 import os
 import json
 
+""" Formato de json
+{
+  "tablero": [
+    ["A", "B", "C"],
+    ["D", "E", "F"]
+  ],
+  "palabras_colocadas": ["PEZ", "GATO", "SOL"],
+  "palabras_encontradas": ["PEZ"],
+  "palabras_pendientes": ["GATO", "SOL"],
+  "tiempo_transcurrido": 120,
+  "terminada": False
+}
+"""
+
 def guardar_partida(user, estado_juego, juego):
     dir_partidas = f"partidas/{juego}"
     os.makedirs(dir_partidas, exist_ok=True)
@@ -12,7 +26,7 @@ def guardar_partida(user, estado_juego, juego):
     except IOError as e:
         print(f"error al guardar la partido: {e}")
 
-def cargar_partida(user,juego):
+def cargar_partida(user, juego):
     dir_partidas = f"partidas/{juego}"
     dir_archivo = os.path.join(dir_partidas, f"{user}.json")
     if not os.path.exists(dir_archivo):
