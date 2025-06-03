@@ -3,13 +3,18 @@ import tkinter as tk
 import time
 
 
-def iniciarJuego():
+def iniciarJuego2():
     combinacionesLetras=[
     ["u", "a", "e", "r", "d", "j", "q"],
     ["p", "o", "u", "g", "e", "i", "s"],
     ["j", "e", "o", "c", "r", "p", "a"],
     ["n", "u", "e", "r", "l", "b", "a"],
-    ["p", "i", "e", "u", "l", "j", "o"]
+    ["p", "i", "e", "u", "l", "j", "o"],
+    ["v", "n", "i", "c", "r", "a", "u"],
+    ["f", "s", "p", "t", "r", "a", "e"],
+    ["e", "m", "n", "g", "c", "i", "o"],
+    ["s", "d", "c", "u", "l", "i", "o"],
+    ["l", "u", "i", "q", "r", "e", "o"]
     ]
 
 
@@ -76,7 +81,7 @@ def iniciarJuego():
 
     seleccionadas= []
     #Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en seleccionadas
-    with open("diccionario_curado.txt", "r", encoding="utf-8") as archivo:
+    with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
         for linea in archivo:
             palabra = linea.strip().upper()
             es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
