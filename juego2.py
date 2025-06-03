@@ -3,7 +3,7 @@ import tkinter as tk
 import time
 
 
-def iniciarJuego2():
+def iniciarJuego():
     combinacionesLetras=[
     ["u", "a", "e", "r", "d", "j", "q"],
     ["p", "o", "u", "g", "e", "i", "s"],
@@ -76,7 +76,7 @@ def iniciarJuego2():
 
     seleccionadas= []
     #Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en seleccionadas
-    with open("palabras_potente.txt", "r") as archivo:
+    with open("diccionario_curado.txt", "r", encoding="utf-8") as archivo:
         for linea in archivo:
             palabra = linea.strip().upper()
             es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
@@ -214,9 +214,9 @@ def iniciarJuego2():
 
     #Funciones para cambiar el color de los botones cada que el cursor pase sobre ellos
     def onEnterLetrasApli(event):
-        event.widget.config(bg="white", fg='white')
+        event.widget.config(bg="#4A90E2", fg='white')
     def onLeaveLetrasApli(event):
-        event.widget.config(bg='#4A90E2', fg='black')
+        event.widget.config(bg='SystemButtonFace', fg='black')
 
     def onEnterPausaIns(event):
         event.widget.config(bg="#999999", fg='white')
@@ -432,7 +432,6 @@ def iniciarJuego2():
 
     #Da un tamaño a la aplicación
     app.geometry("1300x700")
-    app.attributes('-fullscreen', True) #hace que sea pantalla completa
     tk.Wm.wm_title(app, "LexiReto")
 
     #Botón que ejecuta la función "pausarJuego"
