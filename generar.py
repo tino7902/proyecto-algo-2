@@ -32,7 +32,10 @@ def leer_y_borrar_matriz(archivo="matrices_validas.txt"):
     with open(archivo, "w", encoding="utf-8") as f:
         f.writelines(lineas[i + 6:])  # 1 línea palabras + 5 matriz
 
-    return matriz, palabras
+    dict = {}
+    dict["tablero"] = matriz
+    dict["palabras_colocadas"] = palabras
+    return dict
 
 def crear_matriz_vacia():
     return [['' for _ in range(COLUMNAS)] for _ in range(FILAS)]
