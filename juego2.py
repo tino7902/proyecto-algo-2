@@ -6,13 +6,18 @@ import time
 #Clase para usarla luego con el times
 class TimerState:
     def __init__(self):
-        self.tiempo_inicio = time.time()
-        self.tiempo_pausado = 0
-        self.activo = True
-        self.id = None
+        self.tiempo_inicio= time.time()
+        self.tiempo_pausado= 0
+        self.activo= True
+        self.id= None
 
+#Clase para todo el juego
 class LexiReto:
     def __init__(self):
+        self.app= tk.Tk()
+        self.widgets= {}
+        self.timer_state= TimerState()
+        self.tiempo_oculto= False
 
         combinacionesLetras=[
         ["u", "a", "e", "r", "d", "j", "q"],
@@ -36,6 +41,14 @@ class LexiReto:
                 return False
             for letra in palabraIngresada:
                 if letra not in letrasDisponibles:
+                    return False
+            return True
+        
+        #Calcula si la palabra es Heptacrack (Contiene 7 letras distintas)
+        def esHeptacrack(palabraIngresada):
+            letrasUnicas = listaAleatoriaCombinaciones[:]
+            for letra in letrasUnicas:
+                if letra not in palabraIngresada.upper():
                     return False
             return True
 
@@ -68,15 +81,6 @@ class LexiReto:
                 es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
                 if es_valida:
                     seleccionadas.append(palabra)
-
-        #Calcula si la palabra es Heptacrack (Contiene 7 letras distintas)
-        def esHeptacrack(palabraIngresada):
-            letrasUnicas = listaAleatoriaCombinaciones[:]
-            for letra in letrasUnicas:
-                if letra not in palabraIngresada.upper():
-                    return False
-            return True
-
 
         #Contador para los puntos totales
         ptsTotal = 0
@@ -138,23 +142,23 @@ class LexiReto:
                     todas_letras = listaAleatoriaCombinaciones
                     listasPalabrasSinEspacios = [palabrasElegidas1, palabrasElegidas2, palabrasElegidas3, palabrasElegidas4, palabrasElegidas5, palabrasElegidas6, palabrasElegidas7]
                     for i in range(len(todas_letras)):
-                        if i < len(listasPalabrasSinEspacios):
-                            texto = f"Palabras encontradas con {todas_letras[i]}: {', '.join(listasPalabrasSinEspacios[i])}"
-                            if i == 0:
+                        if i<len(listasPalabrasSinEspacios):
+                            texto= f"Palabras encontradas con {todas_letras[i]}: {', '.join(listasPalabrasSinEspacios[i])}"
+                            if i==0:
                                 mensajePalabrasElegidas1.config(text=texto)
-                            elif i == 1:
+                            elif i==1:
                                 mensajePalabrasElegidas2.config(text=texto)
-                            elif i == 2:
+                            elif i==2:
                                 mensajePalabrasElegidas3.config(text=texto)
-                            elif i == 3:
+                            elif i==3:
                                 mensajePalabrasElegidas4.config(text=texto)
-                            elif i == 4:
+                            elif i==4:
                                 mensajePalabrasElegidas5.config(text=texto)
-                            elif i == 5:
+                            elif i==5:
                                 mensajePalabrasElegidas6.config(text=texto)
-                            elif i == 6:
+                            elif i==6:
                                 mensajePalabrasElegidas7.config(text=texto)
-                    if len(palabrasElegidas0) == len(seleccionadas):
+                    if len(palabrasElegidas0)==len(seleccionadas):
                         mostrarFelicitacionFinal()
                 else:
                     mensajeLabel1.config(text=f"La palabra no contiene la letra {letraCentral} o es demasiado corta.")
@@ -176,19 +180,19 @@ class LexiReto:
         #Cuando se de clic al botón de "Aplicar" (Línea 332), verificará la palabra y cambiara el 
         #espacio llamado "ingresoLetras" (Línea 346) para volver a escribir otra palabra
         def aplicarEntrada():
-            palabraIngresada = letra.get()
+            palabraIngresada= letra.get()
             iniciarReto(palabraIngresada, mensaje1, mensaje2)
             letra.set("")
 
         #Al ir dando clic a los botones, imprime en un espacio llamado "iniciarReto" (Línea 346) la letra que contiene cada botón y va generando la palabra
         def actualizarLetra(letra_boton):
-            letra_actual = letra.get()
-            letra.set(letra_actual + letra_boton)
+            letra_actual= letra.get()
+            letra.set(letra_actual+letra_boton)
 
         #En el espacio llamado "iniciarReto" (Línea 346), simplemente elimina la última letra que se ingreso
         def borrarUltimaLetra():
-            texto_actual = letra.get()
-            if len(texto_actual) > 0:
+            texto_actual= letra.get()
+            if len(texto_actual)>0:
                 letra.set(texto_actual[:-1])
 
         #Funciones para cambiar el color de los botones cada que el cursor pase sobre ellos
@@ -217,11 +221,10 @@ class LexiReto:
         def onLeaveCentral(event):
             event.widget.config(bg='#ffc733', fg='black')
 
-
         #Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
         def mostrarFelicitacionFinal():
-            capa = tk.Frame(
-                app, 
+            capa= tk.Frame(
+                self.app, 
                 bg='white'
             )
             capa.place(
@@ -231,7 +234,7 @@ class LexiReto:
                 relheight=1
             )
 
-            mensaje = tk.Label(
+            mensaje= tk.Label(
                 capa,
                 text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: Marcelo López\nPuntaje obtenido: {ptsTotal}\n",
                 font=("Courier", 16, "bold"),
@@ -242,13 +245,13 @@ class LexiReto:
             mensaje.pack(expand=True)
 
             #Botón para cerrar el juego
-            cerrar_btn = tk.Button(
+            cerrar_btn= tk.Button(
                 capa,
                 text="Cerrar juego",
                 font=("Courier", 14),
                 bg="#ff4444",
                 fg="white",
-                command=app.destroy
+                command=self.app.destroy
             )
             cerrar_btn.pack(
                 pady=20
@@ -269,17 +272,13 @@ class LexiReto:
             boton7.config(text=letras_nuevas[5], command=lambda: actualizarLetra(letras_nuevas[5]))
 
 
-        #Inicio de la aplicación o ventana o widget o como se quiera llamar
-        app= tk.Tk()
-
-        letra= tk.StringVar(app)
+        letra= tk.StringVar(self.app)
         letra.set("")
-        entrada= tk.StringVar(app)
 
         #Desde aquí hasta la línea 238, son funciones que realizan justamente lo que dicen sus nombres. Funciones que luego se llaman al pausar o continuar el juego
         timer_state = TimerState()
         tiempo_label = tk.Label(
-            app, 
+            self.app, 
             text="00:00", 
             font=("Arial", 24), 
             bg="#282c34", 
@@ -294,20 +293,23 @@ class LexiReto:
             height= 30
         )
 
+        self.widgets['label_tiempo'] = tiempo_label
+
         def actualizar_timer():
-            if timer_state.activo:
-                tiempo_transcurrido = time.time() - timer_state.tiempo_inicio
+            if self.timer_state.activo:
+                tiempo_transcurrido = time.time() - self.timer_state.tiempo_inicio
                 minutos = int(tiempo_transcurrido // 60)
                 segundos = int(tiempo_transcurrido % 60)
-                tiempo_label.config(text=f"{minutos:02d}:{segundos:02d}")
-                timer_state.id = app.after(1000, actualizar_timer)
+                if 'label_tiempo' in self.widgets and not self.tiempo_oculto:
+                    self.widgets['label_tiempo'].config(text=f"{minutos:02d}:{segundos:02d}")
+                self.timer_state.id = self.app.after(1000, actualizar_timer)
 
         def pausar_timer():
             if timer_state.activo:
                 timer_state.activo = False
                 timer_state.tiempo_pausado = time.time() - timer_state.tiempo_inicio
                 if timer_state.id:
-                    app.after_cancel(timer_state.id)
+                    self.app.after_cancel(timer_state.id)
 
         def reanudar_timer():
             if not timer_state.activo:
@@ -315,10 +317,22 @@ class LexiReto:
                 timer_state.activo = True
                 actualizar_timer()
 
+        self.tiempo_oculto= False
+
+        def ocultar_mostrar_tiempo():
+            self.tiempo_oculto = not self.tiempo_oculto
+            if self.tiempo_oculto:
+                self.widgets['label_tiempo'].config(text="--:--")
+                self.widgets['boton_ocultar'].config(text="Mostrar")# ← Cambia el texto del botón
+            else:
+                actualizar_timer()
+                self.widgets['boton_ocultar'].config(text="Ocultar")# ← Vuelve a "Ocultar"
+
+
         #Pausa el juego...
         def pausarJuego():
             pausar_timer()
-            pausa_capa = tk.Frame(app, bg="#222222")
+            pausa_capa = tk.Frame(self.app, bg="#222222")
             pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
             mensaje_pausa = tk.Label(
@@ -353,7 +367,7 @@ class LexiReto:
                 font=("Courier", 14),
                 bg="#cc4444",
                 fg="white",
-                command=app.destroy
+                command=self.app.destroy
             )
             boton_salir_pausa.pack(
                 pady=10
@@ -363,7 +377,7 @@ class LexiReto:
             boton_salir_pausa.bind("<Leave>", onLeaveCerrar)
 
         def Instrucciones():
-            instruccionesCapa= tk.Frame(app, bg="#222222")
+            instruccionesCapa= tk.Frame(self.app, bg="#222222")
             instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
             mensajeInstrucciones = tk.Label(
@@ -410,12 +424,12 @@ class LexiReto:
         actualizar_timer()
 
         #Da un tamaño a la aplicación
-        app.geometry("1300x700")
-        tk.Wm.wm_title(app, "LexiReto")
+        self.app.geometry("1300x700")
+        tk.Wm.wm_title(self.app, "LexiReto")
 
         #Botón que ejecuta la función "pausarJuego"
         boton_pausa = tk.Button(
-            app,
+            self.app,
             text="⏸ Pausa",
             font=("Courier", 10),
             bg="#999999",
@@ -433,7 +447,7 @@ class LexiReto:
 
         #Espacio en donde se mostrarán las letras que se vayan ingresando mediante los botones
         ingresoLetras= tk.Label(
-            app,
+            self.app,
             text="",
             textvariable=letra,
             font=("Courier", 10),
@@ -454,7 +468,7 @@ class LexiReto:
 
         #A partir de acá, hasta la línea 440, son los botones en donde apareceran las letras escogidas
         boton1 = tk.Button(
-            app,
+            self.app,
             text=letras_botones[0],
             font=("Courier", 15),
             fg="black",
@@ -472,7 +486,7 @@ class LexiReto:
         boton1.bind("<Leave>", onLeaveLetrasApli)
 
         boton2 = tk.Button(
-            app,
+            self.app,
             text=letras_botones[1],
             font=("Courier", 15),
             fg="black",
@@ -490,7 +504,7 @@ class LexiReto:
         boton2.bind("<Leave>", onLeaveLetrasApli)
 
         boton3 = tk.Button(
-            app,
+            self.app,
             text=letras_botones[2],
             font=("Courier", 15),
             fg="black",
@@ -508,7 +522,7 @@ class LexiReto:
         boton3.bind("<Leave>", onLeaveLetrasApli)
 
         boton4 = tk.Button(
-            app,
+            self.app,
             text=letraCentral.upper(),
             font=("Courier", 15),
             fg="black",
@@ -527,7 +541,7 @@ class LexiReto:
         boton4.bind("<Leave>", onLeaveCentral)
 
         boton5 = tk.Button(
-            app,
+            self.app,
             text=letras_botones[3],
             font=("Courier", 15),
             fg="black",
@@ -545,7 +559,7 @@ class LexiReto:
         boton5.bind("<Leave>", onLeaveLetrasApli)
 
         boton6 = tk.Button(
-            app,
+            self.app,
             text=letras_botones[4],
             font=("Courier", 15),
             fg="black",
@@ -563,7 +577,7 @@ class LexiReto:
         boton6.bind("<Leave>", onLeaveLetrasApli)
 
         boton7 = tk.Button(
-            app,
+            self.app,
             text=letras_botones[5],
             font=("Courier", 15),
             fg="black",
@@ -582,7 +596,7 @@ class LexiReto:
 
         #Botón que manda a la función "iniciarReto" la palabra ingresada
         aplicar= tk.Button(
-            app,
+            self.app,
             text=("Aplicar"),
             font=("Courier", 14),
             fg=("black"),
@@ -601,7 +615,7 @@ class LexiReto:
 
         #Botón para mezclar las letras generadas entre los botones
         actualizar= tk.Button(
-            app,
+            self.app,
             text=("⟲"),
             font=("Courier", 15),
             fg=("black"),
@@ -620,7 +634,7 @@ class LexiReto:
 
         #Botón para borrar la última letra ingresada
         borrar= tk.Button(
-            app,
+            self.app,
             text=("BORRAR"),
             font=("Courier", 14),
             fg=("black"),
@@ -638,7 +652,7 @@ class LexiReto:
         borrar.bind("<Leave>", onLeaveLetrasApli)
 
         comoJugar= tk.Button(
-            app,
+            self.app,
             text=("Cómo se juega"),
             font=("Courier", 10),
             bg="#999999",
@@ -655,10 +669,30 @@ class LexiReto:
         comoJugar.bind("<Enter>", onEnterPausaIns) 
         comoJugar.bind("<Leave>", onLeavePausaIns)
 
+        boton_ocultar= tk.Button(
+            self.app,
+            text="Ocultar",
+            font=("Courier", 10),
+            bg="#999999",
+            fg="black",
+            command=ocultar_mostrar_tiempo
+        )
+        boton_ocultar.place(
+            x=110,
+            y=0,
+            width=100,
+            height=30
+        )
+
+        self.widgets['boton_ocultar']= boton_ocultar
+
+        boton_ocultar.bind("<Enter>", onEnterPausaIns) 
+        boton_ocultar.bind("<Leave>", onLeavePausaIns)
+
         #Imprime en un espacio la cantidad de puntos que se ganó en caso de acertar una palabra, y cuantos puntos tiene en total.
         #Esta opción técnicamente no está en el juego original, pero se puede dejar como un extra
         mensaje1 = tk.Label(
-            app,
+            self.app,
             text="",
             font=("Courier", 10),
             fg="white",
@@ -678,7 +712,7 @@ class LexiReto:
 
         #Imprime en un espacio la cantidad de palabras que lleva encontradas el usuario
         mensaje2 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas: {len(palabrasElegidas0)}/{len(seleccionadas)}",
             font=("Courier", 10),
             fg="white",
@@ -697,7 +731,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas1 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[0]}:",
             font=("Courier", 10),
             fg="white",
@@ -716,7 +750,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas2 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[1]}:",
             font=("Courier", 10),
             fg="white",
@@ -735,7 +769,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas3 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[2]}:",
             font=("Courier", 10),
             fg="white",
@@ -754,7 +788,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas4 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[3]}:",
             font=("Courier", 10),
             fg="white",
@@ -773,7 +807,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas5 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[4]}:",
             font=("Courier", 10),
             fg="white",
@@ -792,7 +826,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas6 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[5]}:",
             font=("Courier", 10),
             fg="white",
@@ -811,7 +845,7 @@ class LexiReto:
         )
 
         mensajePalabrasElegidas7 = tk.Label(
-            app,
+            self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[6]}:",
             font=("Courier", 10),
             fg="white",
@@ -829,7 +863,7 @@ class LexiReto:
             height= 80
         )
 
-        app.mainloop()
+        self.app.mainloop()
 
 if __name__=="__main__":
     juego= LexiReto()
