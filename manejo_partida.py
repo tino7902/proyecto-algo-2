@@ -1,7 +1,10 @@
 import os
 import json
 
-""" Formato de json
+""" 
+Formato de json
+
+Juego 1
 {
   "tablero": [
     ["A", "B", "C"],
@@ -9,9 +12,8 @@ import json
   ],
   "palabras_colocadas": ["PEZ", "GATO", "SOL"],
   "palabras_encontradas": ["PEZ"],
-  "palabras_pendientes": ["GATO", "SOL"],
-  "tiempo_transcurrido": 120,
-  "terminada": False
+  "tiempo_transcurrido": 120 # falta implementar temporizador en el juego
+  "puntaje": 69 # falta implementar puntuacion
 }
 """
 
