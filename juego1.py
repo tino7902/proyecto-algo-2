@@ -20,8 +20,8 @@ class JuegoLetras:
         self.fuente_titulo = font.Font(family='Helvetica', size=20, weight='bold')
         
         # Variables del juego
-        #self.partida = {}
-        self.palabras_encontradas = []
+        self.partida = {}
+        self.partida["palabras_encontradas"] = []
         self.letras_seleccionadas = []
         
         # Crear interfaz
@@ -119,6 +119,11 @@ class JuegoLetras:
         
         tk.Label(self.frame_palabras, text="Palabras encontradas:", font=self.fuente_botones, bg='navy', fg='white').pack()
         self.lista_palabras = tk.Listbox(self.frame_palabras, width=20, height=10, bg='lightblue')
+        try:
+            for palabra in self.partida["palabras_encontradas"]:
+                self.lista_palabras.insert(tk.END, palabra)
+        except KeyError as e:
+            print(f"keyerror, probablemente sea partida nueva por eso self.partida[\"palabras_encontradas\"] esta vacio\n {e}")
         self.lista_palabras.pack()
         
         # Estadísticas
@@ -127,6 +132,11 @@ class JuegoLetras:
         
         tk.Label(self.frame_stats, text="Estadísticas:", font=self.fuente_botones, bg='navy', fg='white').pack()
         self.label_stats = tk.Label(self.frame_stats, text="Jugados: 0\nCompletados: 0%", justify=tk.LEFT, bg='navy', fg='white')
+        if self.partida:
+            total_palabras = len(self.partida["palabras_colocadas"])
+            encontradas = len(self.partida["palabras_encontradas"])
+            porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
+            self.label_stats.config(text=f"Jugados: {encontradas}\nCompletados: {porcentaje:.2f}%")
         self.label_stats.pack()
 
     def seleccionar_letra(self, fila, columna):
@@ -165,9 +175,15 @@ class JuegoLetras:
         if not palabra:
             messagebox.showwarning("Atención", "No has seleccionado ninguna letra.", parent=self.root)
             return
-        
-        if palabra in self.partida["palabras_colocadas"] and palabra not in self.palabras_encontradas:
-            self.palabras_encontradas.append(palabra)
+        palabras_encontradas = self.partida.get("palabras_encontradas", [])
+        if palabra in self.partida["palabras_colocadas"] and palabra not in palabras_encontradas:
+            try:
+                self.partida["palabras_encontradas"].append(palabra)
+                print(self.partida["palabras_encontradas"])
+            except KeyError as e:
+                self.partida["palabras_encontradas"] = [f"{palabra}"]
+                print(f"keyerror: {e}")
+                print(self.partida["palabras_encontradas"])
             self.lista_palabras.insert(tk.END, palabra)
             messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!", parent=self.root)
             mp.guardar_partida(self.user, self.partida, "juego1")
@@ -193,13 +209,13 @@ class JuegoLetras:
                 btn.config(text=letra, relief=tk.RAISED, bg='lightblue', state=tk.NORMAL)
 
         self.borrar_seleccion()
-        self.palabras_encontradas = []
+        self.partida["palabras_encontradas"] = []
         self.lista_palabras.delete(0, tk.END)
         self.actualizar_estadisticas()
     
     def actualizar_estadisticas(self):
         total_palabras = len(self.partida["palabras_colocadas"])
-        encontradas = len(self.palabras_encontradas)
+        encontradas = len(self.partida["palabras_encontradas"])
         porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
         self.label_stats.config(text=f"Jugados: {encontradas}\nCompletados: {porcentaje:.2f}%")
 
@@ -238,7 +254,8 @@ class JuegoLetras:
         return None
 
     def mostrar_pista(self):
-        posibles = [p for p in self.partida["palabras_colocadas"] if p not in self.palabras_encontradas]
+        palabras_encontradas = self.partida.get("palabras_encontradas", [])
+        posibles = [p for p in self.partida["palabras_colocadas"] if p not in palabras_encontradas]
         if not posibles:
             messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!", parent=self.root)
             return

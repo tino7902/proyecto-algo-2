@@ -2,52 +2,61 @@
   "tablero": [
     [
       "A",
-      "S",
       "R",
-      "A",
-      "N",
-      "J"
-    ],
-    [
-      "S",
-      "E",
-      "S",
-      "C",
+      "O",
+      "R",
       "A",
       "R"
     ],
     [
-      "A",
-      "N",
-      "O",
-      "O",
-      "R",
-      "P"
-    ],
-    [
       "M",
       "A",
-      "S",
+      "C",
       "E",
-      "R",
-      "A"
+      "E",
+      "S"
     ],
     [
-      "O",
-      "T",
-      "O",
+      "D",
+      "A",
+      "A",
+      "S",
       "R",
-      "C",
-      "S"
+      "E"
+    ],
+    [
+      "A",
+      "M",
+      "R",
+      "N",
+      "E",
+      "N"
+    ],
+    [
+      "S",
+      "A",
+      "R",
+      "I",
+      "A",
+      "A"
     ]
   ],
   "palabras_colocadas": [
-    "ARRANARSE",
-    "TORESANA",
-    "SAMANESA",
-    "ESCARPA",
-    "OTOMANO",
-    "ASCREO",
-    "SOSERO"
+    "SERENENSE",
+    "ARRASADA",
+    "ACORARSE",
+    "RECAMAR",
+    "SAMARIA",
+    "RACERO",
+    "ACAMAR"
+  ],
+  "palabras_encontradas": [
+    "SAMARIA",
+    "RECAMAR",
+    "ACAMAR",
+    "ACORARSE",
+    "RACERO",
+    "SERENENSE",
+    "ARRASADA"
   ]
 }
