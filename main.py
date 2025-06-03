@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from juego1 import iniciarJuego1
 from juego2 import iniciarJuego2
 
@@ -62,8 +62,10 @@ def elegir_juego(user):
 def login(entry_user, entry_pw):
     existe_user, pw_correcta = check_user_pw(entry_user.get(), entry_pw.get())
     if not existe_user:
+        messagebox.showerror(title="error !", message="No existe el usuario !")
         print("no existe usuario")
     elif not pw_correcta:
+        messagebox.showerror(title="error !", message="Contraseña incorrecta !")
         print("contraseña equivocada")
     else:
         print("login correcto")
@@ -74,8 +76,10 @@ def crear_user(entry_user, entry_pw):
     global usuarios
     existe_user, pw_correcta = check_user_pw(entry_user.get(), entry_pw.get())
     if existe_user:
+        messagebox.showerror(title="error !", message="el usuario ingresado ya esta registrado !")
         print("el usuario ya existe")
     else:
+        messagebox.showinfo(title="no error !", message="cuenta creada con exito !")
         usuarios.append(Usuario(entry_user.get(), entry_pw.get()))
         actualizar_usuarios_txt()
         print("usuario creado")

@@ -8,9 +8,8 @@ class JuegoLetras:
     #Clase para usarla luego con el times
 
     def __init__(self, root):
-        self.root = root
+        self.root = tk.Tk()
         self.root.title("Juego de Letras")
-        self.root.geometry("800x600")
         self.root.attributes("-fullscreen", True)
         self.root.configure(bg='navy')  # Fondo azul marino
         self.tiempo_transcurrido = 0
@@ -398,7 +397,6 @@ class JuegoLetras:
         messagebox.showinfo("¡Felicidades!",f"Encontraste todas las palabras.\nTiempo: {tiempo_str}\nPuntaje: {self.puntaje}")
         
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    juego = JuegoLetras(root)
-    root.mainloop()
+def iniciarJuego1(user):
+    juego = JuegoLetras(user)
+    juego.root.mainloop()
