@@ -52,7 +52,7 @@ def elegir_juego(user):
     ttk.Button(frame, text="Juego 1", command=lambda: iniciarJuego1(user)).grid(
         row=2, column=0, padx=15, pady=15
     )
-    ttk.Button(frame, text="Juego 2", command=iniciarJuego2).grid(
+    ttk.Button(frame, text="Juego 2", command=lambda: iniciarJuego2(user)).grid(
         row=2, column=2, padx=15, pady=15
     )
     frame.pack(anchor="center", expand=1)

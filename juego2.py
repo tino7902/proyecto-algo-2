@@ -865,5 +865,6 @@ class LexiReto:
 
         self.app.mainloop()
 
-if __name__=="__main__":
-    juego= LexiReto()
+def iniciarJuego2(user):
+    juego= LexiReto(user)
+    juego.root.mainloop()
