@@ -1,0 +1,56 @@
+{
+  "tablero": [
+    [
+      "S",
+      "E",
+      "N",
+      "S",
+      "O",
+      "J"
+    ],
+    [
+      "A",
+      "R",
+      "P",
+      "A",
+      "R",
+      "A"
+    ],
+    [
+      "T",
+      "E",
+      "C",
+      "A",
+      "I",
+      "C"
+    ],
+    [
+      "O",
+      "N",
+      "A",
+      "E",
+      "S",
+      "A"
+    ],
+    [
+      "F",
+      "E",
+      "N",
+      "S",
+      "T",
+      "A"
+    ]
+  ],
+  "palabras_colocadas": [
+    "SERENENSE",
+    "SACAROSA",
+    "SENSORIA",
+    "RACISTA",
+    "ACETONA",
+    "APRESA",
+    "ACETAR"
+  ],
+  "palabras_encontradas": [
+    "ACETONA"
+  ]
+}

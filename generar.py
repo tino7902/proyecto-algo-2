@@ -1,15 +1,38 @@
 import random
 import string
 import re
-from collections import defaultdict
+import time
 
-FILAS = 5
-COLUMNAS = 6
+FILAS, COLUMNAS = 5, 6
 DIRECCIONES = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-LONGITUDES_OBJETIVO = [9, 8, 8, 7, 7, 6, 6]
-PALABRAS_INICIALES = LONGITUDES_OBJETIVO[:3]
-PALABRAS_RESTO = LONGITUDES_OBJETIVO[3:]
+LONGITUDES_OBJETIVO = [9, 8, 7, 7, 6, 6, 6]
+
+# --------------------- Utilidades ---------------------
+
+def leer_y_borrar_matriz(archivo="matrices_validas.txt"):
+    with open(archivo, "r", encoding="utf-8") as f:
+        lineas = f.readlines()
+
+    matriz = []
+    palabras = None
+    inicio = 0
+
+    for i, linea in enumerate(lineas):
+        if linea.startswith("["):
+            palabras = eval(linea.strip())
+            inicio = i
+            matriz = [lineas[i + j + 1].strip().split() for j in range(5)]
+            break
+
+    if palabras is None:
+        raise RuntimeError("No hay matrices disponibles")
+
+    # Guardar el resto del archivo
+    with open(archivo, "w", encoding="utf-8") as f:
+        f.writelines(lineas[i + 6:])  # 1 línea palabras + 5 matriz
+
+    return matriz, palabras
 
 def crear_matriz_vacia():
     return [['' for _ in range(COLUMNAS)] for _ in range(FILAS)]
@@ -17,146 +40,118 @@ def crear_matriz_vacia():
 def es_valido(f, c):
     return 0 <= f < FILAS and 0 <= c < COLUMNAS
 
-def seleccionar_palabras(diccionario_path, longitudes):
-    palabras_por_longitud = defaultdict(list)
-    with open(diccionario_path, "r", encoding="utf-8") as archivo:
-        for linea in archivo:
+def copiar_matriz(m):
+    return [fila.copy() for fila in m]
+
+def cargar_diccionario(path="diccionario_curado.txt"):
+    por_longitud = {}
+    with open(path, "r", encoding="utf-8") as f:
+        for linea in f:
             palabra = linea.strip().upper()
-            if palabra.isalpha() and len(palabra) in longitudes:
-                palabras_por_longitud[len(palabra)].append(palabra)
+            if palabra.isalpha():
+                por_longitud.setdefault(len(palabra), []).append(palabra)
+    return por_longitud
 
-    seleccionadas = []
-    for l in longitudes:
-        if not palabras_por_longitud[l]:
-            raise ValueError(f"No hay palabras de longitud {l}")
-        p = random.choice(palabras_por_longitud[l])
-        seleccionadas.append(p)
-        palabras_por_longitud[l].remove(p)
-    return seleccionadas
+# ------------------ Búsqueda de caminos ------------------
+def generar_camino(matriz, longitud):
+    posiciones = [(f, c) for f in range(FILAS) for c in range(COLUMNAS)]
+    random.shuffle(posiciones)
 
-def buscar_camino(matriz, palabra, f, c, idx, visitado):
+    for f, c in posiciones:
+        camino = dfs_camino(matriz, f, c, longitud, set())
+        if camino:
+            return camino
+    return None
+
+def dfs_camino(matriz, f, c, restante, visitado):
     if not es_valido(f, c) or (f, c) in visitado:
-        return None
-    letra_actual = palabra[idx]
-    celda = matriz[f][c]
-    if celda != '' and celda != letra_actual:
         return None
 
     visitado.add((f, c))
-    if idx == len(palabra) - 1:
+
+    if restante == 1:
         return [(f, c)]
 
     random.shuffle(DIRECCIONES)
     for df, dc in DIRECCIONES:
-        camino = buscar_camino(matriz, palabra, f + df, c + dc, idx + 1, visitado.copy())
-        if camino:
-            return [(f, c)] + camino
+        res = dfs_camino(matriz, f + df, c + dc, restante - 1, visitado.copy())
+        if res:
+            return [(f, c)] + res
+
     return None
 
-def insertar_palabra(matriz, palabra):
-    posiciones = [(i, j) for i in range(FILAS) for j in range(COLUMNAS)]
-    random.shuffle(posiciones)
-    for f, c in posiciones:
-        camino = buscar_camino(matriz, palabra, f, c, 0, set())
-        if camino:
-            for (x, y), letra in zip(camino, palabra):
-                matriz[x][y] = letra
-            return True
-    return False
+# ------------------ Patron y búsqueda ------------------
+def construir_patron(matriz, camino):
+    return ''.join(matriz[f][c] if matriz[f][c] else '0' for f, c in camino)
 
-def buscar_palabra_por_patron(patron, diccionario_path="diccionario_curado.txt"):
-    regex = re.compile("^" + ''.join("." if c == "0" else c for c in patron) + "$")
-    with open(diccionario_path, "r", encoding="utf-8") as archivo:
-        for linea in archivo:
-            palabra = linea.strip().upper()
-            if regex.fullmatch(palabra):
-                return palabra
+def buscar_palabra_por_patron(patron, diccionario):
+    regex = re.compile("^" + patron.replace('0', '.') + "$")
+    posibles = diccionario.get(len(patron), [])
+    random.shuffle(posibles)
+    for palabra in posibles:
+        if regex.fullmatch(palabra):
+            return palabra
     return None
+# ------------------ Guardado en archivo ------------------
+def guardar_matriz_en_archivo(matriz, palabras, archivo="matrices_validas.txt"):
+    with open(archivo, "a", encoding="utf-8") as f:
+        f.write(str(palabras) + "\n")
+        for fila in matriz:
+            f.write(" ".join(fila) + "\n")
+        f.write("\n")  # separador entre conjuntos
 
-def generar_caminos_desde_letras(matriz, longitud):
-    caminos = []
+def contar_matrices_en_archivo(archivo="matrices_validas.txt"):
+    with open(archivo, "r", encoding="utf-8") as f:
+        return f.read().count("[")  # una línea con [ indica un conjunto de palabras
 
-    def dfs(camino, visitado):
-        if len(camino) == longitud:
-            caminos.append(camino)
-            return
-        ult = camino[-1]
-        for df, dc in DIRECCIONES:
-            nf, nc = ult[0] + df, ult[1] + dc
-            if es_valido(nf, nc) and (nf, nc) not in visitado:
-                camino_nuevo = camino + [(nf, nc)]
-                dfs(camino_nuevo, visitado | {(nf, nc)})
+def generador_continuo_matrices(archivo="matrices_validas.txt", intervalo=1, max_matrices=15):
+    while True:
+        try:
+            if contar_matrices_en_archivo(archivo) >= max_matrices:
+                time.sleep(intervalo)
+                continue
 
-    letras_usadas = [(i, j) for i in range(FILAS) for j in range(COLUMNAS) if matriz[i][j] != '']
-    random.shuffle(letras_usadas)
-    for f, c in letras_usadas:
-        dfs([(f, c)], {(f, c)})
-        if len(caminos) > 20:
-            break
-    return caminos
+            matriz, palabras = generar_sopa_inteligente()
+            guardar_matriz_en_archivo(matriz, palabras, archivo)
+            print("✅ Matriz guardada con:", palabras)
+        except Exception as e:
+            print("⚠️ Error generando matriz:", e)
+        time.sleep(intervalo)
 
-def obtener_patron(matriz, camino):
-    return ''.join(matriz[f][c] if matriz[f][c] != '' else '0' for f, c in camino)
+# ------------------ Generador principal ------------------
+def generar_sopa_inteligente(diccionario_path="diccionario_curado.txt", max_reintentos=100):
+    diccionario = cargar_diccionario(diccionario_path)
 
-def insertar_palabra_por_patron(matriz, palabra, camino):
-    for (f, c), letra in zip(camino, palabra):
-        matriz[f][c] = letra
-
-def generar_sopa_final(diccionario_path="diccionario_curado.txt", max_reintentos=50):
-    estado_juego = {}
     for _ in range(max_reintentos):
         matriz = crear_matriz_vacia()
         palabras_colocadas = []
-
-        try:
-            palabras_iniciales = seleccionar_palabras(diccionario_path, PALABRAS_INICIALES)
-        except ValueError:
-            continue
-
         exito = True
-        for palabra in palabras_iniciales:
-            if not insertar_palabra(matriz, palabra):
-                exito = False
-                break
-            palabras_colocadas.append(palabra)
-        if not exito:
-            continue
 
-        try:
-            palabras_restantes = seleccionar_palabras(diccionario_path, PALABRAS_RESTO)
-        except ValueError:
-            continue
-
-        for longitud in PALABRAS_RESTO:
-            caminos = generar_caminos_desde_letras(matriz, longitud)
-            random.shuffle(caminos)
-            palabra_insertada = False
-            for camino in caminos:
-                patron = obtener_patron(matriz, camino)
-                palabra = buscar_palabra_por_patron(patron, diccionario_path)
-                if palabra and palabra not in palabras_colocadas:
-                    insertar_palabra_por_patron(matriz, palabra, camino)
-                    palabras_colocadas.append(palabra)
-                    palabra_insertada = True
+        for longitud in LONGITUDES_OBJETIVO:
+            for _ in range(200):  # intentos por palabra
+                camino = generar_camino(matriz, longitud)
+                if not camino:
                     break
-            if not palabra_insertada:
+                patron = construir_patron(matriz, camino)
+                palabra = buscar_palabra_por_patron(patron, diccionario)
+                if palabra and palabra not in palabras_colocadas:
+                    for (f, c), letra in zip(camino, palabra):
+                        matriz[f][c] = letra
+                    palabras_colocadas.append(palabra)
+                    break
+            else:
                 exito = False
                 break
 
-        if exito and len(palabras_colocadas) == 7:
+        if exito:
             for i in range(FILAS):
                 for j in range(COLUMNAS):
                     if matriz[i][j] == '':
                         matriz[i][j] = random.choice(string.ascii_uppercase)
+            return matriz, palabras_colocadas
 
-            estado_juego["tablero"] = matriz
-            estado_juego["palabras_colocadas"] = palabras_colocadas
-            return estado_juego
+    raise RuntimeError("No se pudo generar una sopa válida tras varios intentos")
 
-    raise RuntimeError("No se pudo generar una sopa válida tras múltiples intentos.")
-
-if __name__ == "__main__":
-    matriz, palabras = generar_sopa_final("diccionario_curado.txt")
-    for fila in matriz:
-        print(' '.join(fila))
-    print("\nPalabras insertadas:", palabras)
+# # ------------------ Ejemplo de uso ------------------
+# if __name__ == "__main__":
+#     generador_continuo_matrices()
