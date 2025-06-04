@@ -257,7 +257,7 @@ class LexiReto:
         # Botón para borrar la última letra ingresada
         self.borrar = tk.Button(
             self.juego,
-            text=("BORRAR"),
+            text=("Borrar"),
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             command=self.borrarUltimaLetra,
