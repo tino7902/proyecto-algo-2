@@ -863,7 +863,7 @@ class LexiReto:
             height= 80
         )
 
-
+#No sé si se hace esta manera o no xd
 def iniciarJuego2(user):
     juego = LexiReto(user)
     juego.root.mainloop()
