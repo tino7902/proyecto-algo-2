@@ -687,7 +687,6 @@ class LexiReto:
                 text="Ocultar"
             )  # ← Vuelve a "Ocultar"
 
-    # Pausa el juego...
     def pausarJuego(self):
         self.pausar_timer()
         pausa_capa = tk.Frame(self.juego, bg=COLOR_TEXTO)
