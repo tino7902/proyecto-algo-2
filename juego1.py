@@ -443,6 +443,17 @@ class JuegoLetras:
                 )
             self.timer_id = self.root.after(1300, self.actualizar_cronometro)
 
+    """
+    def actualizar_timer():  # Usar este contador más adelante cuando se arregle el bug
+        if self.timer_state.activo:
+            tiempo_transcurrido = time.time() - self.timer_state.tiempo_inicio
+            minutos = int(tiempo_transcurrido // 60)
+            segundos = int(tiempo_transcurrido % 60)
+            if 'label_tiempo' in self.widgets and not self.tiempo_oculto:
+                self.widgets['label_tiempo'].config(text=f"{minutos:02d}:{segundos:02d}")
+            self.timer_state.id = self.app.after(1000, actualizar_timer)
+    """
+
     def pausar_cronometro(self):
         self.timer_pausado = True
         if self.timer_id:
@@ -471,13 +482,24 @@ class JuegoLetras:
             self.overlay_pausa.lift()
             self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-    def toggle_cronometro_texto(self, event):
+    def toggle_cronometro_texto(self):
         if not self.timer_oculto:
             self.timer_oculto = True
             self.label_cronometro.config(text="⏱️ Tiempo: --:--")
         else:
             self.timer_oculto = False
             self.actualizar_cronometro()
+
+    """
+    def ocultar_mostrar_tiempo():   # Usar este código cuando se arregle el bug
+        self.tiempo_oculto = not self.tiempo_oculto
+        if self.tiempo_oculto:
+            self.widgets['label_tiempo'].config(text="--:--")
+            self.widgets['boton_ocultar'].config(text="Mostrar")# ← Cambia el texto del botón
+        else:
+            actualizar_timer()
+            self.widgets['boton_ocultar'].config(text="Ocultar")# ← Vuelve a "Ocultar"
+    """
 
     def reanudar_desde_overlay(self):
         self.overlay_pausa.place_forget()
