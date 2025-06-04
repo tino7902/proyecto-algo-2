@@ -31,6 +31,7 @@ class JuegoLetras:
         self.partida["tiempo_transcurrido"] = 0
         self.partida["palabras_encontradas"] = []
         self.letras_seleccionadas = []
+        print(self.partida)
 
         # Crear interfaz
         self.crear_interfaz()
@@ -481,4 +482,9 @@ class JuegoLetras:
 
 def iniciarJuego1(user):
     juego = JuegoLetras(user)
+    juego.root.mainloop()
+
+# ------------------ Ejemplo de uso ------------------
+if __name__ == "__main__":
+    juego = JuegoLetras("")
     juego.root.mainloop()

@@ -46,7 +46,7 @@ def es_valido(f, c):
 def copiar_matriz(m):
     return [fila.copy() for fila in m]
 
-def cargar_diccionario(path="diccionario_curado.txt"):
+def cargar_diccionario(path="diccionarioletras.txt"):
     por_longitud = {}
     with open(path, "r", encoding="utf-8") as f:
         for linea in f:
@@ -122,7 +122,7 @@ def generador_continuo_matrices(archivo="matrices_validas.txt", intervalo=1, max
         time.sleep(intervalo)
 
 # ------------------ Generador principal ------------------
-def generar_sopa_inteligente(diccionario_path="diccionario_curado.txt", max_reintentos=100):
+def generar_sopa_inteligente(diccionario_path="diccionarioletras.txt", max_reintentos=100):
     diccionario = cargar_diccionario(diccionario_path)
 
     for _ in range(max_reintentos):
@@ -155,6 +155,6 @@ def generar_sopa_inteligente(diccionario_path="diccionario_curado.txt", max_rein
 
     raise RuntimeError("No se pudo generar una sopa válida tras varios intentos")
 
-# # ------------------ Ejemplo de uso ------------------
-# if __name__ == "__main__":
-#     generador_continuo_matrices()
+# ------------------ Ejemplo de uso ------------------
+if __name__ == "__main__":
+    generador_continuo_matrices()
