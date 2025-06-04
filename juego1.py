@@ -17,9 +17,9 @@ FUENTE_BOTON = ("Segoe UI", 12, "bold")
 class JuegoLetras:
     # Clase para usarla luego con el times
 
-    def __init__(self, user):
+    def __init__(self, user, root):
         self.user = user
-        self.juego = tk.Toplevel()
+        self.juego = tk.Toplevel(root)
         self.juego.title("L E T R A S  !!!")
         self.juego.attributes("-fullscreen", True)
         self.juego.configure(bg=COLOR_FONDO)  # Fondo azul marino

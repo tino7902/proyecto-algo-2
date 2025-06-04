@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import juego1 as j1
-from juego2 import iniciarJuego2
+import juego2 as j2
 
 
 global usuarios
@@ -49,8 +49,19 @@ def iniciarJuego1(user):
     global root
     global menu
     menu.withdraw()
-    juego1 = j1.JuegoLetras(user)
+    juego1 = j1.JuegoLetras(user, root)
     menu.wait_window(juego1.juego)
+    menu.deiconify()
+    menu.lift()
+    menu.focus_force()
+
+
+def iniciarJuego2(user):
+    global root
+    global menu
+    menu.withdraw()
+    juego2 = j2.LexiReto(user, root)
+    menu.wait_window(juego2.juego)
     menu.deiconify()
     menu.lift()
     menu.focus_force()
@@ -93,7 +104,7 @@ def elegir_juego(user):
     tk.Button(
         frame,
         text="🧠 LexiReto",
-        command=lambda: iniciarJuego2(),
+        command=lambda: iniciarJuego2(user),
         bg=COLOR_BOTON,
         font=FUENTE_BOTON,
         width=20,

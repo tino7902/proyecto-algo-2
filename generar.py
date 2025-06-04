@@ -16,12 +16,10 @@ def leer_y_borrar_matriz(archivo="matrices_validas.txt"):
 
     matriz = []
     palabras = None
-    inicio = 0
 
     for i, linea in enumerate(lineas):
         if linea.startswith("["):
             palabras = eval(linea.strip())
-            inicio = i
             matriz = [lineas[i + j + 1].strip().split() for j in range(5)]
             break
 
