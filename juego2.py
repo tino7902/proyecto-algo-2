@@ -564,7 +564,7 @@ class LexiReto:
         event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
 
     def onLeaveLetrasApli(self, event):
-        event.widget.config(fg="black")
+        event.widget.config(bg="SystemButtonFace", fg="black")
 
     def onEnterPausaIns(self, event):
         event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
