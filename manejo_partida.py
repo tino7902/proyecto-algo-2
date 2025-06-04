@@ -12,8 +12,21 @@ Juego 1
   ],
   "palabras_colocadas": ["PEZ", "GATO", "SOL"],
   "palabras_encontradas": ["PEZ"],
-  "tiempo_transcurrido": 120 # falta implementar temporizador en el juego
+  "tiempo_transcurrido": 420 # falta implementar temporizador en el juego
   "puntaje": 69 # falta implementar puntuacion
+}
+
+Juego 2
+{
+  "palabrasElegidas0": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas1": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas2": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas3": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas4": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas5": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas6": ["PEZ", "GATO", "SOL"],
+  "palabrasElegidas7": ["PEZ", "GATO", "SOL"],
+  "tiempo_transcurrido": 69:420
 }
 """
 
