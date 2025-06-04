@@ -2,6 +2,17 @@ from random import randint, shuffle, sample, choice
 import tkinter as tk
 import time
 
+COLOR_FONDO = "#f0f4f8"
+COLOR_BOTON = "#6fbf73"
+COLOR_BOTON_HOVER = "lightgreen"
+COLOR_SECUNDARIO = "#4a90e2"
+COLOR_TEXTO = "#333333"
+COLOR_ROJO = "#ff4444"
+FUENTE_TITULO = ("Segoe UI", 32, "bold")
+FUENTE_ETIQUETA = ("Segoe UI", 16)
+FUENTE_ETIQUETAB = ("Segoe UI", 16, "bold")
+FUENTE_ETIQUETA_2 = ("Segoe UI", 14)
+FUENTE_BOTON = ("Segoe UI", 12, "bold")
 
 #Clase para usarla luego con el times
 class TimerState:
@@ -204,19 +215,19 @@ class LexiReto:
 
         #Funciones para cambiar el color de los botones cada que el cursor pase sobre ellos
         def onEnterLetrasApli(event):
-            event.widget.config(bg="#4A90E2", fg='white')
+            event.widget.config(bg=COLOR_BOTON_HOVER, fg='white')
         def onLeaveLetrasApli(event):
             event.widget.config(bg='SystemButtonFace', fg='black')
 
         def onEnterPausaIns(event):
-            event.widget.config(bg="#999999", fg='white')
+            event.widget.config(bg=COLOR_BOTON_HOVER, fg='white')
         def onLeavePausaIns(event):
-            event.widget.config(bg='#999999', fg='black')
+            event.widget.config(bg=COLOR_BOTON, fg='black')
 
         def onEnterContinuar(event):
-            event.widget.config(bg="#61d061", fg='black')
+            event.widget.config(bg=COLOR_BOTON_HOVER, fg='black')
         def onLeaveContinuar(event):
-            event.widget.config(bg='#44cc44', fg='white')
+            event.widget.config(bg=COLOR_BOTON, fg='white')
 
         def onEnterCerrar(event):
             event.widget.config(bg="#db6060", fg='black')
@@ -244,8 +255,8 @@ class LexiReto:
             mensaje= tk.Label(
                 capa,
                 text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: Marcelo López\nPuntaje obtenido: {ptsTotal}\n",
-                font=("Courier", 16, "bold"),
-                fg="green",
+                font=FUENTE_ETIQUETAB,
+                fg=COLOR_TEXTO,
                 bg="white",
                 justify="center"
             )
@@ -256,7 +267,7 @@ class LexiReto:
                 capa,
                 text="Cerrar juego",
                 font=("Courier", 14),
-                bg="#ff4444",
+                bg=COLOR_ROJO,
                 fg="white",
                 command=self.app.destroy
             )
@@ -287,8 +298,8 @@ class LexiReto:
         tiempo_label = tk.Label(
             self.app, 
             text="00:00", 
-            font=("Arial", 24), 
-            bg="#282c34", 
+            font=FUENTE_ETIQUETAB, 
+            bg=COLOR_TEXTO, 
             fg="white", 
             width=5, 
             anchor="center"
@@ -339,15 +350,15 @@ class LexiReto:
         #Pausa el juego...
         def pausarJuego():
             pausar_timer()
-            pausa_capa = tk.Frame(self.app, bg="#222222")
+            pausa_capa = tk.Frame(self.app, bg=COLOR_TEXTO)
             pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
             mensaje_pausa = tk.Label(
                 pausa_capa,
                 text="⏸ Juego en Pausa ⏸",
-                font=("Courier", 18, "bold"),
+                font=FUENTE_ETIQUETAB,
                 fg="white",
-                bg="#222222"
+                bg=COLOR_TEXTO
             )
             mensaje_pausa.pack(pady=50)
 
@@ -355,8 +366,8 @@ class LexiReto:
             boton_continuar_pausa = tk.Button(
                 pausa_capa,
                 text="Continuar",
-                font=("Courier", 14),
-                bg="#44cc44",
+                font=FUENTE_ETIQUETA_2,
+                bg=COLOR_BOTON,
                 fg="white",
                 command=lambda: [pausa_capa.destroy(), reanudar_timer()]
             )
@@ -371,8 +382,8 @@ class LexiReto:
             boton_salir_pausa = tk.Button(
                 pausa_capa,
                 text="Salir del Juego",
-                font=("Courier", 14),
-                bg="#cc4444",
+                font=FUENTE_ETIQUETA,
+                bg=COLOR_ROJO,
                 fg="white",
                 command=self.app.destroy
             )
@@ -384,15 +395,15 @@ class LexiReto:
             boton_salir_pausa.bind("<Leave>", onLeaveCerrar)
 
         def Instrucciones():
-            instruccionesCapa= tk.Frame(self.app, bg="#222222")
+            instruccionesCapa= tk.Frame(self.app, bg=COLOR_TEXTO)
             instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
             mensajeInstrucciones = tk.Label(
                 instruccionesCapa,
                 text="Cómo se juega",
-                font=("Courier", 19, "bold"),
+                font=FUENTE_ETIQUETAB,
                 fg="white",
-                bg="#222222"
+                bg=COLOR_TEXTO
             )
             mensajeInstrucciones.pack(
                 pady= 40
@@ -401,9 +412,9 @@ class LexiReto:
             mensajeInstrucciones = tk.Label(
                 instruccionesCapa,
                 text="Forma palabras de al menos 3 letras. Puedes repetir las letras, pero siempre incluyendo la letra central.\n No se admiten nombres propios, plurales y formas verbales conjugadas (solo infinitivos).\n Encuentra palabras que incluyan las 7 letras (¡Heptacrack!).\n Puntuación: las palabras de 3 letras dan 1 punto y las de 4 letras, 2 puntos. A partir de 5 letras, obtendrás tantos puntos como letras tenga la palabra. Los heptacracks valen 10 puntos.",
-                font=("Courier", 15),
+                font=FUENTE_ETIQUETA,
                 fg="white",
-                bg="#222222",
+                bg=COLOR_TEXTO,
                 justify="center",
                 wraplength=600,
             )
@@ -415,8 +426,8 @@ class LexiReto:
             boton_continuar_instrucciones = tk.Button(
                 instruccionesCapa,
                 text="Continuar",
-                font=("Courier", 14),
-                bg="#44cc44",
+                font=FUENTE_ETIQUETA_2,
+                bg=COLOR_BOTON,
                 fg="white",
                 command=lambda: [instruccionesCapa.destroy()]
             )
@@ -438,8 +449,8 @@ class LexiReto:
         boton_pausa = tk.Button(
             self.app,
             text="⏸ Pausa",
-            font=("Courier", 10),
-            bg="#999999",
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
             command=pausarJuego
         )
         boton_pausa.place(
@@ -457,9 +468,9 @@ class LexiReto:
             self.app,
             text="",
             textvariable=letra,
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=190,
@@ -477,8 +488,8 @@ class LexiReto:
         boton1 = tk.Button(
             self.app,
             text=letras_botones[0],
-            font=("Courier", 15),
-            fg="black",
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             relief="ridge",
             command=lambda: actualizarLetra(letras_botones[0])
         )
@@ -495,8 +506,8 @@ class LexiReto:
         boton2 = tk.Button(
             self.app,
             text=letras_botones[1],
-            font=("Courier", 15),
-            fg="black",
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             relief="ridge",
             command=lambda: actualizarLetra(letras_botones[1])
         )
@@ -513,8 +524,8 @@ class LexiReto:
         boton3 = tk.Button(
             self.app,
             text=letras_botones[2],
-            font=("Courier", 15),
-            fg="black",
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             relief="ridge",
             command=lambda: actualizarLetra(letras_botones[2])
         )
@@ -531,7 +542,7 @@ class LexiReto:
         boton4 = tk.Button(
             self.app,
             text=letraCentral.upper(),
-            font=("Courier", 15),
+            font=FUENTE_BOTON,
             fg="black",
             bg="#ffc733",
             relief="ridge",
@@ -550,8 +561,8 @@ class LexiReto:
         boton5 = tk.Button(
             self.app,
             text=letras_botones[3],
-            font=("Courier", 15),
-            fg="black",
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             relief="ridge",
             command=lambda: actualizarLetra(letras_botones[3])
         )
@@ -568,8 +579,8 @@ class LexiReto:
         boton6 = tk.Button(
             self.app,
             text=letras_botones[4],
-            font=("Courier", 15),
-            fg="black",
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             relief="ridge",
             command=lambda: actualizarLetra(letras_botones[4])
         )
@@ -586,8 +597,8 @@ class LexiReto:
         boton7 = tk.Button(
             self.app,
             text=letras_botones[5],
-            font=("Courier", 15),
-            fg="black",
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             relief="ridge",
             command=lambda: actualizarLetra(letras_botones[5])
         )
@@ -605,8 +616,8 @@ class LexiReto:
         aplicar= tk.Button(
             self.app,
             text=("Aplicar"),
-            font=("Courier", 14),
-            fg=("black"),
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             command=aplicarEntrada ,
             relief="ridge"
         )
@@ -625,7 +636,7 @@ class LexiReto:
             self.app,
             text=("⟲"),
             font=("Courier", 15),
-            fg=("black"),
+            fg=COLOR_TEXTO,
             command=mezclarLetras,
             relief="ridge"
         )
@@ -643,8 +654,8 @@ class LexiReto:
         borrar= tk.Button(
             self.app,
             text=("BORRAR"),
-            font=("Courier", 14),
-            fg=("black"),
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
             command=borrarUltimaLetra,
             relief="ridge"
         )
@@ -661,9 +672,9 @@ class LexiReto:
         comoJugar= tk.Button(
             self.app,
             text=("Cómo se juega"),
-            font=("Courier", 10),
-            bg="#999999",
-            fg=("black"),
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
+            fg=COLOR_TEXTO,
             command=Instrucciones
         )
         comoJugar.place(
@@ -679,9 +690,9 @@ class LexiReto:
         boton_ocultar= tk.Button(
             self.app,
             text="Ocultar",
-            font=("Courier", 10),
-            bg="#999999",
-            fg="black",
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
+            fg=COLOR_TEXTO,
             command=ocultar_mostrar_tiempo
         )
         boton_ocultar.place(
@@ -701,9 +712,9 @@ class LexiReto:
         mensaje1 = tk.Label(
             self.app,
             text="",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=250,
@@ -721,9 +732,9 @@ class LexiReto:
         mensaje2 = tk.Label(
             self.app,
             text=f"Palabras encontradas: {len(palabrasElegidas0)}/{len(seleccionadas)}",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=400,
@@ -740,9 +751,9 @@ class LexiReto:
         mensajePalabrasElegidas1 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[0]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -759,9 +770,9 @@ class LexiReto:
         mensajePalabrasElegidas2 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[1]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -778,9 +789,9 @@ class LexiReto:
         mensajePalabrasElegidas3 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[2]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -797,9 +808,9 @@ class LexiReto:
         mensajePalabrasElegidas4 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[3]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -816,9 +827,9 @@ class LexiReto:
         mensajePalabrasElegidas5 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[4]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -835,9 +846,9 @@ class LexiReto:
         mensajePalabrasElegidas6 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[5]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -854,9 +865,9 @@ class LexiReto:
         mensajePalabrasElegidas7 = tk.Label(
             self.app,
             text=f"Palabras encontradas con {listaAleatoriaCombinaciones[6]}:",
-            font=("Courier", 10),
+            font=FUENTE_ETIQUETA_2,
             fg="white",
-            bg="#333333",
+            bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
             wraplength=950,
@@ -876,6 +887,9 @@ class LexiReto:
 if __name__=="__main__":
     juego= LexiReto()
 
-def iniciarJuego2(user):
-    juego = LexiReto(user)
-    juego.root.mainloop()
+# def iniciarJuego2(user):
+def iniciarJuego2():
+    # juego = LexiReto(user)
+    # juego = LexiReto()
+    # juego.root.mainloop() # No sé si borrar o no, arreglen <--
+    juego= LexiReto()

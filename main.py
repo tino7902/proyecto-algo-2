@@ -69,7 +69,7 @@ def elegir_juego(user):
     tk.Button(frame, text="🧩 Letras", command=lambda: iniciarJuego1(user),
               bg=COLOR_BOTON, font=FUENTE_BOTON, width=20).pack(pady=10)
 
-    tk.Button(frame, text="🧠 LexiReto", command=lambda: iniciarJuego2(user),
+    tk.Button(frame, text="🧠 LexiReto", command=lambda: iniciarJuego2(),
               bg=COLOR_BOTON, font=FUENTE_BOTON, width=20).pack(pady=10)
 
     tk.Button(frame, text="🚪 Cerrar sesión", command=cerrar_menu,

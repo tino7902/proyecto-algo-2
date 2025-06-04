@@ -5,6 +5,14 @@ import generar as gen
 import threading
 import manejo_partida as mp
 
+COLOR_FONDO = "#f0f4f8"
+COLOR_BOTON = "#6fbf73"
+COLOR_SECUNDARIO = "#4a90e2"
+COLOR_TEXTO = "#333333"
+FUENTE_TITULO = ("Segoe UI", 32, "bold")
+FUENTE_ETIQUETA = ("Segoe UI", 16)
+FUENTE_BOTON = ("Segoe UI", 12, "bold")
+
 
 class JuegoLetras:
     # Clase para usarla luego con el times
@@ -12,18 +20,13 @@ class JuegoLetras:
     def __init__(self, user):
         self.user = user
         self.root = tk.Tk()
-        self.root.title("Juego de Letras")
+        self.root.title("L E T R A S  !!!")
         self.root.attributes("-fullscreen", True)
-        self.root.configure(bg="navy")  # Fondo azul marino
+        self.root.configure(bg=COLOR_FONDO)  # Fondo azul marino
         self.timer_pausado = False
         self.timer_id = None
         self.timer_oculto = False
         self.pista = 0
-
-        # Configuración de estilos
-        self.fuente_letras = font.Font(family="Helvetica", size=16, weight="bold")
-        self.fuente_botones = font.Font(family="Helvetica", size=12)
-        self.fuente_titulo = font.Font(family="Helvetica", size=20, weight="bold")
 
         # Variables del juego
         self.partida = {}
@@ -56,23 +59,23 @@ class JuegoLetras:
 
     def crear_interfaz(self):
         # Frame principal
-        self.frame_principal = tk.Frame(self.root, padx=20, pady=20, bg="navy")
+        self.frame_principal = tk.Frame(self.root, padx=20, pady=20, bg=COLOR_FONDO )
         self.frame_principal.pack(expand=True, fill=tk.BOTH)
 
         # Frame para el tablero y controles
-        self.frame_juego = tk.Frame(self.frame_principal, bg="navy")
+        self.frame_juego = tk.Frame(self.frame_principal, bg=COLOR_FONDO )
         self.frame_juego.pack(expand=True, fill=tk.BOTH)
 
         # Frame de controles
-        self.frame_controles = tk.Frame(self.frame_juego, bg="navy")
+        self.frame_controles = tk.Frame(self.frame_juego, bg=COLOR_FONDO )
         self.frame_controles.pack(side=tk.RIGHT, padx=20, pady=10, fill=tk.Y)
 
         # Frame puntaje
         self.label_puntaje = tk.Label(
             self.frame_controles,
             text="🏅 Puntaje: 0",
-            font=self.fuente_botones,
-            bg="white",
+            font=FUENTE_BOTON,
+            bg=COLOR_FONDO,
         )
         self.label_puntaje.pack(fill=tk.X, pady=5)
 
@@ -80,57 +83,67 @@ class JuegoLetras:
         tk.Label(
             self.frame_juego,
             text="JUEGO DE LETRAS",
-            font=self.fuente_titulo,
-            bg="navy",
-            fg="white",
+            font=FUENTE_TITULO,
+            bg=COLOR_FONDO,
+            fg=COLOR_BOTON,
         ).pack(pady=10)
 
         # Frame para el cronometro
         self.label_cronometro = tk.Label(
             self.frame_controles,
             text="⏱️ Tiempo: 00:00",
-            font=self.fuente_botones,
-            bg="white",
+            font=FUENTE_BOTON,
+            bg=COLOR_FONDO,
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
         self.label_cronometro.bind("<Button-1>", self.toggle_cronometro_texto)
 
         self.boton_pausa = tk.Button(
             self.frame_controles,
-            text="Pausar",
-            font=self.fuente_botones,
-            bg="orange",
+            text="⏸ Pausa",
+            font=FUENTE_BOTON,
+            bg=COLOR_SECUNDARIO,
             command=self.toggle_cronometro,
         )
         self.boton_pausa.pack(fill=tk.X, pady=5)
 
         # Tablero de letras (5x5 como ejemplo)
-        self.frame_tablero = tk.Frame(self.frame_juego, bg="navy")
+        self.frame_tablero = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
         self.frame_tablero.pack(side=tk.LEFT, padx=20, pady=10)
 
         # Frame oculto para pausa
-        self.overlay_pausa = tk.Frame(
-            self.frame_juego, bg="black", width=600, height=500
-        )
+        self.overlay_pausa = tk.Frame(self.root, bg=COLOR_TEXTO)
         self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
         self.overlay_pausa.place_forget()  # Oculto por defecto
 
         self.label_pausa = tk.Label(
             self.overlay_pausa,
-            text="⏸ El juego está pausado",
-            font=("Arial", 20),
+            text="⏸ Juego en Pausa ⏸",
+            font=FUENTE_BOTON,
             fg="white",
-            bg="black",
+            bg=COLOR_TEXTO,
         )
         self.label_pausa.pack(fill=tk.BOTH, expand=True, side=tk.TOP, pady=20)
 
         self.boton_reanudar_overlay = tk.Button(
             self.overlay_pausa,
-            text="Reanudar",
-            font=("Arial", 14),
+            text="Continuar",
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
+            fg="white",
             command=self.reanudar_desde_overlay,
         )
         self.boton_reanudar_overlay.pack(pady=10)
+
+        self.boton_salir_menu = tk.Button(
+            self.overlay_pausa,
+            text="Salir del Juego",
+            font=FUENTE_BOTON,
+            bg="#cc4444",
+            fg="white",
+            command=self.root.destroy,
+        )
+        self.boton_salir_menu.pack(pady=10)
 
         # Matriz de letras
         self.botones_letras = []
@@ -142,11 +155,11 @@ class JuegoLetras:
                 btn = tk.Button(
                     self.frame_tablero,
                     text=self.partida["tablero"][i][j],
-                    font=self.fuente_letras,
+                    font=FUENTE_ETIQUETA,
                     width=4,
                     height=2,
                     relief=tk.RAISED,
-                    bg="lightblue",
+                    bg=COLOR_BOTON,
                     command=lambda i=i, j=j: self.seleccionar_letra(i, j),
                 )
                 btn.grid(row=i, column=j, padx=2, pady=2)
@@ -157,9 +170,9 @@ class JuegoLetras:
         self.label_palabra = tk.Label(
             self.frame_controles,
             text="",
-            font=self.fuente_letras,
-            bg="navy",
-            fg="white",
+            font=FUENTE_ETIQUETA,
+            bg=COLOR_FONDO,
+            fg=COLOR_TEXTO,
         )
         self.label_palabra.pack(pady=10)
 
@@ -167,77 +180,79 @@ class JuegoLetras:
         tk.Button(
             self.frame_controles,
             text="Borrar",
-            font=self.fuente_botones,
-            bg="lightblue",
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
             command=self.borrar_seleccion,
         ).pack(fill=tk.X, pady=5)
 
         tk.Button(
             self.frame_controles,
             text="Aplicar",
-            font=self.fuente_botones,
-            bg="lightblue",
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
             command=self.validar_palabra,
         ).pack(fill=tk.X, pady=5)
 
         tk.Button(
             self.frame_controles,
             text="Reiniciar",
-            font=self.fuente_botones,
-            bg="lightblue",
+            font=FUENTE_BOTON,
+            bg=COLOR_BOTON,
             command=self.reiniciar_juego,
         ).pack(fill=tk.X, pady=5)
 
         tk.Button(
             self.frame_controles,
             text="Pista",
-            font=self.fuente_botones,
-            bg="khaki1",
+            font=FUENTE_BOTON,
+            bg=COLOR_SECUNDARIO,
             command=self.mostrar_pista,
         ).pack(fill=tk.X, pady=5)
 
         # Palabras encontradas
-        self.frame_palabras = tk.Frame(self.frame_controles, bg="navy")
+        self.frame_palabras = tk.Frame(self.frame_controles, bg=COLOR_FONDO)
         self.frame_palabras.pack(pady=10)
 
         tk.Label(
             self.frame_palabras,
             text="Palabras encontradas:",
-            font=self.fuente_botones,
-            bg="navy",
-            fg="white",
+            font=FUENTE_ETIQUETA,
+            bg=COLOR_FONDO,
+            fg=COLOR_TEXTO,
         ).pack()
         self.lista_palabras = tk.Listbox(
-            self.frame_palabras, width=20, height=10, bg="lightblue"
+            self.frame_palabras, width=20, height=10, bg=COLOR_BOTON
         )
         self.lista_palabras.pack()
 
         # Estadísticas
-        self.frame_stats = tk.Frame(self.frame_controles, bg="navy")
+        self.frame_stats = tk.Frame(self.frame_controles, bg=COLOR_FONDO)
         self.frame_stats.pack(pady=10)
 
         tk.Label(
             self.frame_stats,
             text="Estadísticas:",
-            font=self.fuente_botones,
-            bg="navy",
-            fg="white",
+            font=FUENTE_BOTON,
+            bg=COLOR_FONDO,
+            fg=COLOR_TEXTO,
         ).pack()
         self.label_stats = tk.Label(
             self.frame_stats,
             text="Jugados: 0\nCompletados: 0%",
             justify=tk.LEFT,
-            bg="navy",
-            fg="white",
+            font=FUENTE_BOTON,
+            bg=COLOR_FONDO,
+            fg=COLOR_TEXTO,
         )
         self.label_stats.pack()
 
         tk.Button(
             self.frame_controles,
-            text="Menú",
-            font=self.fuente_botones,
-            bg="lightblue",
-            command=self.root.destroy,
+            text=("Cómo se juega"),
+            font=FUENTE_BOTON,
+            bg=COLOR_SECUNDARIO,
+            fg=COLOR_TEXTO,
+            command=self.Instrucciones
         ).pack(fill=tk.X, pady=5)
 
         self.actualizar_cronometro()
@@ -275,7 +290,7 @@ class JuegoLetras:
     def borrar_seleccion(self):
         for fila, col in self.letras_seleccionadas:
             boton = self.botones_letras[fila][col]
-            boton.config(relief=tk.RAISED, bg="lightblue", state=tk.NORMAL)
+            boton.config(relief=tk.RAISED, bg=COLOR_BOTON, state=tk.NORMAL)
         self.letras_seleccionadas = []
         self.label_palabra.config(text="")
 
@@ -331,7 +346,7 @@ class JuegoLetras:
                 letra = self.partida["tablero"][i][j]
                 btn = self.botones_letras[i][j]
                 btn.config(
-                    text=letra, relief=tk.RAISED, bg="lightblue", state=tk.NORMAL
+                    text=letra, relief=tk.RAISED, bg=COLOR_BOTON, state=tk.NORMAL
                 )
 
         self.borrar_seleccion()
@@ -414,7 +429,7 @@ class JuegoLetras:
     def restaurar_colores(self, camino):
         for f, c in camino:
             estado = self.botones_letras[f][c]["state"]
-            color = "lightgreen" if (f, c) in self.letras_seleccionadas else "lightblue"
+            color = "lightgreen" if (f, c) in self.letras_seleccionadas else COLOR_BOTON
             self.botones_letras[f][c].config(bg=color)
 
     def actualizar_cronometro(self):
@@ -467,6 +482,47 @@ class JuegoLetras:
     def reanudar_desde_overlay(self):
         self.overlay_pausa.place_forget()
         self.toggle_cronometro()  # Esto cambia el estado a "reanudar"
+
+    def Instrucciones(self):
+            instruccionesCapa= tk.Frame(self.root, bg=COLOR_TEXTO)
+            instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+            mensajeInstrucciones = tk.Label(
+                instruccionesCapa,
+                text="Cómo se juega",
+                font=FUENTE_ETIQUETA,
+                fg="white",
+                bg=COLOR_TEXTO,
+            )
+            mensajeInstrucciones.pack(
+                pady= 40
+            )
+
+            mensajeInstrucciones = tk.Label(
+                instruccionesCapa,
+                text="Encuentra las siete palabras que hemos ocultado seleccionando casillas contiguas en todas las direcciones, salvo en diagonal. Puedes utilizar cada letra tantas veces como quieras, pero no en una misma palabra.\n¡ATENCIÓN! NO TODAS LAS PALABRAS QUE PUEDAS FORMAR SERÁN VÁLIDAS. SÓLO LAS QUE PROPONEMOS.",
+                font=FUENTE_ETIQUETA,
+                fg="white",
+                bg=COLOR_TEXTO,
+                justify="center",
+                wraplength=600,
+            )
+            mensajeInstrucciones.pack(
+                pady= 10
+            )
+
+            #Botón para continuar el juego
+            boton_continuar_instrucciones = tk.Button(
+                instruccionesCapa,
+                text="Continuar",
+                font=FUENTE_ETIQUETA,
+                bg=COLOR_BOTON,
+                fg="white",
+                command=lambda: [instruccionesCapa.destroy()]
+            )
+            boton_continuar_instrucciones.pack(
+                pady=25
+            )
 
     def finalizar_juego(self):
         self.pausar_cronometro()
