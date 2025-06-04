@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, font
+from tkinter import messagebox
 import random
 import generar as gen
 import threading
@@ -19,10 +19,10 @@ class JuegoLetras:
 
     def __init__(self, user):
         self.user = user
-        self.root = tk.Tk()
-        self.root.title("L E T R A S  !!!")
-        self.root.attributes("-fullscreen", True)
-        self.root.configure(bg=COLOR_FONDO)  # Fondo azul marino
+        self.juego = tk.Toplevel()
+        self.juego.title("L E T R A S  !!!")
+        self.juego.attributes("-fullscreen", True)
+        self.juego.configure(bg=COLOR_FONDO)  # Fondo azul marino
         self.timer_pausado = False
         self.timer_id = None
         self.timer_oculto = False
@@ -59,15 +59,15 @@ class JuegoLetras:
 
     def crear_interfaz(self):
         # Frame principal
-        self.frame_principal = tk.Frame(self.root, padx=20, pady=20, bg=COLOR_FONDO )
+        self.frame_principal = tk.Frame(self.juego, padx=20, pady=20, bg=COLOR_FONDO)
         self.frame_principal.pack(expand=True, fill=tk.BOTH)
 
         # Frame para el tablero y controles
-        self.frame_juego = tk.Frame(self.frame_principal, bg=COLOR_FONDO )
+        self.frame_juego = tk.Frame(self.frame_principal, bg=COLOR_FONDO)
         self.frame_juego.pack(expand=True, fill=tk.BOTH)
 
         # Frame de controles
-        self.frame_controles = tk.Frame(self.frame_juego, bg=COLOR_FONDO )
+        self.frame_controles = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
         self.frame_controles.pack(side=tk.RIGHT, padx=20, pady=10, fill=tk.Y)
 
         # Frame puntaje
@@ -96,7 +96,8 @@ class JuegoLetras:
             bg=COLOR_FONDO,
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
-        # self.label_cronometro.bind("<Button-1>", lambda: self.toggle_cronometro_texto)
+        # no anda
+        # self.label_cronometro.bind("<Button-1>", self.toggle_cronometro_texto)
 
         self.boton_pausa = tk.Button(
             self.frame_controles,
@@ -112,7 +113,7 @@ class JuegoLetras:
         self.frame_tablero.pack(side=tk.LEFT, padx=20, pady=10)
 
         # Frame oculto para pausa
-        self.overlay_pausa = tk.Frame(self.root, bg=COLOR_TEXTO)
+        self.overlay_pausa = tk.Frame(self.juego, bg=COLOR_TEXTO)
         self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
         self.overlay_pausa.place_forget()  # Oculto por defecto
 
@@ -141,7 +142,7 @@ class JuegoLetras:
             font=FUENTE_BOTON,
             bg="#cc4444",
             fg="white",
-            command=self.root.destroy,
+            command=self.juego.destroy,
         )
         self.boton_salir_menu.pack(pady=10)
 
@@ -223,6 +224,9 @@ class JuegoLetras:
         self.lista_palabras = tk.Listbox(
             self.frame_palabras, width=20, height=10, bg=COLOR_BOTON
         )
+        if self.partida.get("palabras_encontradas") is not None:
+            for palabra in self.partida.get("palabras_encontradas"):
+                self.lista_palabras.insert(tk.END, palabra)
         self.lista_palabras.pack()
 
         # Estadísticas
@@ -238,12 +242,15 @@ class JuegoLetras:
         ).pack()
         self.label_stats = tk.Label(
             self.frame_stats,
-            text="Jugados: 0\nCompletados: 0%",
+            text="Encontrados: 0\nCompletados: 0%",
             justify=tk.LEFT,
             font=FUENTE_BOTON,
             bg=COLOR_FONDO,
             fg=COLOR_TEXTO,
         )
+
+        if self.partida.get("palabras_encontradas") is not None:
+            self.actualizar_estadisticas()
         self.label_stats.pack()
 
         tk.Button(
@@ -252,7 +259,7 @@ class JuegoLetras:
             font=FUENTE_BOTON,
             bg=COLOR_SECUNDARIO,
             fg=COLOR_TEXTO,
-            command=self.Instrucciones
+            command=self.Instrucciones,
         ).pack(fill=tk.X, pady=5)
 
         self.actualizar_cronometro()
@@ -301,8 +308,10 @@ class JuegoLetras:
             messagebox.showwarning("Atención", "No has seleccionado ninguna letra.")
             return
 
-        if (
-            palabra in self.partida.get("palabras_colocadas") and palabra not in self.partida.get("palabras_encontradas", [])
+        if palabra in self.partida.get(
+            "palabras_colocadas"
+        ) and palabra not in self.partida.get(
+            "palabras_encontradas", []
         ):  # Agregar palabra encontrada
             if self.partida.get("palabras_encontradas") is None:
                 self.partida["palabras_encontradas"] = palabra
@@ -315,11 +324,19 @@ class JuegoLetras:
             segundos = self.partida.get("tiempo_transcurrido", 1)
             puntos_palabra = len(palabra) ** 5 // segundos
             if self.pista:
-                self.partida["puntaje"] += puntos_palabra // 3
+                if self.partida.get("puntaje") is None:
+                    self.partida["puntaje"] = puntos_palabra // 3
+                else:
+                    self.partida["puntaje"] += puntos_palabra // 3
                 self.pista = 0
             else:
-                self.partida["puntaje"] += puntos_palabra
-            self.label_puntaje.config(text=f"🏅 Puntaje: {self.partida['puntaje']}")
+                if self.partida.get("puntaje") is None:
+                    self.partida["puntaje"] = puntos_palabra
+                else:
+                    self.partida["puntaje"] += puntos_palabra
+            self.label_puntaje.config(
+                text=f"🏅 Puntaje: {self.partida.get('puntaje', 0)}"
+            )
             mp.guardar_partida(self.user, self.partida, "juego1")
             # Verificar fin del juego
             if len(self.partida.get("palabras_encontradas", [])) == 7:
@@ -331,7 +348,7 @@ class JuegoLetras:
                 self.botones_letras[fila][col].config(bg="firebrick1")
 
             # Volver al color original después de 1,5 seg
-            self.root.after(1500, self.borrar_seleccion)
+            self.juego.after(1500, self.borrar_seleccion)
             messagebox.showwarning(
                 "Incorrecto", "La palabra no es válida o ya fue encontrada."
             )
@@ -358,13 +375,12 @@ class JuegoLetras:
         self.partida["puntaje"] = 0
         self.label_puntaje.config(text="🏅 Puntaje: 0")
 
-
     def actualizar_estadisticas(self):
         total_palabras = len(self.partida.get("palabras_colocadas"))
         encontradas = len(self.partida["palabras_encontradas"])
         porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
         self.label_stats.config(
-            text=f"Jugados: {encontradas}\nCompletados: {porcentaje:.2f}%"
+            text=f"Encontrados: {encontradas}\nCompletados: {porcentaje:.2f}%"
         )
 
     def buscar_palabra_en_matriz(self, palabra):
@@ -425,11 +441,11 @@ class JuegoLetras:
             self.botones_letras[f][c].config(bg="gold")
 
         # Restaurar colores después de 2 segundos
-        self.root.after(2000, lambda: self.restaurar_colores(camino))
+        self.juego.after(2000, lambda: self.restaurar_colores(camino))
 
     def restaurar_colores(self, camino):
         for f, c in camino:
-            estado = self.botones_letras[f][c]["state"]
+            # estado = self.botones_letras[f][c]["state"]
             color = "lightgreen" if (f, c) in self.letras_seleccionadas else COLOR_BOTON
             self.botones_letras[f][c].config(bg=color)
 
@@ -440,14 +456,13 @@ class JuegoLetras:
             else:
                 self.partida["tiempo_transcurrido"] += 1
 
-                
             minutos = self.partida["tiempo_transcurrido"] // 60
             segundos = self.partida["tiempo_transcurrido"] % 60
             if not self.timer_oculto:
                 self.label_cronometro.config(
                     text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}"
                 )
-            self.timer_id = self.root.after(1000, self.actualizar_cronometro)
+            self.timer_id = self.juego.after(1000, self.actualizar_cronometro)
 
     """
     def actualizar_timer():  # Usar este contador más adelante cuando se arregle el bug
@@ -463,7 +478,7 @@ class JuegoLetras:
     def pausar_cronometro(self):
         self.timer_pausado = True
         if self.timer_id:
-            self.root.after_cancel(self.timer_id)
+            self.juego.after_cancel(self.timer_id)
             self.timer_id = None
 
     def reanudar_cronometro(self):
@@ -512,45 +527,39 @@ class JuegoLetras:
         self.toggle_cronometro()  # Esto cambia el estado a "reanudar"
 
     def Instrucciones(self):
-            instruccionesCapa= tk.Frame(self.root, bg=COLOR_TEXTO)
-            instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
+        instruccionesCapa = tk.Frame(self.juego, bg=COLOR_TEXTO)
+        instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-            mensajeInstrucciones = tk.Label(
-                instruccionesCapa,
-                text="Cómo se juega",
-                font=FUENTE_ETIQUETA,
-                fg="white",
-                bg=COLOR_TEXTO,
-            )
-            mensajeInstrucciones.pack(
-                pady= 40
-            )
+        mensajeInstrucciones = tk.Label(
+            instruccionesCapa,
+            text="Cómo se juega",
+            font=FUENTE_ETIQUETA,
+            fg="white",
+            bg=COLOR_TEXTO,
+        )
+        mensajeInstrucciones.pack(pady=40)
 
-            mensajeInstrucciones = tk.Label(
-                instruccionesCapa,
-                text="Encuentra las siete palabras que hemos ocultado seleccionando casillas contiguas en todas las direcciones, salvo en diagonal. Puedes utilizar cada letra tantas veces como quieras, pero no en una misma palabra.\n¡ATENCIÓN! NO TODAS LAS PALABRAS QUE PUEDAS FORMAR SERÁN VÁLIDAS. SÓLO LAS QUE PROPONEMOS.",
-                font=FUENTE_ETIQUETA,
-                fg="white",
-                bg=COLOR_TEXTO,
-                justify="center",
-                wraplength=600,
-            )
-            mensajeInstrucciones.pack(
-                pady= 10
-            )
+        mensajeInstrucciones = tk.Label(
+            instruccionesCapa,
+            text="Encuentra las siete palabras que hemos ocultado seleccionando casillas contiguas en todas las direcciones, salvo en diagonal. Puedes utilizar cada letra tantas veces como quieras, pero no en una misma palabra.\n¡ATENCIÓN! NO TODAS LAS PALABRAS QUE PUEDAS FORMAR SERÁN VÁLIDAS. SÓLO LAS QUE PROPONEMOS.",
+            font=FUENTE_ETIQUETA,
+            fg="white",
+            bg=COLOR_TEXTO,
+            justify="center",
+            wraplength=600,
+        )
+        mensajeInstrucciones.pack(pady=10)
 
-            #Botón para continuar el juego
-            boton_continuar_instrucciones = tk.Button(
-                instruccionesCapa,
-                text="Continuar",
-                font=FUENTE_ETIQUETA,
-                bg=COLOR_BOTON,
-                fg="white",
-                command=lambda: [instruccionesCapa.destroy()]
-            )
-            boton_continuar_instrucciones.pack(
-                pady=25
-            )
+        # Botón para continuar el juego
+        boton_continuar_instrucciones = tk.Button(
+            instruccionesCapa,
+            text="Continuar",
+            font=FUENTE_ETIQUETA,
+            bg=COLOR_BOTON,
+            fg="white",
+            command=lambda: [instruccionesCapa.destroy()],
+        )
+        boton_continuar_instrucciones.pack(pady=25)
 
     def finalizar_juego(self):
         self.pausar_cronometro()
@@ -563,12 +572,16 @@ class JuegoLetras:
             f"Encontraste todas las palabras.\nTiempo: {tiempo_str}\nPuntaje: {self.partida['puntaje']}",
         )
 
+        self.reiniciar_juego()
 
-def iniciarJuego1(user):
-    juego = JuegoLetras(user)
-    juego.root.mainloop()
+
+# def iniciarJuego1(user):
+#     juego = JuegoLetras(user)
+#     juego.juego.mainloop()
 
 # ------------------ Ejemplo de uso ------------------
 if __name__ == "__main__":
-    juego = JuegoLetras("prueba") # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
-    juego.root.mainloop()
+    juego = JuegoLetras(
+        "prueba"
+    )  # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
+    juego.juego.mainloop()
