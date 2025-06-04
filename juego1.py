@@ -29,25 +29,25 @@ class JuegoLetras:
         self.pista = 0
 
         # Variables del juego
-        self.partida = {}
-        self.partida["puntaje"] = 0
-        self.partida["tiempo_transcurrido"] = 0
-        self.partida["palabras_encontradas"] = []
+        # self.partida = {}
+        # self.partida["puntaje"] = 0
+        # self.partida["tiempo_transcurrido"] = 0
+        # self.partida["palabras_encontradas"] = []
         self.letras_seleccionadas = []
-        print(self.partida)
 
         # Crear interfaz
         self.crear_interfaz()
 
     def generar_tablero_dinamico(self):
         self.partida = mp.cargar_partida(self.user, "juego1")
-        if not self.partida:
+        if self.partida is None:
             self.partida = gen.leer_y_borrar_matriz()
         # Lanzar la generación de la próxima sopa en segundo plano
         threading.Thread(
             target=self.generar_y_guardar_en_segundo_plano, daemon=True
         ).start()
-        print(self.partida["palabras_colocadas"])
+        print(self.partida.get("palabras_colocadas"))
+        mp.guardar_partida(self.user, self.partida, "juego1")
 
     def generar_y_guardar_en_segundo_plano(self):
         try:
@@ -96,7 +96,7 @@ class JuegoLetras:
             bg=COLOR_FONDO,
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
-        self.label_cronometro.bind("<Button-1>", self.toggle_cronometro_texto)
+        # self.label_cronometro.bind("<Button-1>", lambda: self.toggle_cronometro_texto)
 
         self.boton_pausa = tk.Button(
             self.frame_controles,
@@ -301,19 +301,18 @@ class JuegoLetras:
             messagebox.showwarning("Atención", "No has seleccionado ninguna letra.")
             return
 
-        encontradas = self.partida.get("palabras_encontradas", [])
         if (
-            palabra in self.partida["palabras_colocadas"] and palabra not in encontradas
+            palabra in self.partida.get("palabras_colocadas") and palabra not in self.partida.get("palabras_encontradas", [])
         ):  # Agregar palabra encontrada
-            if not encontradas:
-                self.partida["palabras_encontradas"].append(palabra)
-            else:
+            if self.partida.get("palabras_encontradas") is None:
                 self.partida["palabras_encontradas"] = palabra
+            else:
+                self.partida["palabras_encontradas"].append(palabra)
 
             self.lista_palabras.insert(tk.END, palabra)
             messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!")
             # -------------------------------------------------------------------------------------- Calcular puntos
-            segundos = self.partida["tiempo_transcurrido"] or 1
+            segundos = self.partida.get("tiempo_transcurrido", 1)
             puntos_palabra = len(palabra) ** 5 // segundos
             if self.pista:
                 self.partida["puntaje"] += puntos_palabra // 3
@@ -321,8 +320,9 @@ class JuegoLetras:
             else:
                 self.partida["puntaje"] += puntos_palabra
             self.label_puntaje.config(text=f"🏅 Puntaje: {self.partida['puntaje']}")
+            mp.guardar_partida(self.user, self.partida, "juego1")
             # Verificar fin del juego
-            if len(self.partida["palabras_encontradas"]) == 7:
+            if len(self.partida.get("palabras_encontradas", [])) == 7:
                 self.finalizar_juego()
             self.borrar_seleccion()
         else:
@@ -339,6 +339,7 @@ class JuegoLetras:
         self.actualizar_estadisticas()
 
     def reiniciar_juego(self):
+        mp.eliminar_partida(self.user, "juego1")
         self.generar_tablero_dinamico()
 
         for i in range(len(self.partida["tablero"])):
@@ -359,7 +360,7 @@ class JuegoLetras:
 
 
     def actualizar_estadisticas(self):
-        total_palabras = len(self.partida["palabras_colocadas"])
+        total_palabras = len(self.partida.get("palabras_colocadas"))
         encontradas = len(self.partida["palabras_encontradas"])
         porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
         self.label_stats.config(
@@ -404,8 +405,8 @@ class JuegoLetras:
         self.pista = 1
         posibles = [
             p
-            for p in self.partida["palabras_colocadas"]
-            if p not in self.partida["palabras_encontradas"]
+            for p in self.partida.get("palabras_colocadas")
+            if p not in self.partida.get("palabras_encontradas", [])
         ]
         if not posibles:
             messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!")
@@ -434,14 +435,19 @@ class JuegoLetras:
 
     def actualizar_cronometro(self):
         if not self.timer_pausado:
-            self.partida["tiempo_transcurrido"] += 1
+            if self.partida.get("tiempo_transcurrido") is None:
+                self.partida["tiempo_transcurrido"] = 1
+            else:
+                self.partida["tiempo_transcurrido"] += 1
+
+                
             minutos = self.partida["tiempo_transcurrido"] // 60
             segundos = self.partida["tiempo_transcurrido"] % 60
             if not self.timer_oculto:
                 self.label_cronometro.config(
                     text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}"
                 )
-            self.timer_id = self.root.after(1300, self.actualizar_cronometro)
+            self.timer_id = self.root.after(1000, self.actualizar_cronometro)
 
     """
     def actualizar_timer():  # Usar este contador más adelante cuando se arregle el bug
@@ -564,5 +570,5 @@ def iniciarJuego1(user):
 
 # ------------------ Ejemplo de uso ------------------
 if __name__ == "__main__":
-    juego = JuegoLetras("")
+    juego = JuegoLetras("prueba") # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
     juego.root.mainloop()

@@ -46,3 +46,9 @@ def cargar_partida(user, juego):
     except IOError as e:
         print(f"error al cargar la partida: {e}")
         return None
+
+def eliminar_partida(user, juego):
+    dir_partidas = f"partidas/{juego}"
+    dir_archivo = os.path.join(dir_partidas, f"{user}.json")
+    if os.path.exists(dir_archivo):
+        os.remove(dir_archivo)
