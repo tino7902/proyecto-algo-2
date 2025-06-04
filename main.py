@@ -5,7 +5,13 @@ from juego2 import iniciarJuego2
 
 
 global usuarios
-btn_color = "#A9C9DD"
+
+COLOR_FONDO = "#f0f4f8"
+COLOR_BOTON = "#6fbf73"
+COLOR_TEXTO = "#333333"
+FUENTE_TITULO = ("Segoe UI", 36, "bold")
+FUENTE_SUBTITULO = ("Segoe UI", 20)
+FUENTE_BOTON = ("Segoe UI", 16, "bold")
 
 class Usuario:
     def __init__(self, user, pw):
@@ -38,27 +44,42 @@ def check_user_pw(user, pw):
     return existe_user, pw_correcta
 
 
+menu_abierto = False  # Bandera global para evitar múltiples menús
+
 def elegir_juego(user):
-    coso = tk.Toplevel()
-    coso.attributes("-fullscreen", True)
-    frame = tk.Frame(coso)
+    global menu_abierto
+    if menu_abierto:
+        return
+    menu_abierto = True
 
-    ttk.Label(frame, text=f"Bienvenido, {user} !", font=("Helvetica", 20)).grid(row=0, column=1, pady=(20, 10))
-    ttk.Label(frame, text="Elegí el juego que quieras jugar !", font=("Helvetica", 18)).grid(row=1, column=1, pady=(0, 20))
+    ventana = tk.Toplevel()
+    ventana.attributes("-fullscreen", True)
+    ventana.configure(bg=COLOR_FONDO)
 
-    tk.Button(frame, text="Juego 1", command=lambda: iniciarJuego1(user),
-              bg=btn_color, relief="groove", font=("Helvetica", 16, "bold"), bd=2, highlightthickness=0).grid(row=2, column=0, padx=15, pady=15)
+    def cerrar_menu():
+        global menu_abierto
+        menu_abierto = False
+        ventana.destroy()
 
-    tk.Button(frame, text="Juego 2", command=lambda: iniciarJuego2(user),
-              bg=btn_color, relief="groove", font=("Helvetica", 16, "bold"), bd=2, highlightthickness=0).grid(row=2, column=2, padx=15, pady=15)
+    frame = tk.Frame(ventana, bg=COLOR_FONDO)
 
-    # Botón para salir de la ventana de juegos
-    tk.Button(frame, text="Salir", command=coso.destroy,
-              bg=btn_color, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(row=3, column=1, pady=30)
+    tk.Label(frame, text=f"🎮 Bienvenido a LexiManía, {user}!", font=FUENTE_TITULO, fg=COLOR_TEXTO, bg=COLOR_FONDO).pack(pady=(30, 10))
+    tk.Label(frame, text="Desafía tu mente con dos modos de juego únicos:", font=FUENTE_SUBTITULO, fg=COLOR_TEXTO, bg=COLOR_FONDO).pack(pady=(0, 30))
 
-    frame.pack(anchor="center", expand=1)
-    coso.mainloop()
+    tk.Button(frame, text="🧩 Letras", command=lambda: iniciarJuego1(user),
+              bg=COLOR_BOTON, font=FUENTE_BOTON, width=20).pack(pady=10)
 
+    tk.Button(frame, text="🧠 LexiReto", command=lambda: iniciarJuego2(user),
+              bg=COLOR_BOTON, font=FUENTE_BOTON, width=20).pack(pady=10)
+
+    tk.Button(frame, text="🚪 Cerrar sesión", command=cerrar_menu,
+              bg="#e57373", font=FUENTE_BOTON, width=20).pack(pady=30)
+
+    tk.Label(frame, text="Grupo S.A.N.G.A — 2025", font=("Segoe UI", 12), bg=COLOR_FONDO, fg="#888").pack(pady=10)
+
+    frame.pack(expand=True)
+    ventana.protocol("WM_DELETE_WINDOW", cerrar_menu)
+    ventana.mainloop()
 
 
 def login(entry_user, entry_pw):
@@ -104,14 +125,14 @@ def main():
 
     # Botones con estilo personalizado
     tk.Button(framePrincipal, text="Iniciar sesión", command=lambda: login(entry_user, entry_pw),
-              bg=btn_color, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(column=0, row=2, padx=10, pady=10)
+              bg=COLOR_BOTON, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(column=0, row=2, padx=10, pady=10)
 
     tk.Button(framePrincipal, text="Crear cuenta", command=lambda: crear_user(entry_user, entry_pw),
-              bg=btn_color, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(column=1, row=2, padx=10, pady=10)
+              bg=COLOR_BOTON, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(column=1, row=2, padx=10, pady=10)
 
     # Botón de salir
     tk.Button(framePrincipal, text="Salir", command=main.destroy,
-              bg=btn_color, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(column=0, columnspan=2, row=3, pady=25)
+              bg=COLOR_BOTON, font=("Helvetica", 16, "bold"), relief="groove", bd=2).grid(column=0, columnspan=2, row=3, pady=25)
 
     framePrincipal.pack(anchor="center", expand=1)
     main.mainloop()
