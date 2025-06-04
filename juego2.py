@@ -25,7 +25,7 @@ class TimerState:
 #Clase para todo el juego
 class LexiReto:
     def __init__(self):
-        self.app= tk.Tk()
+        self.app = tk.Tk()
         self.app.attributes('-fullscreen', True)
         self.widgets= {}
         self.timer_state= TimerState()
@@ -885,11 +885,10 @@ class LexiReto:
 
 #No se si se hace de esta manera xd
 if __name__=="__main__":
-    juego= LexiReto()
+    juego = LexiReto()
+    juego.app.mainloop()
 
 # def iniciarJuego2(user):
 def iniciarJuego2():
-    # juego = LexiReto(user)
-    # juego = LexiReto()
-    # juego.root.mainloop() # No sé si borrar o no, arreglen <--
     juego= LexiReto()
+    juego.app.mainloop()
