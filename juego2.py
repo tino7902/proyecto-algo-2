@@ -46,6 +46,7 @@ class LexiReto:
             ["l", "u", "i", "q", "r", "e", "o"],
         ]
 
+        self.partida = {}
         self.tiempo_oculto = False
         self.listaAleatoriaCombinaciones = []
         for letra in choice(self.combinacionesLetras):
@@ -54,7 +55,7 @@ class LexiReto:
         self.letras_sin_repetir = self.listaAleatoriaCombinaciones[:]
         self.seleccionadas = []
         # Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en self.seleccionadas
-        with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
+        with open("diccionarioletras.txt", "r", encoding="utf-8") as archivo:
             for linea in archivo:
                 palabra = linea.strip().upper()
                 es_valida = self.verificarPalabra(palabra)
@@ -78,7 +79,7 @@ class LexiReto:
 
         # son funciones que realizan justamente lo que dicen sus nombres. Funciones que luego se llaman al pausar o continuar el juego
         self.timer_state = TimerState()
-        tiempo_label = tk.Label(
+        self.tiempo_label = tk.Label(
             self.juego,
             text="00:00",
             font=FUENTE_ETIQUETAB,
@@ -87,9 +88,9 @@ class LexiReto:
             width=5,
             anchor="center",
         )
-        tiempo_label.place(relx=0, rely=0, width=100, height=30)
+        self.tiempo_label.place(relx=0, rely=0, width=100, height=30)
 
-        self.widgets["label_tiempo"] = tiempo_label
+        self.widgets["label_tiempo"] = self.tiempo_label
         # Hace que el timer empieze nada más abrir el juego
         self.actualizar_timer()
 
@@ -423,7 +424,7 @@ class LexiReto:
             height=5,
         )
         self.mensajePalabrasElegidas7.place(x=300, y=600, width=990, height=80)
-    
+
     # Verifica si la palabra es mayor a 3 letras, si contiene la letra central y si contiene algunas de las otras letras
     def verificarPalabra(self, palabraIngresada):
         if len(palabraIngresada) < 3:
@@ -443,7 +444,6 @@ class LexiReto:
                 return False
         return True
 
-
     # Calcula el puntaje
     def calcularPuntaje(self, palabraIngresada):
         if self.esHeptacrack(palabraIngresada):
@@ -458,8 +458,6 @@ class LexiReto:
             return 2
         else:
             return 1
-
-
 
     """print(self.seleccionadas)
     print("                               ↑                               ")
@@ -544,7 +542,6 @@ class LexiReto:
         if len(self.palabrasElegidas0) == len(self.seleccionadas):
             self.mostrarFelicitacionFinal()
 
-
     # Cuando se de clic al botón de "Aplicar", verificará la palabra y cambiara el
     # espacio llamado "ingresoLetras" para volver a escribir otra palabra
     def aplicarEntrada(self):
@@ -590,7 +587,7 @@ class LexiReto:
     def onEnterCentral(self, event):
         event.widget.config(bg="#fed155", fg="white")
 
-    def onLeaveCentral(self,event):
+    def onLeaveCentral(self, event):
         event.widget.config(bg="#ffc733", fg="black")
 
     # Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
@@ -627,30 +624,35 @@ class LexiReto:
         letras_nuevas = self.letras_botones[:]
         shuffle(letras_nuevas)
         self.boton1.config(
-            text=letras_nuevas[0], command=lambda: self.actualizarLetra(letras_nuevas[0])
+            text=letras_nuevas[0],
+            command=lambda: self.actualizarLetra(letras_nuevas[0]),
         )
         self.boton2.config(
-            text=letras_nuevas[1], command=lambda: self.actualizarLetra(letras_nuevas[1])
+            text=letras_nuevas[1],
+            command=lambda: self.actualizarLetra(letras_nuevas[1]),
         )
         self.boton3.config(
-            text=letras_nuevas[2], command=lambda: self.actualizarLetra(letras_nuevas[2])
+            text=letras_nuevas[2],
+            command=lambda: self.actualizarLetra(letras_nuevas[2]),
         )
         self.boton5.config(
-            text=letras_nuevas[3], command=lambda: self.actualizarLetra(letras_nuevas[3])
+            text=letras_nuevas[3],
+            command=lambda: self.actualizarLetra(letras_nuevas[3]),
         )
         self.boton6.config(
-            text=letras_nuevas[4], command=lambda: self.actualizarLetra(letras_nuevas[4])
+            text=letras_nuevas[4],
+            command=lambda: self.actualizarLetra(letras_nuevas[4]),
         )
         self.boton7.config(
-            text=letras_nuevas[5], command=lambda: self.actualizarLetra(letras_nuevas[5])
+            text=letras_nuevas[5],
+            command=lambda: self.actualizarLetra(letras_nuevas[5]),
         )
-
 
     def actualizar_timer(self):
         if self.timer_state.activo:
-            tiempo_transcurrido = time.time() - self.timer_state.tiempo_inicio
-            minutos = int(tiempo_transcurrido // 60)
-            segundos = int(tiempo_transcurrido % 60)
+            self.partida["tiempo_transcurrido"] = int(time.time() - self.timer_state.tiempo_inicio)
+            minutos = int(self.partida["tiempo_transcurrido"] // 60)
+            segundos = int(self.partida["tiempo_transcurrido"] % 60)
             if "label_tiempo" in self.widgets and not self.tiempo_oculto:
                 self.widgets["label_tiempo"].config(
                     text=f"{minutos:02d}:{segundos:02d}"
@@ -660,16 +662,19 @@ class LexiReto:
     def pausar_timer(self):
         if self.timer_state.activo:
             self.timer_state.activo = False
-            self.timer_state.tiempo_pausado = time.time() - self.timer_state.tiempo_inicio
+            self.timer_state.tiempo_pausado = (
+                time.time() - self.timer_state.tiempo_inicio
+            )
             if self.timer_state.id:
                 self.juego.after_cancel(self.timer_state.id)
 
     def reanudar_timer(self):
         if not self.timer_state.activo:
-            self.timer_state.tiempo_inicio = time.time() - self.timer_state.tiempo_pausado
+            self.timer_state.tiempo_inicio = (
+                time.time() - self.timer_state.tiempo_pausado
+            )
             self.timer_state.activo = True
             self.actualizar_timer()
-
 
     def ocultar_mostrar_tiempo(self):
         self.tiempo_oculto = not self.tiempo_oculto
@@ -680,9 +685,7 @@ class LexiReto:
             )  # ← Cambia el texto del botón
         else:
             self.actualizar_timer()
-            self.widgets["boton_ocultar"].config(
-                text="Ocultar"
-            )  # ← Vuelve a "Ocultar"
+            self.widgets["boton_ocultar"].config(text="Ocultar")  # ← Vuelve a "Ocultar"
 
     # Pausa el juego...
     def pausarJuego(self):
