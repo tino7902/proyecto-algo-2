@@ -33,9 +33,8 @@ class LexiReto:
         ["l", "u", "i", "q", "r", "e", "o"]
         ]
 
-        #Verifica  si la palabra es mayor a 3 letras, si contiene la letra central y si contiene algunas de las otras letras
+        #Verifica si la palabra es mayor a 3 letras, si contiene la letra central y si contiene algunas de las otras letras
         def verificarPalabra(palabraIngresada, letrasDisponibles, letraCentral):
-            palabraIngresada= palabraIngresada.upper()
             if len(palabraIngresada)<3:
                 return False
             if letraCentral not in palabraIngresada:
@@ -71,29 +70,29 @@ class LexiReto:
         listaAleatoriaCombinaciones= []
         for letra in choice(combinacionesLetras):
             listaAleatoriaCombinaciones.append(letra.upper())
-        letraCentral = listaAleatoriaCombinaciones[0]
+        letraCentral= listaAleatoriaCombinaciones[0]
         letras_sin_repetir= listaAleatoriaCombinaciones[:]
 
         seleccionadas= []
         #Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en seleccionadas
         with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
             for linea in archivo:
-                palabra = linea.strip().upper()
-                es_valida = verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
+                palabra= linea.strip().upper()
+                es_valida= verificarPalabra(palabra, listaAleatoriaCombinaciones, letraCentral)
                 if es_valida:
                     seleccionadas.append(palabra)
 
         #Contador para los puntos totales
-        ptsTotal = 0
+        ptsTotal= 0
         #Listas para almacenar las palabras que se vayan ingresando en el juego
         palabrasElegidas0= []
-        palabrasElegidas1 = []
-        palabrasElegidas2 = []
-        palabrasElegidas3 = []
-        palabrasElegidas4 = []
-        palabrasElegidas5 = []
-        palabrasElegidas6 = []
-        palabrasElegidas7 = []
+        palabrasElegidas1= []
+        palabrasElegidas2= []
+        palabrasElegidas3= []
+        palabrasElegidas4= []
+        palabrasElegidas5= []
+        palabrasElegidas6= []
+        palabrasElegidas7= []
 
         #Variable que almacena el puntaje por cada palabra
         pts= 0
@@ -107,66 +106,73 @@ class LexiReto:
         def iniciarReto(palIngresada, mensajeLabel1, mensajeLabel2):
             nonlocal ptsTotal
 
-            Pal = palIngresada
-            if Pal in seleccionadas and Pal not in palabrasElegidas0:
-                if verificarPalabra(Pal.upper(), listaAleatoriaCombinaciones, letraCentral):
-                    pts = calcularPuntaje(Pal)
-                    ptsTotal= ptsTotal + pts
-                    palabrasElegidas0.append(Pal)
-                    letra_inicial= Pal[0]
-                    if letra_inicial==listaAleatoriaCombinaciones[0]:
-                        palabrasElegidas1.append(Pal)
-                    elif letra_inicial==listaAleatoriaCombinaciones[1]:
-                        palabrasElegidas2.append(Pal)
-                    elif letra_inicial==listaAleatoriaCombinaciones[2]:
-                        palabrasElegidas3.append(Pal)
-                    elif letra_inicial==listaAleatoriaCombinaciones[3]:
-                        palabrasElegidas4.append(Pal)
-                    elif letra_inicial==listaAleatoriaCombinaciones[4]:
-                        palabrasElegidas5.append(Pal)
-                    elif letra_inicial==listaAleatoriaCombinaciones[5]:
-                        palabrasElegidas6.append(Pal)
-                    elif letra_inicial==listaAleatoriaCombinaciones[6]:
-                        palabrasElegidas7.append(Pal)
-                    palabrasElegidasSinEspacios1= ", ".join(palabrasElegidas1)
-                    palabrasElegidasSinEspacios2= ", ".join(palabrasElegidas2)
-                    palabrasElegidasSinEspacios3= ", ".join(palabrasElegidas3)
-                    palabrasElegidasSinEspacios4= ", ".join(palabrasElegidas4)
-                    palabrasElegidasSinEspacios5= ", ".join(palabrasElegidas5)
-                    palabrasElegidasSinEspacios6= ", ".join(palabrasElegidas6)
-                    palabrasElegidasSinEspacios7= ", ".join(palabrasElegidas7)
-                    if esHeptacrack(Pal)==True:
-                        mensaje1.config(text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s\nTienes {ptsTotal} punto/s en total")
-                    else:
-                        mensaje1.config(text=f"Haz obtenido {pts} punto/s\nTienes {ptsTotal} punto/s en total")
-                    mensajeLabel2.config(text=f"Palabras encontradas: {len(palabrasElegidas0)}/{len(seleccionadas)}")
-                    todas_letras = listaAleatoriaCombinaciones
-                    listasPalabrasSinEspacios = [palabrasElegidas1, palabrasElegidas2, palabrasElegidas3, palabrasElegidas4, palabrasElegidas5, palabrasElegidas6, palabrasElegidas7]
-                    for i in range(len(todas_letras)):
-                        if i<len(listasPalabrasSinEspacios):
-                            texto= f"Palabras encontradas con {todas_letras[i]}: {', '.join(listasPalabrasSinEspacios[i])}"
-                            if i==0:
-                                mensajePalabrasElegidas1.config(text=texto)
-                            elif i==1:
-                                mensajePalabrasElegidas2.config(text=texto)
-                            elif i==2:
-                                mensajePalabrasElegidas3.config(text=texto)
-                            elif i==3:
-                                mensajePalabrasElegidas4.config(text=texto)
-                            elif i==4:
-                                mensajePalabrasElegidas5.config(text=texto)
-                            elif i==5:
-                                mensajePalabrasElegidas6.config(text=texto)
-                            elif i==6:
-                                mensajePalabrasElegidas7.config(text=texto)
-                    if len(palabrasElegidas0)==len(seleccionadas):
-                        mostrarFelicitacionFinal()
-                else:
-                    mensajeLabel1.config(text=f"La palabra no contiene la letra {letraCentral} o es demasiado corta.")
-            elif Pal in palabrasElegidas0:
-                mensajeLabel1.config(text="Ya ingresaste esa palabra")
-            else:
+            Pal= palIngresada.upper()
+            if not verificarPalabra(Pal, listaAleatoriaCombinaciones, letraCentral):
+                mensajeLabel1.config(text=f"La palabra no contiene la letra {letraCentral} o es demasiado corta.")
+                return
+            if Pal not in seleccionadas:
                 mensajeLabel1.config(text="Palabra inválida")
+                return
+            if Pal in palabrasElegidas0:
+                mensajeLabel1.config(text="Ya ingresaste esa palabra")
+                return
+
+            pts= calcularPuntaje(Pal)
+            ptsTotal= ptsTotal + pts
+            palabrasElegidas0.append(Pal)
+            letra_inicial= Pal[0]
+            if letra_inicial==listaAleatoriaCombinaciones[0]:
+                palabrasElegidas1.append(Pal)
+            elif letra_inicial==listaAleatoriaCombinaciones[1]:
+                palabrasElegidas2.append(Pal)
+            elif letra_inicial==listaAleatoriaCombinaciones[2]:
+                palabrasElegidas3.append(Pal)
+            elif letra_inicial==listaAleatoriaCombinaciones[3]:
+                palabrasElegidas4.append(Pal)
+            elif letra_inicial==listaAleatoriaCombinaciones[4]:
+                palabrasElegidas5.append(Pal)
+            elif letra_inicial==listaAleatoriaCombinaciones[5]:
+                palabrasElegidas6.append(Pal)
+            elif letra_inicial==listaAleatoriaCombinaciones[6]:
+                palabrasElegidas7.append(Pal)
+            
+            palabrasElegidasSinEspacios1= ", ".join(palabrasElegidas1)
+            palabrasElegidasSinEspacios2= ", ".join(palabrasElegidas2)
+            palabrasElegidasSinEspacios3= ", ".join(palabrasElegidas3)
+            palabrasElegidasSinEspacios4= ", ".join(palabrasElegidas4)
+            palabrasElegidasSinEspacios5= ", ".join(palabrasElegidas5)
+            palabrasElegidasSinEspacios6= ", ".join(palabrasElegidas6)
+            palabrasElegidasSinEspacios7= ", ".join(palabrasElegidas7)
+            
+            if esHeptacrack(Pal)==True:
+                mensaje1.config(text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s\nTienes {ptsTotal} punto/s en total")
+            else:
+                mensaje1.config(text=f"Haz obtenido {pts} punto/s\nTienes {ptsTotal} punto/s en total")
+            
+            mensajeLabel2.config(text=f"Palabras encontradas: {len(palabrasElegidas0)}/{len(seleccionadas)}")
+            todas_letras= listaAleatoriaCombinaciones
+            listasPalabrasSinEspacios= [palabrasElegidas1, palabrasElegidas2, palabrasElegidas3, palabrasElegidas4, palabrasElegidas5, palabrasElegidas6, palabrasElegidas7]
+            
+            for i in range(len(todas_letras)):
+                if i<len(listasPalabrasSinEspacios):
+                    texto= f"Palabras encontradas con {todas_letras[i]}: {', '.join(listasPalabrasSinEspacios[i])}"
+                    if i==0:
+                        mensajePalabrasElegidas1.config(text=texto)
+                    elif i==1:
+                        mensajePalabrasElegidas2.config(text=texto)
+                    elif i==2:
+                        mensajePalabrasElegidas3.config(text=texto)
+                    elif i==3:
+                        mensajePalabrasElegidas4.config(text=texto)
+                    elif i==4:
+                        mensajePalabrasElegidas5.config(text=texto)
+                    elif i==5:
+                        mensajePalabrasElegidas6.config(text=texto)
+                    elif i==6:
+                        mensajePalabrasElegidas7.config(text=texto)
+            
+            if len(palabrasElegidas0)==len(seleccionadas):
+                mostrarFelicitacionFinal()
 
         #Elimino la letra central de mi lista de "letras_sin_repetir" para mandarsela a la lista "letras_botones", ya que esa lista no necesita la letraCentral
         letras_botones= []
@@ -866,7 +872,7 @@ class LexiReto:
 
         self.app.mainloop()
 
-#No sé si se hace esta manera o no xd
+#No se si se hace de esta manera xd
 if __name__=="__main__":
     juego= LexiReto()
 
