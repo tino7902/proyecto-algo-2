@@ -66,7 +66,7 @@ class LexiReto:
             bg=COLOR_BOTON,
             command=self.pausarJuego,
         )
-        boton_pausa.place(x=1440, y=0, width=100, height=30)
+        boton_pausa.place(relx=1.0, y=0, anchor="ne", width=100, height=30)
 
         boton_pausa.bind("<Enter>", self.onEnterPausaIns)
         boton_pausa.bind("<Leave>", self.onLeavePausaIns)
