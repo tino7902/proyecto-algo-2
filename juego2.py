@@ -76,7 +76,6 @@ class LexiReto:
 
         # Elimino la letra central de mi lista de "letras_sin_repetir" para mandarsela a la lista "letras_botones", ya que esa lista no necesita la letraCentral
 
-        # A partir de acá, hasta la línea 440, son los botones en donde apareceran las letras escogidas
         self.boton1 = tk.Button(
             self.juego,
             text=self.partida["letras_botones"][0],
@@ -169,7 +168,7 @@ class LexiReto:
         self.boton7.bind("<Enter>", self.onEnterLetrasApli)
         self.boton7.bind("<Leave>", self.onLeaveLetrasApli)
 
-        # Botón que manda a la función "iniciarReto" la palabra ingresada
+        # Botón que manda a la función "aplicarEntrada" la palabra ingresada
         self.aplicar = tk.Button(
             self.juego,
             text=("Aplicar"),
@@ -211,6 +210,7 @@ class LexiReto:
         self.borrar.bind("<Enter>", self.onEnterLetrasApli)
         self.borrar.bind("<Leave>", self.onLeaveLetrasApli)
 
+        #Botón para ver las instrucciones del juego
         self.comoJugar = tk.Button(
             self.juego,
             text=("Cómo se juega"),
@@ -224,6 +224,7 @@ class LexiReto:
         self.comoJugar.bind("<Enter>", self.onEnterPausaIns)
         self.comoJugar.bind("<Leave>", self.onLeavePausaIns)
 
+        #Botón para ocultar el timer
         self.boton_ocultar = tk.Button(
             self.juego,
             text="Ocultar",
@@ -270,6 +271,7 @@ class LexiReto:
         )
         self.mensaje2.place(x=50, y=400, width=650, height=50)
 
+        #Imprime cuántas palabras se encontraron de acuerdo a la primera letra
         self.mensajePalabrasElegidas1 = tk.Label(
             self.juego,
             text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[0]}: {', '.join(self.partida.get('palabrasElegidas1'))}",
@@ -578,7 +580,7 @@ class LexiReto:
         mp.eliminar_partida(self.user, "juego2")
         self.juego.destroy()
 
-    # Función para cuando se de clic al botón de "actualizar" (Línea 476), genere una nueva letra de las elegidas para cada botón
+    # Función para cuando se de clic al botón de "actualizar", genere una nueva letra de las elegidas para cada botón
     def mezclarLetras(self):
         letras_nuevas = self.partida["letras_botones"][:]
         shuffle(letras_nuevas)
