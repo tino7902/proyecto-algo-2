@@ -46,22 +46,31 @@ def check_user_pw(user, pw):
 
 
 def iniciarJuego1(user):
-    global root
-    global menu
+    global root, menu
+    mostrar_cargando("Cargando Letras...")
     menu.withdraw()
+    root.after(500, lambda: lanzar_juego1(user))
+
+def lanzar_juego1(user):
+    global menu
     juego1 = j1.JuegoLetras(user, root)
     menu.wait_window(juego1.juego)
+    ocultar_cargando()
     menu.deiconify()
     menu.lift()
     menu.focus_force()
 
-
 def iniciarJuego2(user):
-    global root
-    global menu
+    global root, menu
+    mostrar_cargando("Cargando LexiReto...")
     menu.withdraw()
+    root.after(500, lambda: lanzar_juego2(user))
+
+def lanzar_juego2(user):
+    global menu
     juego2 = j2.LexiReto(user, root)
     menu.wait_window(juego2.juego)
+    ocultar_cargando()
     menu.deiconify()
     menu.lift()
     menu.focus_force()
@@ -69,7 +78,6 @@ def iniciarJuego2(user):
 
 def elegir_juego(user):
     global root
-    root.withdraw()
     global menu
     menu = tk.Toplevel()
     menu.attributes("-fullscreen", True)
@@ -157,6 +165,14 @@ def crear_user(entry_user, entry_pw):
         usuarios.append(Usuario(entry_user.get(), entry_pw.get()))
         actualizar_usuarios_txt()
 
+def mostrar_cargando(mensaje="Cargando..."):
+    pantalla_carga.config(text=mensaje)
+    pantalla_carga.place(relx=0, rely=0, relwidth=1, relheight=1)
+    pantalla_carga.lift()
+
+def ocultar_cargando():
+    pantalla_carga.place_forget()
+
 
 def main():
     global usuarios
@@ -170,6 +186,20 @@ def main():
     global root
     root = tk.Tk()
     root.attributes("-fullscreen", True)
+
+    # Capa negra de carga
+    global pantalla_carga
+    pantalla_carga = tk.Label(
+        root,
+        bg="black",
+        fg="white",
+        font=("Segoe UI", 32, "bold"),
+        text="Cargando...",
+        anchor="center"
+    )
+    pantalla_carga.place(relx=0, rely=0, relwidth=1, relheight=1)
+    pantalla_carga.lower()  # lo manda al fondo
+    pantalla_carga.place_forget()  # lo oculta al inicio
 
     framePrincipal = tk.Frame(root)
     entry_user = tk.StringVar()

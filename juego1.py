@@ -85,14 +85,17 @@ class JuegoLetras:
         ).pack(pady=10)
 
         # Frame para el cronometro
-        self.label_cronometro = tk.Label(
+        self.label_cronometro = tk.Button(
             self.frame_controles,
             text="⏱️ Tiempo: 00:00",
             font=FUENTE_BOTON,
             bg=COLOR_FONDO,
+            command=self.toggle_cronometro_texto,
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=0, 
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
-        self.label_cronometro.bind("<Button-1>", print("PRUEBA")) # Falta arreglar esto
 
         self.boton_pausa = tk.Button(
             self.frame_controles,
@@ -493,19 +496,12 @@ class JuegoLetras:
             self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     def mostrar_timer_texto(self):
-        if not self.timer_pausado:
-            if self.partida.get("tiempo_transcurrido") is None:
-                self.partida["tiempo_transcurrido"] = 1
-            else:
-                self.partida["tiempo_transcurrido"] += 1
-
-            minutos = self.partida["tiempo_transcurrido"] // 60
-            segundos = self.partida["tiempo_transcurrido"] % 60
-            if not self.timer_oculto:
-                self.label_cronometro.config(text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}")
+        minutos = self.partida["tiempo_transcurrido"] // 60
+        segundos = self.partida["tiempo_transcurrido"] % 60
+        if not self.timer_oculto:
+            self.label_cronometro.config(text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}")
 
     def toggle_cronometro_texto(self):
-        print(self.timer_oculto)
         if not self.timer_oculto:
             self.label_cronometro.config(text="⏱️ Tiempo: --:--")
             self.timer_oculto = True
