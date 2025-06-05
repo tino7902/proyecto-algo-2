@@ -544,7 +544,6 @@ class LexiReto:
 
     # Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
     def mostrarFelicitacionFinal(self):
-        print("✔ ¡Función mostrarFelicitacionFinal activada!")
         capa = tk.Frame(self.juego, bg="white")
         capa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -758,6 +757,8 @@ class LexiReto:
                         es_valida = self.verificarPalabra(palabra)
                         if es_valida:
                             self.partida["seleccionadas"].append(palabra)
+
+
             print(self.partida.get("seleccionadas"))
 
             # Contador para los puntos totales
@@ -791,7 +792,13 @@ class LexiReto:
         self.actualizar_timer()
         self.tiempo_label.config(text={})
 
+    """def mostrarSeleccionadas(self):
+        print(self.partida["seleccionadas"])
+        print("                               ↑                               ")
+        print("Lista de seleccionados (desde método personalizado)\n")"""
+
 if __name__ == "__main__":
     prueba = tk.Tk()
+    prueba.withdraw()  # Oculta ventana principal
     juego = LexiReto("prueba", prueba)
     prueba.mainloop()
