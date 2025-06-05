@@ -46,8 +46,10 @@ class JuegoLetras:
     def generar_y_guardar_en_segundo_plano(self):
         try:
             matriz, palabras = gen.generar_sopa_inteligente()
-            gen.guardar_matriz_en_archivo(matriz, palabras, "matrices_validas.txt")
-            print("✅ Matriz regenerada en segundo plano")
+            if (gen.guardar_matriz_en_archivo(matriz, palabras, "matrices_validas.txt")):
+                print("✅ Matriz regenerada en segundo plano")
+            else:
+                print("Máximo matrices en archivos")
         except Exception as e:
             print("⚠️ Error generando matriz en segundo plano:", e)
 
@@ -90,8 +92,7 @@ class JuegoLetras:
             bg=COLOR_FONDO,
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
-        # no anda
-        # self.label_cronometro.bind("<Button-1>", self.toggle_cronometro_texto)
+        self.label_cronometro.bind("<Button-1>", print("PRUEBA")) # Falta arreglar esto
 
         self.boton_pausa = tk.Button(
             self.frame_controles,
@@ -463,17 +464,6 @@ class JuegoLetras:
                 )
             self.timer_id = self.juego.after(1000, self.actualizar_cronometro)
 
-    """
-    def actualizar_timer():  # Usar este contador más adelante cuando se arregle el bug
-        if self.timer_state.activo:
-            tiempo_transcurrido = time.time() - self.timer_state.tiempo_inicio
-            minutos = int(tiempo_transcurrido // 60)
-            segundos = int(tiempo_transcurrido % 60)
-            if 'label_tiempo' in self.widgets and not self.tiempo_oculto:
-                self.widgets['label_tiempo'].config(text=f"{minutos:02d}:{segundos:02d}")
-            self.timer_state.id = self.app.after(1000, actualizar_timer)
-    """
-
     def pausar_cronometro(self):
         self.timer_pausado = True
         if self.timer_id:
@@ -502,24 +492,26 @@ class JuegoLetras:
             self.overlay_pausa.lift()
             self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-    def toggle_cronometro_texto(self):
-        if not self.timer_oculto:
-            self.timer_oculto = True
-            self.label_cronometro.config(text="⏱️ Tiempo: --:--")
-        else:
-            self.timer_oculto = False
-            self.actualizar_cronometro()
+    def mostrar_timer_texto(self):
+        if not self.timer_pausado:
+            if self.partida.get("tiempo_transcurrido") is None:
+                self.partida["tiempo_transcurrido"] = 1
+            else:
+                self.partida["tiempo_transcurrido"] += 1
 
-    """
-    def ocultar_mostrar_tiempo():   # Usar este código cuando se arregle el bug
-        self.tiempo_oculto = not self.tiempo_oculto
-        if self.tiempo_oculto:
-            self.widgets['label_tiempo'].config(text="--:--")
-            self.widgets['boton_ocultar'].config(text="Mostrar")# ← Cambia el texto del botón
+            minutos = self.partida["tiempo_transcurrido"] // 60
+            segundos = self.partida["tiempo_transcurrido"] % 60
+            if not self.timer_oculto:
+                self.label_cronometro.config(text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}")
+
+    def toggle_cronometro_texto(self):
+        print(self.timer_oculto)
+        if not self.timer_oculto:
+            self.label_cronometro.config(text="⏱️ Tiempo: --:--")
+            self.timer_oculto = True
         else:
-            actualizar_timer()
-            self.widgets['boton_ocultar'].config(text="Ocultar")# ← Vuelve a "Ocultar"
-    """
+            self.mostrar_timer_texto()
+            self.timer_oculto = False
 
     def reanudar_desde_overlay(self):
         self.overlay_pausa.place_forget()

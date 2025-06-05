@@ -106,6 +106,9 @@ def buscar_palabra_por_patron(patron, diccionario):
 
 # ------------------ Guardado en archivo ------------------
 def guardar_matriz_en_archivo(matriz, palabras, archivo="matrices_validas.txt"):
+    max_matrices = 15
+    if contar_matrices_en_archivo(archivo) >= max_matrices:
+        return 0
     with open(archivo, "a", encoding="utf-8") as f:
         f.write(str(palabras) + "\n")
         for fila in matriz:
