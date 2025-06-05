@@ -29,21 +29,6 @@ def generar_letras():
     return letras
 
 
-# Clase para usarla luego con el times
-class TimerState:
-    def __init__(self, inicio):
-        if inicio == 0:
-            self.tiempo_inicio = int(time.time())
-        else:
-            self.tiempo_inicio = inicio
-        self.tiempo_pausado = 0
-        self.activo = True
-        self.id = None
-
-    def __str__(self):
-        return self.tiempo_inicio
-
-
 # Clase para todo el juego
 class LexiReto:
     def __init__(self, user, root):
@@ -51,7 +36,9 @@ class LexiReto:
         self.juego = tk.Toplevel(root)
         self.juego.attributes("-fullscreen", True)
         self.widgets = {}
-        self.tiempo_oculto = False
+        self.timer_pausado = False
+        self.timer_id = None
+        self.timer_oculto = False
 
         self.iniciar_juego()
 
@@ -579,7 +566,13 @@ class LexiReto:
         cerrar_btn.bind("<Enter>", self.onEnterCerrar)
         cerrar_btn.bind("<Leave>", self.onLeaveCerrar)
 
+    """def fin_juego(self):
+        mp.eliminar_partida(self.user, "juego2")
+        self.juego.destroy()"""
+
     def fin_juego(self):
+        self.pausar_timer()
+        mp.guardar_partida(self.user, self.partida, "juego2")
         mp.eliminar_partida(self.user, "juego2")
         self.juego.destroy()
 
@@ -613,43 +606,53 @@ class LexiReto:
         )
 
     def actualizar_timer(self):
-        if self.timer_state.activo:
-            self.partida["tiempo_transcurrido"] = int(
-                time.time() - self.timer_state.tiempo_inicio
-            )
-            minutos = int(self.partida["tiempo_transcurrido"] // 60)
-            segundos = int(self.partida["tiempo_transcurrido"] % 60)
-            if not self.tiempo_oculto:
-                self.tiempo_label.config(text=f"{minutos:02d}:{segundos:02d}")
-            self.timer_state.id = self.juego.after(1000, self.actualizar_timer)
+        if not self.timer_pausado:
+            if self.partida.get("tiempo_transcurrido") is None:
+                self.partida["tiempo_transcurrido"] = 1
+            else:
+                self.partida["tiempo_transcurrido"] += 1
 
+            minutos = self.partida["tiempo_transcurrido"] // 60
+            segundos = self.partida["tiempo_transcurrido"] % 60
+            if not self.timer_oculto:
+                self.tiempo_label.config(text=f"{minutos:02}:{segundos:02}")
+            self.timer_id = self.juego.after(1000, self.actualizar_timer)
+
+    def mostrar_timer_texto(self):
+        if not self.timer_pausado:
+            if self.partida.get("tiempo_transcurrido") is None:
+                self.partida["tiempo_transcurrido"] = 1
+            else:
+                self.partida["tiempo_transcurrido"] += 1
+
+            minutos = self.partida["tiempo_transcurrido"] // 60
+            segundos = self.partida["tiempo_transcurrido"] % 60
+            if not self.timer_oculto:
+                self.tiempo_label.config(text=f"{minutos:02}:{segundos:02}")
+
+        
     def pausar_timer(self):
-        if self.timer_state.activo:
-            self.timer_state.activo = False
-            self.timer_state.tiempo_pausado = (
-                time.time() - self.timer_state.tiempo_inicio
-            )
-            if self.timer_state.id:
-                self.juego.after_cancel(self.timer_state.id)
+        self.timer_pausado = True
+        if self.timer_id:
+            self.juego.after_cancel(self.timer_id)
+            self.timer_id = None
 
     def reanudar_timer(self):
-        if not self.timer_state.activo:
-            self.timer_state.tiempo_inicio = (
-                time.time() - self.timer_state.tiempo_pausado
-            )
-            self.timer_state.activo = True
+        if self.timer_pausado:
+            self.timer_pausado = False
             self.actualizar_timer()
 
     def ocultar_mostrar_tiempo(self):
-        self.tiempo_oculto = not self.tiempo_oculto
-        if self.tiempo_oculto:
+        if not self.timer_oculto:
             self.tiempo_label.config(text="--:--")
             self.widgets["boton_ocultar"].config(
                 text="Mostrar"
-            )  # ← Cambia el texto del botón
+            )
+            self.timer_oculto = True
         else:
-            self.actualizar_timer()
-            self.widgets["boton_ocultar"].config(text="Ocultar")  # ← Vuelve a "Ocultar"
+            self.timer_oculto = False
+            self.mostrar_timer_texto()
+            self.widgets["boton_ocultar"].config(text="Ocultar")
 
     def pausarJuego(self):
         self.pausar_timer()
@@ -696,6 +699,7 @@ class LexiReto:
         boton_salir_pausa.bind("<Leave>", self.onLeaveCerrar)
 
     def salir(self):
+        self.pausar_timer()
         mp.guardar_partida(self.user, self.partida, "juego2")
         self.juego.destroy()
 
@@ -792,15 +796,11 @@ class LexiReto:
             if self.partida["letraCentral"] in self.letras_sin_repetir:
                 self.letras_sin_repetir.remove(self.partida["letraCentral"])
 
-            self.timer_state = TimerState(0)
-            self.partida["tiempo_inicio"] = self.timer_state.tiempo_inicio
+            self.partida["tiempo_transcurrido"] = 0
 
             mp.guardar_partida(self.user, self.partida, "juego2")
-        else:
-            self.timer_state = TimerState(self.partida.get("tiempo_inicio", 0))
 
         self.actualizar_timer()
-        self.tiempo_label.config(text={})
 
     def simularVictoria(self):
         print("▶ Simulando victoria...")
