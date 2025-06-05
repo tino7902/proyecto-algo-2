@@ -212,7 +212,7 @@ class LexiReto:
         # Botón para borrar la última letra ingresada
         self.borrar = tk.Button(
             self.juego,
-            text=("BORRAR"),
+            text=("Borrar"),
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             command=self.borrarUltimaLetra,
@@ -515,7 +515,7 @@ class LexiReto:
         event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
 
     def onLeaveLetrasApli(self, event):
-        event.widget.config(fg="black")
+        event.widget.config(bg="SystemButtonFace", fg="black")
 
     def onEnterPausaIns(self, event):
         event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
@@ -644,7 +644,6 @@ class LexiReto:
             self.actualizar_timer()
             self.widgets["boton_ocultar"].config(text="Ocultar")  # ← Vuelve a "Ocultar"
 
-    # Pausa el juego...
     def pausarJuego(self):
         self.pausar_timer()
         pausa_capa = tk.Frame(self.juego, bg=COLOR_TEXTO)
