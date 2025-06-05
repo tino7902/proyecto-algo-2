@@ -27,12 +27,6 @@ class JuegoLetras:
         self.timer_id = None
         self.timer_oculto = False
         self.pista = 0
-
-        # Variables del juego
-        # self.partida = {}
-        # self.partida["puntaje"] = 0
-        # self.partida["tiempo_transcurrido"] = 0
-        # self.partida["palabras_encontradas"] = []
         self.letras_seleccionadas = []
 
         # Crear interfaz
@@ -581,7 +575,7 @@ class JuegoLetras:
 
 # ------------------ Ejemplo de uso ------------------
 if __name__ == "__main__":
-    juego = JuegoLetras(
-        "prueba"
-    )  # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
+    prueba = tk.Tk()
+    prueba.withdraw()  # Oculta ventana principal
+    juego = JuegoLetras("",prueba)  # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
     juego.juego.mainloop()
