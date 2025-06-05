@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
 import random
 import generar as gen
 import threading
@@ -47,7 +46,7 @@ class JuegoLetras:
     def generar_y_guardar_en_segundo_plano(self):
         try:
             matriz, palabras = gen.generar_sopa_inteligente()
-            if (gen.guardar_matriz_en_archivo(matriz, palabras, "matrices_validas.txt")):
+            if gen.guardar_matriz_en_archivo(matriz, palabras, "matrices_validas.txt"):
                 print("✅ Matriz regenerada en segundo plano")
             else:
                 print("Máximo matrices en archivos")
@@ -74,7 +73,7 @@ class JuegoLetras:
             text=f"🏅 Puntaje: {puntos}",
             font=FUENTE_BOTON,
             bg=COLOR_FONDO,
-            width = 15,
+            width=15,
         )
         self.label_puntaje.pack(fill=tk.X, pady=5)
 
@@ -88,7 +87,7 @@ class JuegoLetras:
             relief="flat",
             borderwidth=0,
             highlightthickness=0,
-            width=15
+            width=15,
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
 
@@ -98,7 +97,7 @@ class JuegoLetras:
             text="⏸ Pausa",
             font=FUENTE_BOTON,
             bg=COLOR_SECUNDARIO,
-            width = 15,
+            width=15,
             command=self.toggle_cronometro,
         )
         self.boton_pausa.pack(fill=tk.X, pady=5)
@@ -110,7 +109,7 @@ class JuegoLetras:
             font=FUENTE_BOTON,
             bg=COLOR_SECUNDARIO,
             fg=COLOR_TEXTO,
-            width = 25,
+            width=25,
             command=self.Instrucciones,
         ).pack(fill=tk.X, pady=5)
 
@@ -157,7 +156,7 @@ class JuegoLetras:
             font=FUENTE_BOTON,
             bg="#cc4444",
             fg="white",
-            command=self.cerrar_juego, 
+            command=self.cerrar_juego,
         )
         self.boton_salir_menu.pack(pady=10)
 
@@ -183,12 +182,18 @@ class JuegoLetras:
             self.botones_letras.append(fila_botones)
         # Frame central a la derecha de la matriz
         self.frame_centro_derecha = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
-        self.frame_centro_derecha.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=10)
-
+        self.frame_centro_derecha.pack(
+            side=tk.LEFT, fill=tk.BOTH, expand=False, padx=10
+        )
 
         # Contenedor debajo de la matriz
         self.frame_inferior = tk.Frame(self.frame_tablero, bg=COLOR_FONDO)
-        self.frame_inferior.grid(row=len(self.partida["tablero"]), column=0, columnspan=len(self.partida["tablero"][0]), pady=(10, 0))
+        self.frame_inferior.grid(
+            row=len(self.partida["tablero"]),
+            column=0,
+            columnspan=len(self.partida["tablero"][0]),
+            pady=(10, 0),
+        )
 
         # Palabra actual
         self.label_palabra = tk.Label(
@@ -197,7 +202,7 @@ class JuegoLetras:
             font=FUENTE_ETIQUETA,
             bg=COLOR_FONDO,
             fg=COLOR_TEXTO,
-            anchor="center"
+            anchor="center",
         )
         self.label_palabra.pack(fill=tk.X, pady=(0, 10))
 
@@ -278,23 +283,19 @@ class JuegoLetras:
             text="",
             font=FUENTE_ETIQUETA,
             fg=COLOR_TEXTO,
-            bg=COLOR_FONDO,   
+            bg=COLOR_FONDO,
             wraplength=250,
-            justify="left"
+            justify="left",
         )
         self.label_mensaje.pack(fill=tk.X, pady=(10, 5))
-    
+
     def mostrar_mensaje(self, texto, tipo="info"):
-        colores = {
-            "info": COLOR_TEXTO,
-            "exito": "green",
-            "error": "red"
-        }
+        colores = {"info": COLOR_TEXTO, "exito": "green", "error": "red"}
         self.label_mensaje.config(text=texto, fg=colores.get(tipo, COLOR_TEXTO))
 
     def cerrar_juego(self):
-            mp.guardar_partida(self.user, self.partida, "juego1")
-            self.juego.destroy()
+        mp.guardar_partida(self.user, self.partida, "juego1")
+        self.juego.destroy()
 
     def seleccionar_letra(self, fila, columna):
         # Si ya fue seleccionada, no hacer nada
@@ -386,7 +387,6 @@ class JuegoLetras:
         self.actualizar_estadisticas()
         self.mostrar_resumen_palabras()
 
-
     def mostrar_resumen_palabras(self):
         palabras = self.partida.get("palabras_colocadas", [])
         encontradas = set(self.partida.get("palabras_encontradas", []))
@@ -445,9 +445,8 @@ class JuegoLetras:
         self.label_stats.config(
             text=f"Encontrados: {encontradas}\nCompletados: {porcentaje:.2f}%"
         )
-        self.label_puntaje.config(
-                text=f"🏅 Puntaje: {self.partida.get('puntaje', 0)}"
-        )
+        self.label_puntaje.config(text=f"🏅 Puntaje: {self.partida.get('puntaje', 0)}")
+
     def buscar_palabra_en_matriz(self, palabra):
         FILAS = len(self.partida["tablero"])
         COLUMNAS = len(self.partida["tablero"][0])
@@ -490,14 +489,19 @@ class JuegoLetras:
             if p not in self.partida.get("palabras_encontradas", [])
         ]
         if not posibles:
-            self.mostrar_mensaje("Pista", "¡Ya encontraste todas las palabras!", tipo="info")
+            self.mostrar_mensaje(
+                "Pista", "¡Ya encontraste todas las palabras!", tipo="info"
+            )
             return
 
         palabra = random.choice(posibles)
         camino = self.buscar_palabra_en_matriz(palabra)
 
         if not camino:
-            self.mostrar_mensaje(f"No se pudo encontrar la palabra '{palabra}' en la matriz.", tipo="error")
+            self.mostrar_mensaje(
+                f"No se pudo encontrar la palabra '{palabra}' en la matriz.",
+                tipo="error",
+            )
             return
 
         for f, c in camino:
@@ -610,11 +614,10 @@ class JuegoLetras:
         segundos = self.partida["tiempo_transcurrido"] % 60
         tiempo_str = f"{minutos:02}:{segundos:02}"
 
-        messagebox.showinfo(
-            "¡Felicidades!",
-            f"Encontraste todas las palabras.\nTiempo: {tiempo_str}\nPuntaje: {self.partida['puntaje']}",
+        self.mostrar_mensaje(
+            f"¡Felicidades! \nEncontraste todas las palabras.\nTiempo: {tiempo_str}\nPuntaje: {self.partida['puntaje']}",
+            "exito",
         )
-
         self.reiniciar_juego()
         mp.guardar_partida(self.user, self.partida, "juego1")
 
@@ -623,5 +626,7 @@ class JuegoLetras:
 if __name__ == "__main__":
     prueba = tk.Tk()
     prueba.withdraw()  # Oculta ventana principal
-    juego = JuegoLetras("",prueba)  # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
+    juego = JuegoLetras(
+        "", prueba
+    )  # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
     juego.juego.mainloop()

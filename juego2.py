@@ -18,7 +18,7 @@ FUENTE_BOTON = ("Segoe UI", 15, "bold")
 
 def generar_letras():
     vocales = list("AEIOU")
-    consonantes = list("BCDFGHJKLMNÑPQRSTVWXYZ")
+    consonantes = list("BCDFGHJKLMNPQRSTV")
 
     # Seleccionamos sin repetir
     seleccion_vocales = sample(vocales, 3)

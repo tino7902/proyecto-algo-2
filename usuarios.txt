@@ -7,8 +7,3 @@ coso;coso
 abc;abc
 abc1;abc
 ;
-<<<<<<< HEAD
-este usuario es un crac;123
-=======
-usuario2;contra
->>>>>>> 91b034e731811ed0d7c275522550432d13ae44c5
