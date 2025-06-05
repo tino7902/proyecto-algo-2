@@ -136,7 +136,7 @@ class JuegoLetras:
             font=FUENTE_BOTON,
             bg="#cc4444",
             fg="white",
-            command=self.juego.destroy,
+            command=self.cerrar_juego, 
         )
         self.boton_salir_menu.pack(pady=10)
 
@@ -258,6 +258,10 @@ class JuegoLetras:
 
         self.actualizar_cronometro()
 
+    def cerrar_juego(self):
+            mp.guardar_partida(self.user, self.partida, "juego1")
+            self.juego.destroy()
+
     def seleccionar_letra(self, fila, columna):
         # Si ya fue seleccionada, no hacer nada
         if (fila, columna) in self.letras_seleccionadas:
@@ -368,6 +372,7 @@ class JuegoLetras:
         self.reiniciar_cronometro()
         self.partida["puntaje"] = 0
         self.label_puntaje.config(text="🏅 Puntaje: 0")
+        mp.guardar_partida(self.user, self.partida, "juego1")
 
     def actualizar_estadisticas(self):
         total_palabras = len(self.partida.get("palabras_colocadas"))
@@ -567,6 +572,7 @@ class JuegoLetras:
         )
 
         self.reiniciar_juego()
+        mp.guardar_partida(self.user, self.partida, "juego1")
 
 
 # def iniciarJuego1(user):
