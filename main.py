@@ -49,7 +49,7 @@ def iniciarJuego1(user):
     global root, menu
     mostrar_cargando("Cargando Letras...")
     menu.withdraw()
-    root.after(500, lambda: lanzar_juego1(user))
+    root.after(50, lambda: lanzar_juego1(user))
 
 def lanzar_juego1(user):
     global menu
@@ -64,7 +64,7 @@ def iniciarJuego2(user):
     global root, menu
     mostrar_cargando("Cargando LexiReto...")
     menu.withdraw()
-    root.after(500, lambda: lanzar_juego2(user))
+    root.after(50, lambda: lanzar_juego2(user))
 
 def lanzar_juego2(user):
     global menu

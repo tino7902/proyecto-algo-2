@@ -14,3 +14,4 @@
 - [ ] Agregar botón de mejores 3 puntajes en ambos juegos: YA NO HAY TIEMPO XD
 - [X] Cambiar la posición de los botones de pausa en el juego2
 - [ ] Implementar ranking (?): XD
+- [ ] Arreglar cuando encontras una palabra en juego1 te sale del juego, modificar por interfaz supongo: URGENTE   
