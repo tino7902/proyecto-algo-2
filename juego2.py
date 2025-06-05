@@ -557,7 +557,7 @@ class LexiReto:
 
         mensaje = tk.Label(
             capa,
-            text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: Marcelo López\nPuntaje obtenido: {self.partida['ptsTotal']}\n",
+            text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: {self.user}\nPuntaje obtenido: {self.partida['ptsTotal']}\n",
             font=FUENTE_ETIQUETAB,
             fg=COLOR_TEXTO,
             bg="white",
