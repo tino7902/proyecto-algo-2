@@ -544,6 +544,7 @@ class LexiReto:
 
     # Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
     def mostrarFelicitacionFinal(self):
+        print("✔ ¡Función mostrarFelicitacionFinal activada!")
         capa = tk.Frame(self.juego, bg="white")
         capa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -790,8 +791,6 @@ class LexiReto:
         self.actualizar_timer()
         self.tiempo_label.config(text={})
 
-
-# No se si se hace de esta manera xd
 if __name__ == "__main__":
     prueba = tk.Tk()
     juego = LexiReto("prueba", prueba)
