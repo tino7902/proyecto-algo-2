@@ -13,7 +13,7 @@ FUENTE_TITULO = ("Segoe UI", 32, "bold")
 FUENTE_ETIQUETA = ("Segoe UI", 16)
 FUENTE_ETIQUETAB = ("Segoe UI", 16, "bold")
 FUENTE_ETIQUETA_2 = ("Segoe UI", 14)
-FUENTE_BOTON = ("Segoe UI", 12, "bold")
+FUENTE_BOTON = ("Segoe UI", 15, "bold")
 
 
 def generar_letras():
@@ -53,7 +53,7 @@ class LexiReto:
             bg=COLOR_BOTON,
             command=self.pausarJuego,
         )
-        boton_pausa.place(relx=1.0, y=0, anchor="ne", width=100, height=30)
+        boton_pausa.place(relx=1.0, y=0, anchor="ne", width=130, height=40)
 
         boton_pausa.bind("<Enter>", self.onEnterPausaIns)
         boton_pausa.bind("<Leave>", self.onLeavePausaIns)
@@ -219,7 +219,7 @@ class LexiReto:
             fg=COLOR_TEXTO,
             command=self.instrucciones,
         )
-        self.comoJugar.place(relx=0.5, y=0, anchor="n", width=130, height=30)
+        self.comoJugar.place(relx=0.5, y=0, anchor="n", width=160, height=40)
 
         self.comoJugar.bind("<Enter>", self.onEnterPausaIns)
         self.comoJugar.bind("<Leave>", self.onLeavePausaIns)
@@ -232,7 +232,7 @@ class LexiReto:
             fg=COLOR_TEXTO,
             command=self.ocultar_mostrar_tiempo,
         )
-        self.boton_ocultar.place(x=110, y=0, width=100, height=30)
+        self.boton_ocultar.place(x=110, y=0, width=100, height=40)
 
         self.widgets["boton_ocultar"] = self.boton_ocultar
 
@@ -371,13 +371,13 @@ class LexiReto:
         # Botón para simular que se encontraron todas las palabras y se ganó la partida (Crea una nueva partida)
         boton_test = tk.Button(
             self.juego,
-            text="Rendirse :(",
+            text="💊 Simular Victoria",
             font=FUENTE_BOTON,
             bg="#dddddd",
             fg="black",
             command=self.simularVictoria
         )
-        boton_test.place(x=1050, y=0, width=160, height=30)
+        boton_test.place(x=1050, y=0, width=200, height=40)
 
         boton_test.bind("<Enter>", self.onEnterPausaIns)
         boton_test.bind("<Leave>", self.onLeavePausaIns)
