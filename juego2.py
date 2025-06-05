@@ -754,7 +754,7 @@ class LexiReto:
             width=5,
             anchor="center",
         )
-        self.tiempo_label.place(relx=0, rely=0, width=100, height=30)
+        self.tiempo_label.place(relx=0, rely=0, width=100, height=40)
         if self.partida is None:
             print("entro en el is none")
             # Cosas del DICT
