@@ -7,3 +7,4 @@ coso;coso
 abc;abc
 abc1;abc
 ;
+usuario2;contra
