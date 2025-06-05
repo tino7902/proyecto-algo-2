@@ -72,7 +72,7 @@ class LexiReto:
             width=30,
             height=3,
         )
-        ingresoLetras.place(x=10, y=60, width=250, height=50)
+        ingresoLetras.place(x=50, y=60, width=650, height=50)
 
         # Elimino la letra central de mi lista de "letras_sin_repetir" para mandarsela a la lista "letras_botones", ya que esa lista no necesita la letraCentral
 
@@ -85,7 +85,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letras_botones"][0]),
         )
-        self.boton1.place(x=75, y=120, width=60, height=40)
+        self.boton1.place(x=250, y=120, width=100, height=80)
 
         self.boton1.bind("<Enter>", self.onEnterLetrasApli)
         self.boton1.bind("<Leave>", self.onLeaveLetrasApli)
@@ -98,7 +98,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letras_botones"][1]),
         )
-        self.boton2.place(x=140, y=120, width=60, height=40)
+        self.boton2.place(x=380, y=120, width=100, height=80)
 
         self.boton2.bind("<Enter>", self.onEnterLetrasApli)
         self.boton2.bind("<Leave>", self.onLeaveLetrasApli)
@@ -111,7 +111,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letras_botones"][2]),
         )
-        self.boton3.place(x=40, y=185, width=60, height=40)
+        self.boton3.place(x=180, y=215, width=100, height=80)
 
         self.boton3.bind("<Enter>", self.onEnterLetrasApli)
         self.boton3.bind("<Leave>", self.onLeaveLetrasApli)
@@ -125,7 +125,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letraCentral"].upper()),
         )
-        self.boton4.place(x=105, y=185, width=60, height=40)
+        self.boton4.place(x=315, y=215, width=100, height=80)
 
         self.boton4.bind("<Enter>", self.onEnterCentral)
         self.boton4.bind("<Leave>", self.onLeaveCentral)
@@ -138,7 +138,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letras_botones"][3]),
         )
-        self.boton5.place(x=170, y=185, width=60, height=40)
+        self.boton5.place(x=450, y=215, width=100, height=80)
 
         self.boton5.bind("<Enter>", self.onEnterLetrasApli)
         self.boton5.bind("<Leave>", self.onLeaveLetrasApli)
@@ -151,7 +151,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letras_botones"][4]),
         )
-        self.boton6.place(x=75, y=250, width=60, height=40)
+        self.boton6.place(x=250, y=310, width=100, height=80)
 
         self.boton6.bind("<Enter>", self.onEnterLetrasApli)
         self.boton6.bind("<Leave>", self.onLeaveLetrasApli)
@@ -164,7 +164,7 @@ class LexiReto:
             relief="ridge",
             command=lambda: self.actualizarLetra(self.partida["letras_botones"][5]),
         )
-        self.boton7.place(x=140, y=250, width=60, height=40)
+        self.boton7.place(x=380, y=310, width=100, height=80)
 
         self.boton7.bind("<Enter>", self.onEnterLetrasApli)
         self.boton7.bind("<Leave>", self.onLeaveLetrasApli)
@@ -178,7 +178,7 @@ class LexiReto:
             command=self.aplicarEntrada,
             relief="ridge",
         )
-        self.aplicar.place(x=10, y=380, width=100, height=40)
+        self.aplicar.place(x=150, y=475, width=130, height=60)
 
         self.aplicar.bind("<Enter>", self.onEnterLetrasApli)
         self.aplicar.bind("<Leave>", self.onLeaveLetrasApli)
@@ -192,7 +192,7 @@ class LexiReto:
             command=self.mezclarLetras,
             relief="ridge",
         )
-        self.actualizar.place(x=115, y=380, width=50, height=40)
+        self.actualizar.place(x=340, y=475, width=70, height=60)
 
         self.actualizar.bind("<Enter>", self.onEnterLetrasApli)
         self.actualizar.bind("<Leave>", self.onLeaveLetrasApli)
@@ -206,7 +206,7 @@ class LexiReto:
             command=self.borrarUltimaLetra,
             relief="ridge",
         )
-        self.borrar.place(x=170, y=380, width=90, height=40)
+        self.borrar.place(x=460, y=475, width=130, height=60)
 
         self.borrar.bind("<Enter>", self.onEnterLetrasApli)
         self.borrar.bind("<Leave>", self.onLeaveLetrasApli)
@@ -249,11 +249,11 @@ class LexiReto:
             bg=COLOR_TEXTO,
             relief="ridge",
             justify="center",
-            wraplength=250,
+            wraplength=550,
             width=30,
             height=3,
         )
-        self.mensaje1.place(x=10, y=440, width=250, height=60)
+        self.mensaje1.place(x=50, y=560, width=650, height=50)
 
         # Imprime en un espacio la cantidad de palabras que lleva encontradas el usuario
         self.mensaje2 = tk.Label(
@@ -268,7 +268,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensaje2.place(x=10, y=310, width=250, height=50)
+        self.mensaje2.place(x=50, y=400, width=650, height=50)
 
         self.mensajePalabrasElegidas1 = tk.Label(
             self.juego,
@@ -282,7 +282,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas1.place(x=300, y=60, width=990, height=80)
+        self.mensajePalabrasElegidas1.place(x=740, y=60, width=790, height=100)
 
         self.mensajePalabrasElegidas2 = tk.Label(
             self.juego,
@@ -296,7 +296,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas2.place(x=300, y=150, width=990, height=80)
+        self.mensajePalabrasElegidas2.place(x=740, y=170, width=790, height=100)
 
         self.mensajePalabrasElegidas3 = tk.Label(
             self.juego,
@@ -310,7 +310,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas3.place(x=300, y=240, width=990, height=80)
+        self.mensajePalabrasElegidas3.place(x=740, y=280, width=790, height=100)
 
         self.mensajePalabrasElegidas4 = tk.Label(
             self.juego,
@@ -324,7 +324,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas4.place(x=300, y=330, width=990, height=80)
+        self.mensajePalabrasElegidas4.place(x=740, y=390, width=790, height=100)
 
         self.mensajePalabrasElegidas5 = tk.Label(
             self.juego,
@@ -338,7 +338,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas5.place(x=300, y=420, width=990, height=80)
+        self.mensajePalabrasElegidas5.place(x=740, y=500, width=790, height=100)
 
         self.mensajePalabrasElegidas6 = tk.Label(
             self.juego,
@@ -352,7 +352,7 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas6.place(x=300, y=510, width=990, height=80)
+        self.mensajePalabrasElegidas6.place(x=740, y=610, width=790, height=100)
 
         self.mensajePalabrasElegidas7 = tk.Label(
             self.juego,
@@ -366,18 +366,21 @@ class LexiReto:
             width=35,
             height=5,
         )
-        self.mensajePalabrasElegidas7.place(x=300, y=600, width=990, height=80)
+        self.mensajePalabrasElegidas7.place(x=740, y=720, width=790, height=100)
 
-        # Botón para simular que se ganaron todas las palabras
+        # Botón para simular que se encontraron todas las palabras y se ganó la partida (Crea una nueva partida)
         boton_test = tk.Button(
             self.juego,
-            text="🧪 Simular Victoria",
+            text="Rendirse :(",
             font=FUENTE_BOTON,
             bg="#dddddd",
             fg="black",
             command=self.simularVictoria
         )
-        boton_test.place(x=1100, y=0, width=160, height=30)
+        boton_test.place(x=1050, y=0, width=160, height=30)
+
+        boton_test.bind("<Enter>", self.onEnterPausaIns)
+        boton_test.bind("<Leave>", self.onLeavePausaIns)
 
 
     # Verifica si la palabra es mayor a 3 letras, si contiene la letra central y si contiene algunas de las otras letras
@@ -489,8 +492,7 @@ class LexiReto:
         if len(self.partida["palabrasElegidas0"]) == len(self.partida["seleccionadas"]):
             self.mostrarFelicitacionFinal()
 
-    # Cuando se de clic al botón de "Aplicar", verificará la palabra y cambiara el
-    # espacio llamado "ingresoLetras" para volver a escribir otra palabra
+    # Cuando se de clic al botón de "Aplicar", verificará la palabra y lo volverá a su estado normal
     def aplicarEntrada(self):
         self.iniciarReto()
         self.letra.set("")
@@ -804,9 +806,7 @@ class LexiReto:
 
     def simularVictoria(self):
         print("▶ Simulando victoria...")
-
         self.partida["palabrasElegidas0"] = self.partida["seleccionadas"][:]
-
         # Vacía las listas específicas por letra
         for i in range(1, 8):
             self.partida[f"palabrasElegidas{i}"] = []
@@ -817,7 +817,6 @@ class LexiReto:
                 if letra == letra_ref:
                     self.partida[f"palabrasElegidas{i+1}"].append(palabra)
                     break
-
         print("✔ Palabras simuladas correctamente. Ejecutando mensaje final.")
         self.mostrarFelicitacionFinal()
 
