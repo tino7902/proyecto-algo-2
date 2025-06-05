@@ -264,7 +264,7 @@ class JuegoLetras:
             fg=COLOR_TEXTO,
         )
         self.label_stats.pack()
-        self.actualizar_estadisticas()
+        # self.actualizar_estadisticas()
 
         if self.partida.get("palabras_encontradas") is not None:
             self.actualizar_estadisticas()
