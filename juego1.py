@@ -66,7 +66,7 @@ class JuegoLetras:
         self.frame_controles = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
         self.frame_controles.pack(side=tk.RIGHT, padx=20, pady=10, fill=tk.Y)
 
-        # Frame puntaje
+        # Puntaje
         self.label_puntaje = tk.Label(
             self.frame_controles,
             text="🏅 Puntaje: 0",
@@ -74,6 +74,40 @@ class JuegoLetras:
             bg=COLOR_FONDO,
         )
         self.label_puntaje.pack(fill=tk.X, pady=5)
+
+        # Cronómetro
+        self.label_cronometro = tk.Button(
+            self.frame_controles,
+            text="⏱️ Tiempo: 00:00",
+            font=FUENTE_BOTON,
+            bg=COLOR_FONDO,
+            command=self.toggle_cronometro_texto,
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=0,
+            width=20
+        )
+        self.label_cronometro.pack(fill=tk.X, pady=5)
+
+        # Botón de pausa
+        self.boton_pausa = tk.Button(
+            self.frame_controles,
+            text="⏸ Pausa",
+            font=FUENTE_BOTON,
+            bg=COLOR_SECUNDARIO,
+            command=self.toggle_cronometro,
+        )
+        self.boton_pausa.pack(fill=tk.X, pady=5)
+
+        # Botón "Cómo se juega"
+        tk.Button(
+            self.frame_controles,
+            text="Cómo se juega",
+            font=FUENTE_BOTON,
+            bg=COLOR_SECUNDARIO,
+            fg=COLOR_TEXTO,
+            command=self.Instrucciones,
+        ).pack(fill=tk.X, pady=5)
 
         # Título
         tk.Label(
@@ -83,28 +117,6 @@ class JuegoLetras:
             bg=COLOR_FONDO,
             fg=COLOR_BOTON,
         ).pack(pady=10)
-
-        # Frame para el cronometro
-        self.label_cronometro = tk.Button(
-            self.frame_controles,
-            text="⏱️ Tiempo: 00:00",
-            font=FUENTE_BOTON,
-            bg=COLOR_FONDO,
-            command=self.toggle_cronometro_texto,
-            relief="flat",
-            borderwidth=0,
-            highlightthickness=0, 
-        )
-        self.label_cronometro.pack(fill=tk.X, pady=5)
-
-        self.boton_pausa = tk.Button(
-            self.frame_controles,
-            text="⏸ Pausa",
-            font=FUENTE_BOTON,
-            bg=COLOR_SECUNDARIO,
-            command=self.toggle_cronometro,
-        )
-        self.boton_pausa.pack(fill=tk.X, pady=5)
 
         # Tablero de letras (5x5 como ejemplo)
         self.frame_tablero = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
@@ -155,7 +167,7 @@ class JuegoLetras:
                     self.frame_tablero,
                     text=self.partida["tablero"][i][j],
                     font=FUENTE_ETIQUETA,
-                    width=4,
+                    width=5,
                     height=2,
                     relief=tk.RAISED,
                     bg=COLOR_BOTON,
@@ -164,71 +176,70 @@ class JuegoLetras:
                 btn.grid(row=i, column=j, padx=2, pady=2)
                 fila_botones.append(btn)
             self.botones_letras.append(fila_botones)
+        # Frame central a la derecha de la matriz
+        self.frame_centro_derecha = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
+        self.frame_centro_derecha.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=10)
+
+
+        # Contenedor debajo de la matriz
+        self.frame_inferior = tk.Frame(self.frame_tablero, bg=COLOR_FONDO)
+        self.frame_inferior.grid(row=len(self.partida["tablero"]), column=0, columnspan=len(self.partida["tablero"][0]), pady=(10, 0))
 
         # Palabra actual
         self.label_palabra = tk.Label(
-            self.frame_controles,
+            self.frame_inferior,
             text="",
             font=FUENTE_ETIQUETA,
             bg=COLOR_FONDO,
             fg=COLOR_TEXTO,
+            anchor="center"
         )
-        self.label_palabra.pack(pady=10)
+        self.label_palabra.pack(fill=tk.X, pady=(0, 10))
 
-        # Botones de acción
-        tk.Button(
-            self.frame_controles,
-            text="Borrar",
-            font=FUENTE_BOTON,
-            bg=COLOR_BOTON,
-            command=self.borrar_seleccion,
-        ).pack(fill=tk.X, pady=5)
+        self.frame_botones_accion = tk.Frame(self.frame_inferior, bg=COLOR_FONDO)
+        self.frame_botones_accion.pack()
 
-        tk.Button(
-            self.frame_controles,
-            text="Aplicar",
-            font=FUENTE_BOTON,
-            bg=COLOR_BOTON,
-            command=self.validar_palabra,
-        ).pack(fill=tk.X, pady=5)
+        botones = [
+            ("Borrar", self.borrar_seleccion),
+            ("Aplicar", self.validar_palabra),
+            ("Reiniciar", self.reiniciar_juego),
+            ("Pista", self.mostrar_pista),
+        ]
 
-        tk.Button(
-            self.frame_controles,
-            text="Reiniciar",
-            font=FUENTE_BOTON,
-            bg=COLOR_BOTON,
-            command=self.reiniciar_juego,
-        ).pack(fill=tk.X, pady=5)
+        for i, (texto, comando) in enumerate(botones):
+            btn = tk.Button(
+                self.frame_botones_accion,
+                text=texto,
+                font=FUENTE_BOTON,
+                bg=COLOR_BOTON if texto != "Pista" else COLOR_SECUNDARIO,
+                command=comando,
+                width=20,
+                height=2,
+            )
+            btn.grid(row=i // 2, column=i % 2, padx=10, pady=10, sticky="nsew")
 
-        tk.Button(
-            self.frame_controles,
-            text="Pista",
-            font=FUENTE_BOTON,
-            bg=COLOR_SECUNDARIO,
-            command=self.mostrar_pista,
-        ).pack(fill=tk.X, pady=5)
+        # Expandir celdas uniformemente
+        for i in range(2):
+            self.frame_botones_accion.columnconfigure(i, weight=1)
 
-        # Palabras encontradas
-        self.frame_palabras = tk.Frame(self.frame_controles, bg=COLOR_FONDO)
-        self.frame_palabras.pack(pady=10)
+        self.frame_palabras = tk.Frame(self.frame_centro_derecha, bg=COLOR_FONDO)
+        self.frame_palabras.pack(pady=10, fill=tk.BOTH, expand=True)
 
-        tk.Label(
-            self.frame_palabras,
-            text="Palabras encontradas:",
-            font=FUENTE_ETIQUETA,
-            bg=COLOR_FONDO,
-            fg=COLOR_TEXTO,
-        ).pack()
         self.lista_palabras = tk.Listbox(
-            self.frame_palabras, width=20, height=10, bg=COLOR_BOTON
+            self.frame_palabras,
+            height=15,
+            bg=COLOR_FONDO,
+            font=FUENTE_ETIQUETA,
+            justify="left",
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=0,
+            width=35,
         )
-        if self.partida.get("palabras_encontradas") is not None:
-            for palabra in self.partida.get("palabras_encontradas"):
-                self.lista_palabras.insert(tk.END, palabra)
-        self.lista_palabras.pack()
+        self.lista_palabras.pack(fill=tk.BOTH, expand=True)
 
-        # Estadísticas
-        self.frame_stats = tk.Frame(self.frame_controles, bg=COLOR_FONDO)
+        # Estadísticas debajo de la lista
+        self.frame_stats = tk.Frame(self.frame_palabras, bg=COLOR_FONDO)
         self.frame_stats.pack(pady=10)
 
         tk.Label(
@@ -238,6 +249,7 @@ class JuegoLetras:
             bg=COLOR_FONDO,
             fg=COLOR_TEXTO,
         ).pack()
+
         self.label_stats = tk.Label(
             self.frame_stats,
             text="Encontrados: 0\nCompletados: 0%",
@@ -246,20 +258,13 @@ class JuegoLetras:
             bg=COLOR_FONDO,
             fg=COLOR_TEXTO,
         )
+        self.label_stats.pack()
 
         if self.partida.get("palabras_encontradas") is not None:
             self.actualizar_estadisticas()
         self.label_stats.pack()
 
-        tk.Button(
-            self.frame_controles,
-            text=("Cómo se juega"),
-            font=FUENTE_BOTON,
-            bg=COLOR_SECUNDARIO,
-            fg=COLOR_TEXTO,
-            command=self.Instrucciones,
-        ).pack(fill=tk.X, pady=5)
-
+        self.mostrar_resumen_palabras()
         self.actualizar_cronometro()
 
     def cerrar_juego(self):
@@ -356,6 +361,37 @@ class JuegoLetras:
             )
 
         self.actualizar_estadisticas()
+        self.mostrar_resumen_palabras()
+
+
+    def mostrar_resumen_palabras(self):
+        palabras = self.partida.get("palabras_colocadas", [])
+        encontradas = set(self.partida.get("palabras_encontradas", []))
+        resumen = {}
+
+        for palabra in palabras:
+            longitud = len(palabra)
+            if longitud not in resumen:
+                resumen[longitud] = []
+
+            if palabra in encontradas:
+                resumen[longitud].append(palabra.upper())
+            else:
+                resumen[longitud].append(palabra[0].upper())
+
+        # Construir texto ordenado por longitud descendente
+        resumen_texto = ""
+        for longitud in sorted(resumen.keys(), reverse=True):
+            letras_ypalabras = resumen[longitud]
+            resumen_texto += f"{longitud} letras:\n"
+            for entrada in sorted(letras_ypalabras):
+                resumen_texto += f"{entrada}\n"
+            resumen_texto += "\n"
+
+        # Mostrar en la lista
+        self.lista_palabras.delete(0, tk.END)
+        for linea in resumen_texto.strip().split("\n"):
+            self.lista_palabras.insert(tk.END, linea)
 
     def reiniciar_juego(self):
         mp.eliminar_partida(self.user, "juego1")
@@ -377,6 +413,7 @@ class JuegoLetras:
         self.partida["puntaje"] = 0
         self.label_puntaje.config(text="🏅 Puntaje: 0")
         mp.guardar_partida(self.user, self.partida, "juego1")
+        self.mostrar_resumen_palabras()
 
     def actualizar_estadisticas(self):
         total_palabras = len(self.partida.get("palabras_colocadas"))
@@ -495,18 +532,14 @@ class JuegoLetras:
             self.overlay_pausa.lift()
             self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-    def mostrar_timer_texto(self):
-        minutos = self.partida["tiempo_transcurrido"] // 60
-        segundos = self.partida["tiempo_transcurrido"] % 60
-        if not self.timer_oculto:
-            self.label_cronometro.config(text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}")
-
     def toggle_cronometro_texto(self):
         if not self.timer_oculto:
             self.label_cronometro.config(text="⏱️ Tiempo: --:--")
             self.timer_oculto = True
         else:
-            self.mostrar_timer_texto()
+            minutos = self.partida["tiempo_transcurrido"] // 60
+            segundos = self.partida["tiempo_transcurrido"] % 60
+            self.label_cronometro.config(text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}")
             self.timer_oculto = False
 
     def reanudar_desde_overlay(self):

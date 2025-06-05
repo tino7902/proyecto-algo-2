@@ -1,495 +1,611 @@
+from random import shuffle, sample
 import tkinter as tk
-from tkinter import messagebox
-import random
-import generar as gen
-import threading
+import time
 import manejo_partida as mp
 
 COLOR_FONDO = "#f0f4f8"
 COLOR_BOTON = "#6fbf73"
+COLOR_BOTON_HOVER = "lightgreen"
 COLOR_SECUNDARIO = "#4a90e2"
 COLOR_TEXTO = "#333333"
+COLOR_ROJO = "#ff4444"
 FUENTE_TITULO = ("Segoe UI", 32, "bold")
 FUENTE_ETIQUETA = ("Segoe UI", 16)
+FUENTE_ETIQUETAB = ("Segoe UI", 16, "bold")
+FUENTE_ETIQUETA_2 = ("Segoe UI", 14)
 FUENTE_BOTON = ("Segoe UI", 12, "bold")
 
 
-class JuegoLetras:
-    # Clase para usarla luego con el times
+def generar_letras():
+    vocales = list("AEIOU")
+    consonantes = list("BCDFGHJKLMNÑPQRSTVWXYZ")
 
+    # Seleccionamos sin repetir
+    seleccion_vocales = sample(vocales, 3)
+    seleccion_consonantes = sample(consonantes, 4)
+
+    letras = seleccion_vocales + seleccion_consonantes
+    shuffle(letras)  # Para mezclar el orden
+    return letras
+
+
+# Clase para todo el juego
+class LexiReto:
     def __init__(self, user, root):
         self.user = user
         self.juego = tk.Toplevel(root)
-        self.juego.title("L E T R A S  !!!")
         self.juego.attributes("-fullscreen", True)
-        self.juego.configure(bg=COLOR_FONDO)  # Fondo azul marino
+        self.widgets = {}
         self.timer_pausado = False
         self.timer_id = None
         self.timer_oculto = False
-        self.pista = 0
-        self.letras_seleccionadas = []
 
-        # Crear interfaz
-        self.crear_interfaz()
+        self.iniciar_juego()
 
-    def generar_tablero_dinamico(self):
-        self.partida = mp.cargar_partida(self.user, "juego1")
-        if self.partida is None:
-            self.partida = gen.leer_y_borrar_matriz()
-        # Lanzar la generación de la próxima sopa en segundo plano
-        threading.Thread(
-            target=self.generar_y_guardar_en_segundo_plano, daemon=True
-        ).start()
-        print(self.partida.get("palabras_colocadas"))
-        mp.guardar_partida(self.user, self.partida, "juego1")
+        self.letra = tk.StringVar(self.juego)
+        self.letra.set("")
 
-    def generar_y_guardar_en_segundo_plano(self):
-        try:
-            matriz, palabras = gen.generar_sopa_inteligente()
-            if (gen.guardar_matriz_en_archivo(matriz, palabras, "matrices_validas.txt")):
-                print("✅ Matriz regenerada en segundo plano")
-            else:
-                print("Máximo matrices en archivos")
-        except Exception as e:
-            print("⚠️ Error generando matriz en segundo plano:", e)
-
-    def crear_interfaz(self):
-        # Frame principal
-        self.frame_principal = tk.Frame(self.juego, padx=20, pady=20, bg=COLOR_FONDO)
-        self.frame_principal.pack(expand=True, fill=tk.BOTH)
-
-        # Frame para el tablero y controles
-        self.frame_juego = tk.Frame(self.frame_principal, bg=COLOR_FONDO)
-        self.frame_juego.pack(expand=True, fill=tk.BOTH)
-
-        # Frame de controles
-        self.frame_controles = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
-        self.frame_controles.pack(side=tk.RIGHT, padx=20, pady=10, fill=tk.Y)
-
-        # Puntaje
-        self.label_puntaje = tk.Label(
-            self.frame_controles,
-            text="🏅 Puntaje: 0",
-            font=FUENTE_BOTON,
-            bg=COLOR_FONDO,
-        )
-        self.label_puntaje.pack(fill=tk.X, pady=5)
-
-        # Cronómetro
-        self.label_cronometro = tk.Button(
-            self.frame_controles,
-            text="⏱️ Tiempo: 00:00",
-            font=FUENTE_BOTON,
-            bg=COLOR_FONDO,
-            command=self.toggle_cronometro_texto,
-            relief="flat",
-            borderwidth=0,
-            highlightthickness=0,
-            width=20
-        )
-        self.label_cronometro.pack(fill=tk.X, pady=5)
-
-        # Botón de pausa
-        self.boton_pausa = tk.Button(
-            self.frame_controles,
+        # Botón que ejecuta la función "pausarJuego"
+        boton_pausa = tk.Button(
+            self.juego,
             text="⏸ Pausa",
             font=FUENTE_BOTON,
-            bg=COLOR_SECUNDARIO,
-            command=self.toggle_cronometro,
+            bg=COLOR_BOTON,
+            command=self.pausarJuego,
         )
-        self.boton_pausa.pack(fill=tk.X, pady=5)
+        boton_pausa.place(relx=1.0, y=0, anchor="ne", width=100, height=30)
 
-        # Botón "Cómo se juega"
-        tk.Button(
-            self.frame_controles,
-            text="Cómo se juega",
-            font=FUENTE_BOTON,
-            bg=COLOR_SECUNDARIO,
-            fg=COLOR_TEXTO,
-            command=self.Instrucciones,
-        ).pack(fill=tk.X, pady=5)
+        boton_pausa.bind("<Enter>", self.onEnterPausaIns)
+        boton_pausa.bind("<Leave>", self.onLeavePausaIns)
 
-        # Título
-        tk.Label(
-            self.frame_juego,
-            text="JUEGO DE LETRAS",
-            font=FUENTE_TITULO,
-            bg=COLOR_FONDO,
-            fg=COLOR_BOTON,
-        ).pack(pady=10)
-
-        # Tablero de letras (5x5 como ejemplo)
-        self.frame_tablero = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
-        self.frame_tablero.pack(side=tk.LEFT, padx=20, pady=10)
-
-        # Frame oculto para pausa
-        self.overlay_pausa = tk.Frame(self.juego, bg=COLOR_TEXTO)
-        self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.overlay_pausa.place_forget()  # Oculto por defecto
-
-        self.label_pausa = tk.Label(
-            self.overlay_pausa,
-            text="⏸ Juego en Pausa ⏸",
-            font=FUENTE_BOTON,
+        # Espacio en donde se mostrarán las letras que se vayan ingresando mediante los botones
+        ingresoLetras = tk.Label(
+            self.juego,
+            text="",
+            textvariable=self.letra,
+            font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=190,
+            width=30,
+            height=3,
         )
-        self.label_pausa.pack(fill=tk.BOTH, expand=True, side=tk.TOP, pady=20)
+        ingresoLetras.place(x=10, y=60, width=250, height=50)
 
-        self.boton_reanudar_overlay = tk.Button(
-            self.overlay_pausa,
-            text="Continuar",
+        # Elimino la letra central de mi lista de "letras_sin_repetir" para mandarsela a la lista "letras_botones", ya que esa lista no necesita la letraCentral
+
+        # A partir de acá, hasta la línea 440, son los botones en donde apareceran las letras escogidas
+        self.boton1 = tk.Button(
+            self.juego,
+            text=self.partida["letras_botones"][0],
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][0]),
+        )
+        self.boton1.place(x=75, y=120, width=60, height=40)
+
+        self.boton1.bind("<Enter>", self.onEnterLetrasApli)
+        self.boton1.bind("<Leave>", self.onLeaveLetrasApli)
+
+        self.boton2 = tk.Button(
+            self.juego,
+            text=self.partida["letras_botones"][1],
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][1]),
+        )
+        self.boton2.place(x=140, y=120, width=60, height=40)
+
+        self.boton2.bind("<Enter>", self.onEnterLetrasApli)
+        self.boton2.bind("<Leave>", self.onLeaveLetrasApli)
+
+        self.boton3 = tk.Button(
+            self.juego,
+            text=self.partida["letras_botones"][2],
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][2]),
+        )
+        self.boton3.place(x=40, y=185, width=60, height=40)
+
+        self.boton3.bind("<Enter>", self.onEnterLetrasApli)
+        self.boton3.bind("<Leave>", self.onLeaveLetrasApli)
+
+        self.boton4 = tk.Button(
+            self.juego,
+            text=self.partida["letraCentral"].upper(),
+            font=FUENTE_BOTON,
+            fg="black",
+            bg="#ffc733",
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letraCentral"].upper()),
+        )
+        self.boton4.place(x=105, y=185, width=60, height=40)
+
+        self.boton4.bind("<Enter>", self.onEnterCentral)
+        self.boton4.bind("<Leave>", self.onLeaveCentral)
+
+        self.boton5 = tk.Button(
+            self.juego,
+            text=self.partida["letras_botones"][3],
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][3]),
+        )
+        self.boton5.place(x=170, y=185, width=60, height=40)
+
+        self.boton5.bind("<Enter>", self.onEnterLetrasApli)
+        self.boton5.bind("<Leave>", self.onLeaveLetrasApli)
+
+        self.boton6 = tk.Button(
+            self.juego,
+            text=self.partida["letras_botones"][4],
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][4]),
+        )
+        self.boton6.place(x=75, y=250, width=60, height=40)
+
+        self.boton6.bind("<Enter>", self.onEnterLetrasApli)
+        self.boton6.bind("<Leave>", self.onLeaveLetrasApli)
+
+        self.boton7 = tk.Button(
+            self.juego,
+            text=self.partida["letras_botones"][5],
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            relief="ridge",
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][5]),
+        )
+        self.boton7.place(x=140, y=250, width=60, height=40)
+
+        self.boton7.bind("<Enter>", self.onEnterLetrasApli)
+        self.boton7.bind("<Leave>", self.onLeaveLetrasApli)
+
+        # Botón que manda a la función "iniciarReto" la palabra ingresada
+        self.aplicar = tk.Button(
+            self.juego,
+            text=("Aplicar"),
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            command=self.aplicarEntrada,
+            relief="ridge",
+        )
+        self.aplicar.place(x=10, y=380, width=100, height=40)
+
+        self.aplicar.bind("<Enter>", self.onEnterLetrasApli)
+        self.aplicar.bind("<Leave>", self.onLeaveLetrasApli)
+
+        # Botón para mezclar las letras generadas entre los botones
+        self.actualizar = tk.Button(
+            self.juego,
+            text=("⟲"),
+            font=("Courier", 15),
+            fg=COLOR_TEXTO,
+            command=self.mezclarLetras,
+            relief="ridge",
+        )
+        self.actualizar.place(x=115, y=380, width=50, height=40)
+
+        self.actualizar.bind("<Enter>", self.onEnterLetrasApli)
+        self.actualizar.bind("<Leave>", self.onLeaveLetrasApli)
+
+        # Botón para borrar la última letra ingresada
+        self.borrar = tk.Button(
+            self.juego,
+            text=("Borrar"),
+            font=FUENTE_BOTON,
+            fg=COLOR_TEXTO,
+            command=self.borrarUltimaLetra,
+            relief="ridge",
+        )
+        self.borrar.place(x=170, y=380, width=90, height=40)
+
+        self.borrar.bind("<Enter>", self.onEnterLetrasApli)
+        self.borrar.bind("<Leave>", self.onLeaveLetrasApli)
+
+        self.comoJugar = tk.Button(
+            self.juego,
+            text=("Cómo se juega"),
             font=FUENTE_BOTON,
             bg=COLOR_BOTON,
-            fg="white",
-            command=self.reanudar_desde_overlay,
+            fg=COLOR_TEXTO,
+            command=self.instrucciones,
         )
-        self.boton_reanudar_overlay.pack(pady=10)
+        self.comoJugar.place(relx=0.5, y=0, anchor="n", width=130, height=30)
 
-        self.boton_salir_menu = tk.Button(
-            self.overlay_pausa,
-            text="Salir del Juego",
+        self.comoJugar.bind("<Enter>", self.onEnterPausaIns)
+        self.comoJugar.bind("<Leave>", self.onLeavePausaIns)
+
+        self.boton_ocultar = tk.Button(
+            self.juego,
+            text="Ocultar",
             font=FUENTE_BOTON,
-            bg="#cc4444",
-            fg="white",
-            command=self.cerrar_juego, 
+            bg=COLOR_BOTON,
+            fg=COLOR_TEXTO,
+            command=self.ocultar_mostrar_tiempo,
         )
-        self.boton_salir_menu.pack(pady=10)
+        self.boton_ocultar.place(x=110, y=0, width=100, height=30)
 
-        # Matriz de letras
-        self.botones_letras = []
-        self.generar_tablero_dinamico()
+        self.widgets["boton_ocultar"] = self.boton_ocultar
 
-        for i in range(len(self.partida["tablero"])):
-            fila_botones = []
-            for j in range(len(self.partida["tablero"][i])):
-                btn = tk.Button(
-                    self.frame_tablero,
-                    text=self.partida["tablero"][i][j],
-                    font=FUENTE_ETIQUETA,
-                    width=5,
-                    height=2,
-                    relief=tk.RAISED,
-                    bg=COLOR_BOTON,
-                    command=lambda i=i, j=j: self.seleccionar_letra(i, j),
-                )
-                btn.grid(row=i, column=j, padx=2, pady=2)
-                fila_botones.append(btn)
-            self.botones_letras.append(fila_botones)
-        # Frame central a la derecha de la matriz
-        self.frame_centro_derecha = tk.Frame(self.frame_juego, bg=COLOR_FONDO)
-        self.frame_centro_derecha.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=10)
+        self.boton_ocultar.bind("<Enter>", self.onEnterPausaIns)
+        self.boton_ocultar.bind("<Leave>", self.onLeavePausaIns)
 
-
-        # Contenedor debajo de la matriz
-        self.frame_inferior = tk.Frame(self.frame_tablero, bg=COLOR_FONDO)
-        self.frame_inferior.grid(row=len(self.partida["tablero"]), column=0, columnspan=len(self.partida["tablero"][0]), pady=(10, 0))
-
-        # Palabra actual
-        self.label_palabra = tk.Label(
-            self.frame_inferior,
+        # Imprime en un espacio la cantidad de puntos que se ganó en caso de acertar una palabra, y cuantos puntos tiene en total.
+        # Esta opción técnicamente no está en el juego original, pero se puede dejar como un extra
+        self.mensaje1 = tk.Label(
+            self.juego,
             text="",
-            font=FUENTE_ETIQUETA,
-            bg=COLOR_FONDO,
-            fg=COLOR_TEXTO,
-            anchor="center"
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=250,
+            width=30,
+            height=3,
         )
-        self.label_palabra.pack(fill=tk.X, pady=(0, 10))
+        self.mensaje1.place(x=10, y=440, width=250, height=60)
 
-        self.frame_botones_accion = tk.Frame(self.frame_inferior, bg=COLOR_FONDO)
-        self.frame_botones_accion.pack()
-
-        botones = [
-            ("Borrar", self.borrar_seleccion),
-            ("Aplicar", self.validar_palabra),
-            ("Reiniciar", self.reiniciar_juego),
-            ("Pista", self.mostrar_pista),
-        ]
-
-        for i, (texto, comando) in enumerate(botones):
-            btn = tk.Button(
-                self.frame_botones_accion,
-                text=texto,
-                font=FUENTE_BOTON,
-                bg=COLOR_BOTON if texto != "Pista" else COLOR_SECUNDARIO,
-                command=comando,
-                width=20,
-                height=2,
-            )
-            btn.grid(row=i // 2, column=i % 2, padx=10, pady=10, sticky="nsew")
-
-        # Expandir celdas uniformemente
-        for i in range(2):
-            self.frame_botones_accion.columnconfigure(i, weight=1)
-
-        self.frame_palabras = tk.Frame(self.frame_centro_derecha, bg=COLOR_FONDO)
-        self.frame_palabras.pack(pady=10, fill=tk.BOTH, expand=True)
-
-        self.lista_palabras = tk.Listbox(
-            self.frame_palabras,
-            height=15,
-            bg=COLOR_FONDO,
-            font=FUENTE_ETIQUETA,
-            justify="left",
-            relief="flat",
-            borderwidth=0,
-            highlightthickness=0,
+        # Imprime en un espacio la cantidad de palabras que lleva encontradas el usuario
+        self.mensaje2 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas: {len(self.partida.get('palabrasElegidas0', []))}/{len(self.partida.get('seleccionadas', []))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=400,
             width=35,
+            height=5,
         )
-        self.lista_palabras.pack(fill=tk.BOTH, expand=True)
+        self.mensaje2.place(x=10, y=310, width=250, height=50)
 
-        # Estadísticas debajo de la lista
-        self.frame_stats = tk.Frame(self.frame_palabras, bg=COLOR_FONDO)
-        self.frame_stats.pack(pady=10)
-
-        tk.Label(
-            self.frame_stats,
-            text="Estadísticas:",
-            font=FUENTE_BOTON,
-            bg=COLOR_FONDO,
-            fg=COLOR_TEXTO,
-        ).pack()
-
-        self.label_stats = tk.Label(
-            self.frame_stats,
-            text="Encontrados: 0\nCompletados: 0%",
-            justify=tk.LEFT,
-            font=FUENTE_BOTON,
-            bg=COLOR_FONDO,
-            fg=COLOR_TEXTO,
+        self.mensajePalabrasElegidas1 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[0]}: {', '.join(self.partida.get('palabrasElegidas1'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
         )
-        self.label_stats.pack()
+        self.mensajePalabrasElegidas1.place(x=300, y=60, width=990, height=80)
 
-        if self.partida.get("palabras_encontradas") is not None:
-            self.actualizar_estadisticas()
-        self.label_stats.pack()
+        self.mensajePalabrasElegidas2 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[1]}: {', '.join(self.partida.get('palabrasElegidas2'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
+        )
+        self.mensajePalabrasElegidas2.place(x=300, y=150, width=990, height=80)
 
-        self.mostrar_resumen_palabras()
-        self.actualizar_cronometro()
+        self.mensajePalabrasElegidas3 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[2]}: {', '.join(self.partida.get('palabrasElegidas3'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
+        )
+        self.mensajePalabrasElegidas3.place(x=300, y=240, width=990, height=80)
 
-    def cerrar_juego(self):
-            mp.guardar_partida(self.user, self.partida, "juego1")
-            self.juego.destroy()
+        self.mensajePalabrasElegidas4 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[3]}: {', '.join(self.partida.get('palabrasElegidas4'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
+        )
+        self.mensajePalabrasElegidas4.place(x=300, y=330, width=990, height=80)
 
-    def seleccionar_letra(self, fila, columna):
-        # Si ya fue seleccionada, no hacer nada
-        if (fila, columna) in self.letras_seleccionadas:
+        self.mensajePalabrasElegidas5 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[4]}: {', '.join(self.partida.get('palabrasElegidas5'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
+        )
+        self.mensajePalabrasElegidas5.place(x=300, y=420, width=990, height=80)
+
+        self.mensajePalabrasElegidas6 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[5]}: {', '.join(self.partida.get('palabrasElegidas6'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
+        )
+        self.mensajePalabrasElegidas6.place(x=300, y=510, width=990, height=80)
+
+        self.mensajePalabrasElegidas7 = tk.Label(
+            self.juego,
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[6]}: {', '.join(self.partida.get('palabrasElegidas7'))}",
+            font=FUENTE_ETIQUETA_2,
+            fg="white",
+            bg=COLOR_TEXTO,
+            relief="ridge",
+            justify="center",
+            wraplength=950,
+            width=35,
+            height=5,
+        )
+        self.mensajePalabrasElegidas7.place(x=300, y=600, width=990, height=80)
+
+        # Botón para simular que se ganaron todas las palabras
+        boton_test = tk.Button(
+            self.juego,
+            text="🧪 Simular Victoria",
+            font=FUENTE_BOTON,
+            bg="#dddddd",
+            fg="black",
+            command=self.simularVictoria
+        )
+        boton_test.place(x=1100, y=0, width=160, height=30)
+
+
+    # Verifica si la palabra es mayor a 3 letras, si contiene la letra central y si contiene algunas de las otras letras
+    def verificarPalabra(self, palabraIngresada):
+        if len(palabraIngresada) < 3:
+            return False
+        if self.partida["letraCentral"] not in palabraIngresada:
+            return False
+        for letra in palabraIngresada:
+            if letra not in self.partida["listaAleatoriaCombinaciones"]:
+                return False
+        return True
+
+    # Calcula si la palabra es Heptacrack (Contiene 7 letras distintas)
+    def esHeptacrack(self, palabraIngresada):
+        letrasUnicas = self.partida["listaAleatoriaCombinaciones"][:]
+        for letra in letrasUnicas:
+            if letra not in palabraIngresada.upper():
+                return False
+        return True
+
+    # Calcula el puntaje
+    def calcularPuntaje(self, palabraIngresada):
+        if self.esHeptacrack(palabraIngresada):
+            return 10
+        if len(palabraIngresada) >= 7:
+            return len(palabraIngresada)
+        elif len(palabraIngresada) == 6:
+            return 6
+        elif len(palabraIngresada) == 5:
+            return 5
+        elif len(palabraIngresada) == 4:
+            return 2
+        else:
+            return 1
+
+    # Verifica si la palabra ingresada al clickear los botones, está en la lista de palabrasElegidas, y si cumple las condiciones necesarias
+    # Además de Imprimir los pts obtenidos, totales, y verificar si se encontraron todas las palabras para terminar el juego
+    def iniciarReto(self):
+        pal = self.letra.get().upper()
+        if not self.verificarPalabra(pal):
+            self.mensaje1.config(
+                text=f"La palabra no contiene la letra {self.partida['letraCentral']} o es demasiado corta."
+            )
+            return
+        if pal not in self.partida["seleccionadas"]:
+            self.mensaje1.config(text="Palabra inválida")
+            return
+        if pal in self.partida["palabrasElegidas0"]:
+            self.mensaje1.config(text="Ya ingresaste esa palabra")
             return
 
-        # Si es la primera letra, permitir libremente
-        if not self.letras_seleccionadas:
-            valido = True
+        pts = self.calcularPuntaje(pal)
+        self.partida["ptsTotal"] += pts
+        self.partida["palabrasElegidas0"].append(pal)
+        letra_inicial = pal[0]
+
+        i = 0
+        while letra_inicial != self.partida["listaAleatoriaCombinaciones"][i]:
+            i += 1
+        if self.partida.get(f"palabrasElegidas{i + 1}") is None:
+            self.partida[f"palabrasElegidas{i + 1}"] = pal
         else:
-            ult_fila, ult_col = self.letras_seleccionadas[-1]
-            delta_fila = abs(fila - ult_fila)
-            delta_col = abs(columna - ult_col)
-            valido = (delta_fila == 1 and delta_col == 0) or (
-                delta_fila == 0 and delta_col == 1
+            self.partida[f"palabrasElegidas{i + 1}"].append(pal)
+
+        if self.esHeptacrack(pal):
+            self.mensaje1.config(
+                text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s\nTienes {self.partida['ptsTotal']} punto/s en total"
             )
-
-        if valido:
-            boton = self.botones_letras[fila][columna]
-            boton.config(relief=tk.SUNKEN, bg="lightgreen", state=tk.DISABLED)
-            self.letras_seleccionadas.append((fila, columna))
-            self.label_palabra.config(text=self.obtener_palabra_actual())
-
-    def obtener_palabra_actual(self):
-        return "".join(
-            [
-                self.partida["tablero"][fila][col]
-                for fila, col in self.letras_seleccionadas
-            ]
-        )
-
-    def borrar_seleccion(self):
-        for fila, col in self.letras_seleccionadas:
-            boton = self.botones_letras[fila][col]
-            boton.config(relief=tk.RAISED, bg=COLOR_BOTON, state=tk.NORMAL)
-        self.letras_seleccionadas = []
-        self.label_palabra.config(text="")
-
-    def validar_palabra(self):
-        palabra = self.obtener_palabra_actual()
-
-        if not palabra:
-            messagebox.showwarning("Atención", "No has seleccionado ninguna letra.")
-            return
-
-        if palabra in self.partida.get(
-            "palabras_colocadas"
-        ) and palabra not in self.partida.get(
-            "palabras_encontradas", []
-        ):  # Agregar palabra encontrada
-            if self.partida.get("palabras_encontradas") is None:
-                self.partida["palabras_encontradas"] = palabra
-            else:
-                self.partida["palabras_encontradas"].append(palabra)
-
-            self.lista_palabras.insert(tk.END, palabra)
-            messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!")
-            # -------------------------------------------------------------------------------------- Calcular puntos
-            segundos = self.partida.get("tiempo_transcurrido", 1)
-            puntos_palabra = len(palabra) ** 5 // segundos
-            if self.pista:
-                if self.partida.get("puntaje") is None:
-                    self.partida["puntaje"] = puntos_palabra // 3
-                else:
-                    self.partida["puntaje"] += puntos_palabra // 3
-                self.pista = 0
-            else:
-                if self.partida.get("puntaje") is None:
-                    self.partida["puntaje"] = puntos_palabra
-                else:
-                    self.partida["puntaje"] += puntos_palabra
-            self.label_puntaje.config(
-                text=f"🏅 Puntaje: {self.partida.get('puntaje', 0)}"
-            )
-            mp.guardar_partida(self.user, self.partida, "juego1")
-            # Verificar fin del juego
-            if len(self.partida.get("palabras_encontradas", [])) == 7:
-                self.finalizar_juego()
-            self.borrar_seleccion()
         else:
-            # Cambiar a rojo las letras seleccionadas
-            for fila, col in self.letras_seleccionadas:
-                self.botones_letras[fila][col].config(bg="firebrick1")
-
-            # Volver al color original después de 1,5 seg
-            self.juego.after(1500, self.borrar_seleccion)
-            messagebox.showwarning(
-                "Incorrecto", "La palabra no es válida o ya fue encontrada."
+            self.mensaje1.config(
+                text=f"Haz obtenido {pts} punto/s\nTienes {self.partida['ptsTotal']} punto/s en total"
             )
 
-        self.actualizar_estadisticas()
-        self.mostrar_resumen_palabras()
-
-
-    def mostrar_resumen_palabras(self):
-        palabras = self.partida.get("palabras_colocadas", [])
-        encontradas = set(self.partida.get("palabras_encontradas", []))
-        resumen = {}
-
-        for palabra in palabras:
-            longitud = len(palabra)
-            if longitud not in resumen:
-                resumen[longitud] = []
-
-            if palabra in encontradas:
-                resumen[longitud].append(palabra.upper())
-            else:
-                resumen[longitud].append(palabra[0].upper())
-
-        # Construir texto ordenado por longitud descendente
-        resumen_texto = ""
-        for longitud in sorted(resumen.keys(), reverse=True):
-            letras_ypalabras = resumen[longitud]
-            resumen_texto += f"{longitud} letras:\n"
-            for entrada in sorted(letras_ypalabras):
-                resumen_texto += f"{entrada}\n"
-            resumen_texto += "\n"
-
-        # Mostrar en la lista
-        self.lista_palabras.delete(0, tk.END)
-        for linea in resumen_texto.strip().split("\n"):
-            self.lista_palabras.insert(tk.END, linea)
-
-    def reiniciar_juego(self):
-        mp.eliminar_partida(self.user, "juego1")
-        self.generar_tablero_dinamico()
-
-        for i in range(len(self.partida["tablero"])):
-            for j in range(len(self.partida["tablero"][i])):
-                letra = self.partida["tablero"][i][j]
-                btn = self.botones_letras[i][j]
-                btn.config(
-                    text=letra, relief=tk.RAISED, bg=COLOR_BOTON, state=tk.NORMAL
-                )
-
-        self.borrar_seleccion()
-        self.partida["palabras_encontradas"] = []
-        self.lista_palabras.delete(0, tk.END)
-        self.actualizar_estadisticas()
-        self.reiniciar_cronometro()
-        self.partida["puntaje"] = 0
-        self.label_puntaje.config(text="🏅 Puntaje: 0")
-        mp.guardar_partida(self.user, self.partida, "juego1")
-        self.mostrar_resumen_palabras()
-
-    def actualizar_estadisticas(self):
-        total_palabras = len(self.partida.get("palabras_colocadas"))
-        encontradas = len(self.partida["palabras_encontradas"])
-        porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
-        self.label_stats.config(
-            text=f"Encontrados: {encontradas}\nCompletados: {porcentaje:.2f}%"
+        self.mensaje2.config(
+            text=f"Palabras encontradas: {len(self.partida['palabrasElegidas0'])}/{len(self.partida['seleccionadas'])}"
         )
-
-    def buscar_palabra_en_matriz(self, palabra):
-        FILAS = len(self.partida["tablero"])
-        COLUMNAS = len(self.partida["tablero"][0])
-        DIRECCIONES = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-        def dfs(f, c, indice, visitado):
-            if not (0 <= f < FILAS and 0 <= c < COLUMNAS):
-                return None
-            if (f, c) in visitado:
-                return None
-            if self.partida["tablero"][f][c] != palabra[indice]:
-                return None
-
-            visitado.add((f, c))
-
-            if indice == len(palabra) - 1:
-                return [(f, c)]
-
-            for df, dc in DIRECCIONES:
-                nf, nc = f + df, c + dc
-                subcamino = dfs(nf, nc, indice + 1, visitado.copy())
-                if subcamino:
-                    return [(f, c)] + subcamino
-
-            return None
-
-        for i in range(FILAS):
-            for j in range(COLUMNAS):
-                if self.partida["tablero"][i][j] == palabra[0]:
-                    camino = dfs(i, j, 0, set())
-                    if camino:
-                        return camino
-        return None
-
-    def mostrar_pista(self):
-        self.pista = 1
-        posibles = [
-            p
-            for p in self.partida.get("palabras_colocadas")
-            if p not in self.partida.get("palabras_encontradas", [])
+        self.partida["listaAleatoriaCombinaciones"]
+        listasPalabrasSinEspacios = [
+            self.partida.get("palabrasElegidas1", []),
+            self.partida.get("palabrasElegidas2", []),
+            self.partida.get("palabrasElegidas3", []),
+            self.partida.get("palabrasElegidas4", []),
+            self.partida.get("palabrasElegidas5", []),
+            self.partida.get("palabrasElegidas6", []),
+            self.partida.get("palabrasElegidas7", []),
         ]
-        if not posibles:
-            messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!")
-            return
 
-        palabra = random.choice(posibles)
-        camino = self.buscar_palabra_en_matriz(palabra)
+        mp.guardar_partida(self.user, self.partida, "juego2")
 
-        if not camino:
-            messagebox.showwarning(
-                "Pista", f"No se pudo encontrar la palabra '{palabra}' en la matriz."
-            )
-            return
+        for i in range(len(self.partida["listaAleatoriaCombinaciones"])):
+            if i < len(listasPalabrasSinEspacios):
+                texto = f"Palabras encontradas con {self.partida['listaAleatoriaCombinaciones'][i]}: {', '.join(listasPalabrasSinEspacios[i])}"
+                if i == 0:
+                    self.mensajePalabrasElegidas1.config(text=texto)
+                elif i == 1:
+                    self.mensajePalabrasElegidas2.config(text=texto)
+                elif i == 2:
+                    self.mensajePalabrasElegidas3.config(text=texto)
+                elif i == 3:
+                    self.mensajePalabrasElegidas4.config(text=texto)
+                elif i == 4:
+                    self.mensajePalabrasElegidas5.config(text=texto)
+                elif i == 5:
+                    self.mensajePalabrasElegidas6.config(text=texto)
+                elif i == 6:
+                    self.mensajePalabrasElegidas7.config(text=texto)
 
-        for f, c in camino:
-            self.botones_letras[f][c].config(bg="gold")
+        if len(self.partida["palabrasElegidas0"]) == len(self.partida["seleccionadas"]):
+            self.mostrarFelicitacionFinal()
 
-        # Restaurar colores después de 2 segundos
-        self.juego.after(2000, lambda: self.restaurar_colores(camino))
+    # Cuando se de clic al botón de "Aplicar", verificará la palabra y cambiara el
+    # espacio llamado "ingresoLetras" para volver a escribir otra palabra
+    def aplicarEntrada(self):
+        self.iniciarReto()
+        self.letra.set("")
 
-    def restaurar_colores(self, camino):
-        for f, c in camino:
-            # estado = self.botones_letras[f][c]["state"]
-            color = "lightgreen" if (f, c) in self.letras_seleccionadas else COLOR_BOTON
-            self.botones_letras[f][c].config(bg=color)
+    # Al ir dando clic a los botones, imprime en un espacio llamado "iniciarReto" la letra que contiene cada botón y va generando la palabra
+    def actualizarLetra(self, letra_boton):
+        letra_actual = self.letra.get()
+        self.letra.set(letra_actual + letra_boton)
 
-    def actualizar_cronometro(self):
+    # En el espacio llamado "iniciarReto", simplemente elimina la última letra que se ingreso
+    def borrarUltimaLetra(self):
+        texto_actual = self.letra.get()
+        if len(texto_actual) > 0:
+            self.letra.set(texto_actual[:-1])
+
+    # Funciones para cambiar el color de los botones cada que el cursor pase sobre ellos
+    def onEnterLetrasApli(self, event):
+        event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
+
+    def onLeaveLetrasApli(self, event):
+        event.widget.config(bg="SystemButtonFace", fg="black")
+
+    def onEnterPausaIns(self, event):
+        event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
+
+    def onLeavePausaIns(self, event):
+        event.widget.config(bg=COLOR_BOTON, fg="black")
+
+    def onEnterContinuar(self, event):
+        event.widget.config(bg=COLOR_BOTON_HOVER, fg="black")
+
+    def onLeaveContinuar(self, event):
+        event.widget.config(bg=COLOR_BOTON, fg="white")
+
+    def onEnterCerrar(self, event):
+        event.widget.config(bg="#db6060", fg="black")
+
+    def onLeaveCerrar(self, event):
+        event.widget.config(bg="#cc4444", fg="white")
+
+    def onEnterCentral(self, event):
+        event.widget.config(bg="#fed155", fg="white")
+
+    def onLeaveCentral(self, event):
+        event.widget.config(bg="#ffc733", fg="black")
+
+    # Al encontrar la cantidad de palabras generadas por el juego, muestra en la ventana un mensajede felicitaciones
+    def mostrarFelicitacionFinal(self):
+        capa = tk.Frame(self.juego, bg="white")
+        capa.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        mensaje = tk.Label(
+            capa,
+            text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: {self.user}\nPuntaje obtenido: {self.partida['ptsTotal']}\n",
+            font=FUENTE_ETIQUETAB,
+            fg=COLOR_TEXTO,
+            bg="white",
+            justify="center",
+        )
+        mensaje.pack(expand=True)
+
+        # Botón para cerrar el juego
+        cerrar_btn = tk.Button(
+            capa,
+            text="Cerrar juego",
+            font=("Courier", 14),
+            bg=COLOR_ROJO,
+            fg="white",
+            command=self.fin_juego,
+        )
+        cerrar_btn.pack(pady=20)
+
+        cerrar_btn.bind("<Enter>", self.onEnterCerrar)
+        cerrar_btn.bind("<Leave>", self.onLeaveCerrar)
+
+    """def fin_juego(self):
+        mp.eliminar_partida(self.user, "juego2")
+        self.juego.destroy()"""
+
+    def fin_juego(self):
+        self.pausar_timer()
+        mp.guardar_partida(self.user, self.partida, "juego2")
+        mp.eliminar_partida(self.user, "juego2")
+        self.juego.destroy()
+
+    # Función para cuando se de clic al botón de "actualizar" (Línea 476), genere una nueva letra de las elegidas para cada botón
+    def mezclarLetras(self):
+        letras_nuevas = self.partida["letras_botones"][:]
+        shuffle(letras_nuevas)
+        self.boton1.config(
+            text=letras_nuevas[0],
+            command=lambda: self.actualizarLetra(letras_nuevas[0]),
+        )
+        self.boton2.config(
+            text=letras_nuevas[1],
+            command=lambda: self.actualizarLetra(letras_nuevas[1]),
+        )
+        self.boton3.config(
+            text=letras_nuevas[2],
+            command=lambda: self.actualizarLetra(letras_nuevas[2]),
+        )
+        self.boton5.config(
+            text=letras_nuevas[3],
+            command=lambda: self.actualizarLetra(letras_nuevas[3]),
+        )
+        self.boton6.config(
+            text=letras_nuevas[4],
+            command=lambda: self.actualizarLetra(letras_nuevas[4]),
+        )
+        self.boton7.config(
+            text=letras_nuevas[5],
+            command=lambda: self.actualizarLetra(letras_nuevas[5]),
+        )
+
+    def actualizar_timer(self):
         if not self.timer_pausado:
             if self.partida.get("tiempo_transcurrido") is None:
                 self.partida["tiempo_transcurrido"] = 1
@@ -499,61 +615,102 @@ class JuegoLetras:
             minutos = self.partida["tiempo_transcurrido"] // 60
             segundos = self.partida["tiempo_transcurrido"] % 60
             if not self.timer_oculto:
-                self.label_cronometro.config(
-                    text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}"
-                )
-            self.timer_id = self.juego.after(1000, self.actualizar_cronometro)
+                self.tiempo_label.config(text=f"{minutos:02}:{segundos:02}")
+            self.timer_id = self.juego.after(1000, self.actualizar_timer)
 
-    def pausar_cronometro(self):
+    def mostrar_timer_texto(self):
+        if not self.timer_pausado:
+            if self.partida.get("tiempo_transcurrido") is None:
+                self.partida["tiempo_transcurrido"] = 1
+            else:
+                self.partida["tiempo_transcurrido"] += 1
+
+            minutos = self.partida["tiempo_transcurrido"] // 60
+            segundos = self.partida["tiempo_transcurrido"] % 60
+            if not self.timer_oculto:
+                self.tiempo_label.config(text=f"{minutos:02}:{segundos:02}")
+
+        
+    def pausar_timer(self):
         self.timer_pausado = True
         if self.timer_id:
             self.juego.after_cancel(self.timer_id)
             self.timer_id = None
 
-    def reanudar_cronometro(self):
+    def reanudar_timer(self):
         if self.timer_pausado:
             self.timer_pausado = False
-            self.actualizar_cronometro()
+            self.actualizar_timer()
 
-    def reiniciar_cronometro(self):
-        self.pausar_cronometro()
-        self.partida["tiempo_transcurrido"] = 0
-        self.label_cronometro.config(text="⏱️ Tiempo: 00:00")
-        self.reanudar_cronometro()
-
-    def toggle_cronometro(self):
-        if self.timer_pausado:
-            self.boton_pausa.config(text="Pausar")
-            self.reanudar_cronometro()
-            self.overlay_pausa.place_forget()
-        else:
-            self.boton_pausa.config(text="Reanudar")
-            self.pausar_cronometro()
-            self.overlay_pausa.lift()
-            self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
-
-    def toggle_cronometro_texto(self):
+    def ocultar_mostrar_tiempo(self):
         if not self.timer_oculto:
-            self.label_cronometro.config(text="⏱️ Tiempo: --:--")
+            self.tiempo_label.config(text="--:--")
+            self.widgets["boton_ocultar"].config(
+                text="Mostrar"
+            )
             self.timer_oculto = True
         else:
-            minutos = self.partida["tiempo_transcurrido"] // 60
-            segundos = self.partida["tiempo_transcurrido"] % 60
-            self.label_cronometro.config(text=f"⏱️ Tiempo: {minutos:02}:{segundos:02}")
             self.timer_oculto = False
+            self.mostrar_timer_texto()
+            self.widgets["boton_ocultar"].config(text="Ocultar")
 
-    def reanudar_desde_overlay(self):
-        self.overlay_pausa.place_forget()
-        self.toggle_cronometro()  # Esto cambia el estado a "reanudar"
+    def pausarJuego(self):
+        self.pausar_timer()
+        self.pausa_capa = tk.Frame(self.juego, bg=COLOR_TEXTO)
+        self.pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1)
+        # self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-    def Instrucciones(self):
+        self.mensaje_pausa = tk.Label(
+            self.pausa_capa,
+            text="⏸ Juego en Pausa ⏸",
+            font=FUENTE_ETIQUETAB,
+            fg="white",
+            bg=COLOR_TEXTO,
+        )
+        # mensaje_pausa.pack(pady=50)
+        self.mensaje_pausa.pack(fill=tk.BOTH, expand=True, side=tk.TOP, pady=20)
+
+        # Botón para continuar el juego y el timer
+        boton_continuar_pausa = tk.Button(
+            self.pausa_capa,
+            text="Continuar",
+            font=FUENTE_ETIQUETA_2,
+            bg=COLOR_BOTON,
+            fg="white",
+            command=lambda: [self.pausa_capa.destroy(), self.reanudar_timer()],
+        )
+        boton_continuar_pausa.pack(pady=20)
+
+        boton_continuar_pausa.bind("<Enter>", self.onEnterContinuar)
+        boton_continuar_pausa.bind("<Leave>", self.onLeaveContinuar)
+
+        # Botón para salir de la aplicación
+        boton_salir_pausa = tk.Button(
+            self.pausa_capa,
+            text="Salir del Juego",
+            font=FUENTE_ETIQUETA,
+            bg=COLOR_ROJO,
+            fg="white",
+            command=self.salir,
+        )
+        boton_salir_pausa.pack(pady=10)
+
+        boton_salir_pausa.bind("<Enter>", self.onEnterCerrar)
+        boton_salir_pausa.bind("<Leave>", self.onLeaveCerrar)
+
+    def salir(self):
+        self.pausar_timer()
+        mp.guardar_partida(self.user, self.partida, "juego2")
+        self.juego.destroy()
+
+    def instrucciones(self):
         instruccionesCapa = tk.Frame(self.juego, bg=COLOR_TEXTO)
         instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         mensajeInstrucciones = tk.Label(
             instruccionesCapa,
             text="Cómo se juega",
-            font=FUENTE_ETIQUETA,
+            font=FUENTE_ETIQUETAB,
             fg="white",
             bg=COLOR_TEXTO,
         )
@@ -561,7 +718,7 @@ class JuegoLetras:
 
         mensajeInstrucciones = tk.Label(
             instruccionesCapa,
-            text="Encuentra las siete palabras que hemos ocultado seleccionando casillas contiguas en todas las direcciones, salvo en diagonal. Puedes utilizar cada letra tantas veces como quieras, pero no en una misma palabra.\n¡ATENCIÓN! NO TODAS LAS PALABRAS QUE PUEDAS FORMAR SERÁN VÁLIDAS. SÓLO LAS QUE PROPONEMOS.",
+            text="Forma palabras de al menos 3 letras. Puedes repetir las letras, pero siempre incluyendo la letra central.\n No se admiten nombres propios, plurales y formas verbales conjugadas (solo infinitivos).\n Encuentra palabras que incluyan las 7 letras (¡Heptacrack!).\n Puntuación: las palabras de 3 letras dan 1 punto y las de 4 letras, 2 puntos. A partir de 5 letras, obtendrás tantos puntos como letras tenga la palabra. Los heptacracks valen 10 puntos.",
             font=FUENTE_ETIQUETA,
             fg="white",
             bg=COLOR_TEXTO,
@@ -574,35 +731,104 @@ class JuegoLetras:
         boton_continuar_instrucciones = tk.Button(
             instruccionesCapa,
             text="Continuar",
-            font=FUENTE_ETIQUETA,
+            font=FUENTE_ETIQUETA_2,
             bg=COLOR_BOTON,
             fg="white",
             command=lambda: [instruccionesCapa.destroy()],
         )
         boton_continuar_instrucciones.pack(pady=25)
 
-    def finalizar_juego(self):
-        self.pausar_cronometro()
-        minutos = self.partida["tiempo_transcurrido"] // 60
-        segundos = self.partida["tiempo_transcurrido"] % 60
-        tiempo_str = f"{minutos:02}:{segundos:02}"
+        boton_continuar_instrucciones.bind("<Enter>", self.onEnterContinuar)
+        boton_continuar_instrucciones.bind("<Leave>", self.onLeaveContinuar)
 
-        messagebox.showinfo(
-            "¡Felicidades!",
-            f"Encontraste todas las palabras.\nTiempo: {tiempo_str}\nPuntaje: {self.partida['puntaje']}",
+    def iniciar_juego(self):
+        self.partida = mp.cargar_partida(self.user, "juego2")
+
+        self.tiempo_label = tk.Label(
+            self.juego,
+            font=FUENTE_ETIQUETAB,
+            bg=COLOR_TEXTO,
+            fg="white",
+            width=5,
+            anchor="center",
         )
+        self.tiempo_label.place(relx=0, rely=0, width=100, height=30)
+        if self.partida is None:
+            print("entro en el is none")
+            # Cosas del DICT
+            self.tiempo_oculto = False
+            self.partida = {}
+            while len(self.partida.get("seleccionadas", [])) < 3:
+                self.partida["listaAleatoriaCombinaciones"] = generar_letras()
+                self.letras_sin_repetir = self.partida["listaAleatoriaCombinaciones"][:]
+                self.partida["letraCentral"] = self.partida.get(
+                    "listaAleatoriaCombinaciones"
+                )[0]
+                self.partida["seleccionadas"] = []  # Palabras válidas
+                with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
+                    for linea in archivo:
+                        palabra = linea.strip().upper()
+                        es_valida = self.verificarPalabra(palabra)
+                        if es_valida:
+                            self.partida["seleccionadas"].append(palabra)
 
-        self.reiniciar_juego()
-        mp.guardar_partida(self.user, self.partida, "juego1")
+
+            print(self.partida.get("seleccionadas"))
+
+            # Contador para los puntos totales
+            self.partida["ptsTotal"] = 0
+            # Listas para almacenar las palabras que se vayan ingresando en el juego
+            self.partida["palabrasElegidas0"] = []
+            self.partida["palabrasElegidas1"] = []
+            self.partida["palabrasElegidas2"] = []
+            self.partida["palabrasElegidas3"] = []
+            self.partida["palabrasElegidas4"] = []
+            self.partida["palabrasElegidas5"] = []
+            self.partida["palabrasElegidas6"] = []
+            self.partida["palabrasElegidas7"] = []
+
+            self.partida["letras_botones"] = []
+            for letra in self.letras_sin_repetir:
+                if letra != self.partida["letraCentral"]:
+                    self.partida["letras_botones"].append(letra)
+
+            # Quito la letra central de la lista de sin repetidos
+            if self.partida["letraCentral"] in self.letras_sin_repetir:
+                self.letras_sin_repetir.remove(self.partida["letraCentral"])
+
+            self.partida["tiempo_transcurrido"] = 0
+
+            mp.guardar_partida(self.user, self.partida, "juego2")
+
+        self.actualizar_timer()
+
+    def simularVictoria(self):
+        print("▶ Simulando victoria...")
+
+        self.partida["palabrasElegidas0"] = self.partida["seleccionadas"][:]
+
+        # Vacía las listas específicas por letra
+        for i in range(1, 8):
+            self.partida[f"palabrasElegidas{i}"] = []
+
+        for palabra in self.partida["seleccionadas"]:
+            letra = palabra[0]
+            for i, letra_ref in enumerate(self.partida["listaAleatoriaCombinaciones"]):
+                if letra == letra_ref:
+                    self.partida[f"palabrasElegidas{i+1}"].append(palabra)
+                    break
+
+        print("✔ Palabras simuladas correctamente. Ejecutando mensaje final.")
+        self.mostrarFelicitacionFinal()
 
 
-# def iniciarJuego1(user):
-#     juego = JuegoLetras(user)
-#     juego.juego.mainloop()
+    """def mostrarSeleccionadas(self):
+        print(self.partida["seleccionadas"])
+        print("                               ↑                               ")
+        print("Lista de seleccionados (desde método personalizado)\n")"""
 
-# ------------------ Ejemplo de uso ------------------
 if __name__ == "__main__":
     prueba = tk.Tk()
     prueba.withdraw()  # Oculta ventana principal
-    juego = JuegoLetras("",prueba)  # si o si tiene que tener algo en el parametro user para que pueda crear el archivo correspondiente
-    juego.juego.mainloop()
+    juego = LexiReto("prueba", prueba)
+    prueba.mainloop()
