@@ -39,6 +39,7 @@ class TimerState:
         self.tiempo_pausado = 0
         self.activo = True
         self.id = None
+
     def __str__(self):
         return self.tiempo_inicio
 
@@ -284,7 +285,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas1 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[0]}: {', '.join(self.partida.get("palabrasElegidas1"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[0]}: {', '.join(self.partida.get('palabrasElegidas1'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -298,7 +299,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas2 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[1]}: {', '.join(self.partida.get("palabrasElegidas2"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[1]}: {', '.join(self.partida.get('palabrasElegidas2'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -312,7 +313,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas3 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[2]}: {', '.join(self.partida.get("palabrasElegidas3"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[2]}: {', '.join(self.partida.get('palabrasElegidas3'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -326,7 +327,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas4 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[3]}: {', '.join(self.partida.get("palabrasElegidas4"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[3]}: {', '.join(self.partida.get('palabrasElegidas4'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -340,7 +341,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas5 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[4]}: {', '.join(self.partida.get("palabrasElegidas5"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[4]}: {', '.join(self.partida.get('palabrasElegidas5'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -354,7 +355,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas6 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[5]}: {', '.join(self.partida.get("palabrasElegidas6"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[5]}: {', '.join(self.partida.get('palabrasElegidas6'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -368,7 +369,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas7 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[6]}: {', '.join(self.partida.get("palabrasElegidas7"))}",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[6]}: {', '.join(self.partida.get('palabrasElegidas7'))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -474,7 +475,7 @@ class LexiReto:
 
         for i in range(len(self.partida["listaAleatoriaCombinaciones"])):
             if i < len(listasPalabrasSinEspacios):
-                texto = f"Palabras encontradas con {self.partida["listaAleatoriaCombinaciones"][i]}: {', '.join(listasPalabrasSinEspacios[i])}"
+                texto = f"Palabras encontradas con {self.partida['listaAleatoriaCombinaciones'][i]}: {', '.join(listasPalabrasSinEspacios[i])}"
                 if i == 0:
                     self.mensajePalabrasElegidas1.config(text=texto)
                 elif i == 1:
@@ -611,9 +612,7 @@ class LexiReto:
             minutos = int(self.partida["tiempo_transcurrido"] // 60)
             segundos = int(self.partida["tiempo_transcurrido"] % 60)
             if not self.tiempo_oculto:
-                self.tiempo_label.config(
-                    text=f"{minutos:02d}:{segundos:02d}"
-                )
+                self.tiempo_label.config(text=f"{minutos:02d}:{segundos:02d}")
             self.timer_state.id = self.juego.after(1000, self.actualizar_timer)
 
     def pausar_timer(self):
@@ -730,7 +729,7 @@ class LexiReto:
 
     def iniciar_juego(self):
         self.partida = mp.cargar_partida(self.user, "juego2")
-        
+
         self.tiempo_label = tk.Label(
             self.juego,
             font=FUENTE_ETIQUETAB,
@@ -780,17 +779,16 @@ class LexiReto:
             # Quito la letra central de la lista de sin repetidos
             if self.partida["letraCentral"] in self.letras_sin_repetir:
                 self.letras_sin_repetir.remove(self.partida["letraCentral"])
-            
+
             self.timer_state = TimerState(0)
             self.partida["tiempo_inicio"] = self.timer_state.tiempo_inicio
 
             mp.guardar_partida(self.user, self.partida, "juego2")
         else:
             self.timer_state = TimerState(self.partida.get("tiempo_inicio", 0))
-        
+
         self.actualizar_timer()
         self.tiempo_label.config(text={})
-        
 
 
 # No se si se hace de esta manera xd

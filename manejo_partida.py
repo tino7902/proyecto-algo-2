@@ -30,16 +30,18 @@ Juego 2
 }
 """
 
+
 def guardar_partida(user, estado_juego, juego):
     dir_partidas = f"partidas/{juego}"
     os.makedirs(dir_partidas, exist_ok=True)
     dir_archivo = os.path.join(dir_partidas, f"{user}.json")
     try:
-        with open(dir_archivo, 'w') as f:
+        with open(dir_archivo, "w") as f:
             json.dump(estado_juego, f, indent=2)
         print(f"partida de {user} guardada en {dir_archivo}")
     except IOError as e:
         print(f"error al guardar la partido: {e}")
+
 
 def cargar_partida(user, juego):
     dir_partidas = f"partidas/{juego}"
@@ -47,9 +49,9 @@ def cargar_partida(user, juego):
     if not os.path.exists(dir_archivo):
         print("no hay partida guardada de {user}")
         return None
-    
+
     try:
-        with open(dir_archivo, 'r') as f:
+        with open(dir_archivo, "r") as f:
             estado_juego = json.load(f)
         print(f"partida de {user} cargada")
         return estado_juego
@@ -59,6 +61,7 @@ def cargar_partida(user, juego):
     except IOError as e:
         print(f"error al cargar la partida: {e}")
         return None
+
 
 def eliminar_partida(user, juego):
     dir_partidas = f"partidas/{juego}"
