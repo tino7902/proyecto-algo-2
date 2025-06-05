@@ -373,8 +373,8 @@ class LexiReto:
             self.juego,
             text="💊 Simular Victoria",
             font=FUENTE_BOTON,
-            bg="#dddddd",
-            fg="black",
+            bg=COLOR_BOTON,
+            fg=COLOR_TEXTO,
             command=self.simularVictoria
         )
         boton_test.place(x=1050, y=0, width=200, height=40)
