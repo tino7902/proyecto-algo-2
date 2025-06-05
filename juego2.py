@@ -232,7 +232,7 @@ class LexiReto:
             fg=COLOR_TEXTO,
             command=self.instrucciones,
         )
-        self.comoJugar.place(x=650, y=0, width=130, height=30)
+        self.comoJugar.place(relx=0.5, y=0, anchor="n", width=130, height=30)
 
         self.comoJugar.bind("<Enter>", self.onEnterPausaIns)
         self.comoJugar.bind("<Leave>", self.onLeavePausaIns)
@@ -426,10 +426,6 @@ class LexiReto:
             return 2
         else:
             return 1
-
-    """print(self.partida["seleccionadas"])
-    print("                               ↑                               ")
-    print("Lista de seleccionados (solo de guía para completar el juego)\n")"""
 
     # Verifica si la palabra ingresada al clickear los botones, está en la lista de palabrasElegidas, y si cumple las condiciones necesarias
     # Además de Imprimir los pts obtenidos, totales, y verificar si se encontraron todas las palabras para terminar el juego
@@ -763,7 +759,7 @@ class LexiReto:
                     "listaAleatoriaCombinaciones"
                 )[0]
                 self.partida["seleccionadas"] = []  # Palabras válidas
-                with open("diccionarioletras.txt", "r", encoding="utf-8") as archivo:
+                with open("palabras_potente.txt", "r", encoding="utf-8") as archivo:
                     for linea in archivo:
                         palabra = linea.strip().upper()
                         es_valida = self.verificarPalabra(palabra)
