@@ -653,26 +653,28 @@ class LexiReto:
 
     def pausarJuego(self):
         self.pausar_timer()
-        pausa_capa = tk.Frame(self.juego, bg=COLOR_TEXTO)
-        pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.pausa_capa = tk.Frame(self.juego, bg=COLOR_TEXTO)
+        self.pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1)
+        # self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        mensaje_pausa = tk.Label(
-            pausa_capa,
+        self.mensaje_pausa = tk.Label(
+            self.pausa_capa,
             text="⏸ Juego en Pausa ⏸",
             font=FUENTE_ETIQUETAB,
             fg="white",
             bg=COLOR_TEXTO,
         )
-        mensaje_pausa.pack(pady=50)
+        # mensaje_pausa.pack(pady=50)
+        self.mensaje_pausa.pack(fill=tk.BOTH, expand=True, side=tk.TOP, pady=20)
 
         # Botón para continuar el juego y el timer
         boton_continuar_pausa = tk.Button(
-            pausa_capa,
+            self.pausa_capa,
             text="Continuar",
             font=FUENTE_ETIQUETA_2,
             bg=COLOR_BOTON,
             fg="white",
-            command=lambda: [pausa_capa.destroy(), self.reanudar_timer()],
+            command=lambda: [self.pausa_capa.destroy(), self.reanudar_timer()],
         )
         boton_continuar_pausa.pack(pady=20)
 
@@ -681,7 +683,7 @@ class LexiReto:
 
         # Botón para salir de la aplicación
         boton_salir_pausa = tk.Button(
-            pausa_capa,
+            self.pausa_capa,
             text="Salir del Juego",
             font=FUENTE_ETIQUETA,
             bg=COLOR_ROJO,
