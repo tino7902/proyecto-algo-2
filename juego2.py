@@ -460,6 +460,15 @@ class LexiReto:
         self.mensaje2.config(
             text=f"Palabras encontradas: {len(self.partida['palabrasElegidas0'])}/{len(self.partida['seleccionadas'])}"
         )
+        self.actualizar_tabla()
+
+        if len(self.partida["palabrasElegidas0"]) == len(self.partida["seleccionadas"]):
+            self.mostrarFelicitacionFinal()
+        
+
+        
+
+    def actualizar_tabla(self):
         self.partida["listaAleatoriaCombinaciones"]
         listasPalabrasSinEspacios = [
             self.partida.get("palabrasElegidas1", []),
@@ -490,9 +499,6 @@ class LexiReto:
                     self.mensajePalabrasElegidas6.config(text=texto)
                 elif i == 6:
                     self.mensajePalabrasElegidas7.config(text=texto)
-
-        if len(self.partida["palabrasElegidas0"]) == len(self.partida["seleccionadas"]):
-            self.mostrarFelicitacionFinal()
 
     # Cuando se de clic al botón de "Aplicar", verificará la palabra y lo volverá a su estado normal
     def aplicarEntrada(self):
@@ -819,8 +825,17 @@ class LexiReto:
                 if letra == letra_ref:
                     self.partida[f"palabrasElegidas{i+1}"].append(palabra)
                     break
+        self.partida["ptsTotal"] = self.puntaje_maximo()
         print("✔ Palabras simuladas correctamente. Ejecutando mensaje final.")
-        self.mostrarFelicitacionFinal()
+        self.actualizar_tabla()
+        self.juego.after(1500, self.mostrarFelicitacionFinal)
+
+    def puntaje_maximo(self):
+        for i in range(len(self.partida["palabrasElegidas0"])):
+            pts = self.calcularPuntaje(self.partida["palabrasElegidas0"][i])
+            self.partida["ptsTotal"] += pts
+        return self.partida["ptsTotal"]
+            
 
 
     """def mostrarSeleccionadas(self):

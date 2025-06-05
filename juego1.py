@@ -11,7 +11,7 @@ COLOR_SECUNDARIO = "#4a90e2"
 COLOR_TEXTO = "#333333"
 FUENTE_TITULO = ("Segoe UI", 32, "bold")
 FUENTE_ETIQUETA = ("Segoe UI", 16)
-FUENTE_BOTON = ("Segoe UI", 12, "bold")
+FUENTE_BOTON = ("Segoe UI", 14, "bold")
 
 
 class JuegoLetras:
@@ -28,6 +28,7 @@ class JuegoLetras:
         self.timer_oculto = False
         self.pista = 0
         self.letras_seleccionadas = []
+        self.partida = {}
 
         # Crear interfaz
         self.crear_interfaz()
@@ -67,11 +68,13 @@ class JuegoLetras:
         self.frame_controles.pack(side=tk.RIGHT, padx=20, pady=10, fill=tk.Y)
 
         # Puntaje
+        puntos = self.partida.get("puntaje", 0)
         self.label_puntaje = tk.Label(
             self.frame_controles,
-            text="🏅 Puntaje: 0",
+            text=f"🏅 Puntaje: {puntos}",
             font=FUENTE_BOTON,
             bg=COLOR_FONDO,
+            width = 15,
         )
         self.label_puntaje.pack(fill=tk.X, pady=5)
 
@@ -85,7 +88,7 @@ class JuegoLetras:
             relief="flat",
             borderwidth=0,
             highlightthickness=0,
-            width=20
+            width=15
         )
         self.label_cronometro.pack(fill=tk.X, pady=5)
 
@@ -95,6 +98,7 @@ class JuegoLetras:
             text="⏸ Pausa",
             font=FUENTE_BOTON,
             bg=COLOR_SECUNDARIO,
+            width = 15,
             command=self.toggle_cronometro,
         )
         self.boton_pausa.pack(fill=tk.X, pady=5)
@@ -106,6 +110,7 @@ class JuegoLetras:
             font=FUENTE_BOTON,
             bg=COLOR_SECUNDARIO,
             fg=COLOR_TEXTO,
+            width = 25,
             command=self.Instrucciones,
         ).pack(fill=tk.X, pady=5)
 
@@ -259,6 +264,7 @@ class JuegoLetras:
             fg=COLOR_TEXTO,
         )
         self.label_stats.pack()
+        self.actualizar_estadisticas()
 
         if self.partida.get("palabras_encontradas") is not None:
             self.actualizar_estadisticas()
@@ -266,6 +272,25 @@ class JuegoLetras:
 
         self.mostrar_resumen_palabras()
         self.actualizar_cronometro()
+
+        self.label_mensaje = tk.Label(
+            self.frame_controles,
+            text="",
+            font=FUENTE_ETIQUETA,
+            fg=COLOR_TEXTO,
+            bg=COLOR_FONDO,   
+            wraplength=250,
+            justify="left"
+        )
+        self.label_mensaje.pack(fill=tk.X, pady=(10, 5))
+    
+    def mostrar_mensaje(self, texto, tipo="info"):
+        colores = {
+            "info": COLOR_TEXTO,
+            "exito": "green",
+            "error": "red"
+        }
+        self.label_mensaje.config(text=texto, fg=colores.get(tipo, COLOR_TEXTO))
 
     def cerrar_juego(self):
             mp.guardar_partida(self.user, self.partida, "juego1")
@@ -312,7 +337,7 @@ class JuegoLetras:
         palabra = self.obtener_palabra_actual()
 
         if not palabra:
-            messagebox.showwarning("Atención", "No has seleccionado ninguna letra.")
+            self.mostrar_mensaje("✅ Palabra correcta.", tipo="exito")
             return
 
         if palabra in self.partida.get(
@@ -326,7 +351,7 @@ class JuegoLetras:
                 self.partida["palabras_encontradas"].append(palabra)
 
             self.lista_palabras.insert(tk.END, palabra)
-            messagebox.showinfo("¡Correcto!", f"¡Encontraste la palabra {palabra}!")
+            self.mostrar_mensaje("✅ Palabra correcta.", tipo="exito")
             # -------------------------------------------------------------------------------------- Calcular puntos
             segundos = self.partida.get("tiempo_transcurrido", 1)
             puntos_palabra = len(palabra) ** 5 // segundos
@@ -356,9 +381,7 @@ class JuegoLetras:
 
             # Volver al color original después de 1,5 seg
             self.juego.after(1500, self.borrar_seleccion)
-            messagebox.showwarning(
-                "Incorrecto", "La palabra no es válida o ya fue encontrada."
-            )
+            self.mostrar_mensaje("❌ Incorrecto, La palabra no es válida", tipo="error")
 
         self.actualizar_estadisticas()
         self.mostrar_resumen_palabras()
@@ -411,18 +434,20 @@ class JuegoLetras:
         self.actualizar_estadisticas()
         self.reiniciar_cronometro()
         self.partida["puntaje"] = 0
-        self.label_puntaje.config(text="🏅 Puntaje: 0")
+        self.label_puntaje.config(text=f"🏅 Puntaje: 0")
         mp.guardar_partida(self.user, self.partida, "juego1")
         self.mostrar_resumen_palabras()
 
     def actualizar_estadisticas(self):
-        total_palabras = len(self.partida.get("palabras_colocadas"))
-        encontradas = len(self.partida["palabras_encontradas"])
+        total_palabras = len(self.partida.get("palabras_colocadas", []))
+        encontradas = len(self.partida.get("palabras_encontradas", []))
         porcentaje = (encontradas / total_palabras) * 100 if total_palabras > 0 else 0
         self.label_stats.config(
             text=f"Encontrados: {encontradas}\nCompletados: {porcentaje:.2f}%"
         )
-
+        self.label_puntaje.config(
+                text=f"🏅 Puntaje: {self.partida.get('puntaje', 0)}"
+        )
     def buscar_palabra_en_matriz(self, palabra):
         FILAS = len(self.partida["tablero"])
         COLUMNAS = len(self.partida["tablero"][0])
@@ -465,16 +490,14 @@ class JuegoLetras:
             if p not in self.partida.get("palabras_encontradas", [])
         ]
         if not posibles:
-            messagebox.showinfo("Pista", "¡Ya encontraste todas las palabras!")
+            self.mostrar_mensaje("Pista", "¡Ya encontraste todas las palabras!", tipo="info")
             return
 
         palabra = random.choice(posibles)
         camino = self.buscar_palabra_en_matriz(palabra)
 
         if not camino:
-            messagebox.showwarning(
-                "Pista", f"No se pudo encontrar la palabra '{palabra}' en la matriz."
-            )
+            self.mostrar_mensaje(f"No se pudo encontrar la palabra '{palabra}' en la matriz.", tipo="error")
             return
 
         for f, c in camino:
@@ -595,10 +618,6 @@ class JuegoLetras:
         self.reiniciar_juego()
         mp.guardar_partida(self.user, self.partida, "juego1")
 
-
-# def iniciarJuego1(user):
-#     juego = JuegoLetras(user)
-#     juego.juego.mainloop()
 
 # ------------------ Ejemplo de uso ------------------
 if __name__ == "__main__":
