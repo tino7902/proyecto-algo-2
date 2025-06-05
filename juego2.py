@@ -1,6 +1,7 @@
-from random import shuffle, choice
+from random import shuffle, sample
 import tkinter as tk
 import time
+import manejo_partida as mp
 
 COLOR_FONDO = "#f0f4f8"
 COLOR_BOTON = "#6fbf73"
@@ -15,84 +16,46 @@ FUENTE_ETIQUETA_2 = ("Segoe UI", 14)
 FUENTE_BOTON = ("Segoe UI", 12, "bold")
 
 
+def generar_letras():
+    vocales = list("AEIOU")
+    consonantes = list("BCDFGHJKLMNÑPQRSTVWXYZ")
+
+    # Seleccionamos sin repetir
+    seleccion_vocales = sample(vocales, 3)
+    seleccion_consonantes = sample(consonantes, 4)
+
+    letras = seleccion_vocales + seleccion_consonantes
+    shuffle(letras)  # Para mezclar el orden
+    return letras
+
+
 # Clase para usarla luego con el times
 class TimerState:
-    def __init__(self):
-        self.tiempo_inicio = time.time()
+    def __init__(self, inicio):
+        if inicio == 0:
+            self.tiempo_inicio = int(time.time())
+        else:
+            self.tiempo_inicio = inicio
         self.tiempo_pausado = 0
         self.activo = True
         self.id = None
+    def __str__(self):
+        return self.tiempo_inicio
 
 
 # Clase para todo el juego
 class LexiReto:
     def __init__(self, user, root):
+        self.user = user
         self.juego = tk.Toplevel(root)
         self.juego.attributes("-fullscreen", True)
         self.widgets = {}
-        self.timer_state = TimerState()
         self.tiempo_oculto = False
 
-        self.combinacionesLetras = [
-            ["u", "a", "e", "r", "d", "j", "q"],
-            ["p", "o", "u", "g", "e", "i", "s"],
-            ["j", "e", "o", "c", "r", "p", "a"],
-            ["n", "u", "e", "r", "l", "b", "a"],
-            ["p", "i", "e", "u", "l", "j", "o"],
-            ["v", "n", "i", "c", "r", "a", "u"],
-            ["f", "s", "p", "t", "r", "a", "e"],
-            ["e", "m", "n", "g", "c", "i", "o"],
-            ["s", "d", "c", "u", "l", "i", "o"],
-            ["l", "u", "i", "q", "r", "e", "o"],
-        ]
-
-        self.partida = {}
-        self.tiempo_oculto = False
-        self.listaAleatoriaCombinaciones = []
-        for letra in choice(self.combinacionesLetras):
-            self.listaAleatoriaCombinaciones.append(letra.upper())
-        self.letraCentral = self.listaAleatoriaCombinaciones[0]
-        self.letras_sin_repetir = self.listaAleatoriaCombinaciones[:]
-        self.seleccionadas = []
-        # Abre el archivo "palabras.txt", escoge una lista de palabras, y lee, verifica y guarda las palabras que vaya leyendo en self.seleccionadas
-        with open("diccionarioletras.txt", "r", encoding="utf-8") as archivo:
-            for linea in archivo:
-                palabra = linea.strip().upper()
-                es_valida = self.verificarPalabra(palabra)
-                if es_valida:
-                    self.seleccionadas.append(palabra)
-
-        # Contador para los puntos totales
-        self.ptsTotal = 0
-        # Listas para almacenar las palabras que se vayan ingresando en el juego
-        self.palabrasElegidas0 = []
-        self.palabrasElegidas1 = []
-        self.palabrasElegidas2 = []
-        self.palabrasElegidas3 = []
-        self.palabrasElegidas4 = []
-        self.palabrasElegidas5 = []
-        self.palabrasElegidas6 = []
-        self.palabrasElegidas7 = []
+        self.iniciar_juego()
 
         self.letra = tk.StringVar(self.juego)
         self.letra.set("")
-
-        # son funciones que realizan justamente lo que dicen sus nombres. Funciones que luego se llaman al pausar o continuar el juego
-        self.timer_state = TimerState()
-        self.tiempo_label = tk.Label(
-            self.juego,
-            text="00:00",
-            font=FUENTE_ETIQUETAB,
-            bg=COLOR_TEXTO,
-            fg="white",
-            width=5,
-            anchor="center",
-        )
-        self.tiempo_label.place(relx=0, rely=0, width=100, height=30)
-
-        self.widgets["label_tiempo"] = self.tiempo_label
-        # Hace que el timer empieze nada más abrir el juego
-        self.actualizar_timer()
 
         # Botón que ejecuta la función "pausarJuego"
         boton_pausa = tk.Button(
@@ -124,23 +87,15 @@ class LexiReto:
         ingresoLetras.place(x=10, y=60, width=250, height=50)
 
         # Elimino la letra central de mi lista de "letras_sin_repetir" para mandarsela a la lista "letras_botones", ya que esa lista no necesita la letraCentral
-        self.letras_botones = []
-        for letra in self.letras_sin_repetir:
-            if letra != self.letraCentral:
-                self.letras_botones.append(letra)
-
-        # Quito la letra central de la lista de sin repetidos
-        if self.letraCentral in self.letras_sin_repetir:
-            self.letras_sin_repetir.remove(self.letraCentral)
 
         # A partir de acá, hasta la línea 440, son los botones en donde apareceran las letras escogidas
         self.boton1 = tk.Button(
             self.juego,
-            text=self.letras_botones[0],
+            text=self.partida["letras_botones"][0],
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letras_botones[0]),
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][0]),
         )
         self.boton1.place(x=75, y=120, width=60, height=40)
 
@@ -149,11 +104,11 @@ class LexiReto:
 
         self.boton2 = tk.Button(
             self.juego,
-            text=self.letras_botones[1],
+            text=self.partida["letras_botones"][1],
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letras_botones[1]),
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][1]),
         )
         self.boton2.place(x=140, y=120, width=60, height=40)
 
@@ -162,11 +117,11 @@ class LexiReto:
 
         self.boton3 = tk.Button(
             self.juego,
-            text=self.letras_botones[2],
+            text=self.partida["letras_botones"][2],
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letras_botones[2]),
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][2]),
         )
         self.boton3.place(x=40, y=185, width=60, height=40)
 
@@ -175,12 +130,12 @@ class LexiReto:
 
         self.boton4 = tk.Button(
             self.juego,
-            text=self.letraCentral.upper(),
+            text=self.partida["letraCentral"].upper(),
             font=FUENTE_BOTON,
             fg="black",
             bg="#ffc733",
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letraCentral.upper()),
+            command=lambda: self.actualizarLetra(self.partida["letraCentral"].upper()),
         )
         self.boton4.place(x=105, y=185, width=60, height=40)
 
@@ -189,11 +144,11 @@ class LexiReto:
 
         self.boton5 = tk.Button(
             self.juego,
-            text=self.letras_botones[3],
+            text=self.partida["letras_botones"][3],
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letras_botones[3]),
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][3]),
         )
         self.boton5.place(x=170, y=185, width=60, height=40)
 
@@ -202,11 +157,11 @@ class LexiReto:
 
         self.boton6 = tk.Button(
             self.juego,
-            text=self.letras_botones[4],
+            text=self.partida["letras_botones"][4],
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letras_botones[4]),
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][4]),
         )
         self.boton6.place(x=75, y=250, width=60, height=40)
 
@@ -215,11 +170,11 @@ class LexiReto:
 
         self.boton7 = tk.Button(
             self.juego,
-            text=self.letras_botones[5],
+            text=self.partida["letras_botones"][5],
             font=FUENTE_BOTON,
             fg=COLOR_TEXTO,
             relief="ridge",
-            command=lambda: self.actualizarLetra(self.letras_botones[5]),
+            command=lambda: self.actualizarLetra(self.partida["letras_botones"][5]),
         )
         self.boton7.place(x=140, y=250, width=60, height=40)
 
@@ -315,7 +270,7 @@ class LexiReto:
         # Imprime en un espacio la cantidad de palabras que lleva encontradas el usuario
         self.mensaje2 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas: {len(self.palabrasElegidas0)}/{len(self.seleccionadas)}",
+            text=f"Palabras encontradas: {len(self.partida.get('palabrasElegidas0', []))}/{len(self.partida.get('seleccionadas', []))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -329,7 +284,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas1 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[0]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[0]}: {', '.join(self.partida.get("palabrasElegidas1"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -343,7 +298,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas2 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[1]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[1]}: {', '.join(self.partida.get("palabrasElegidas2"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -357,7 +312,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas3 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[2]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[2]}: {', '.join(self.partida.get("palabrasElegidas3"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -371,7 +326,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas4 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[3]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[3]}: {', '.join(self.partida.get("palabrasElegidas4"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -385,7 +340,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas5 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[4]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[4]}: {', '.join(self.partida.get("palabrasElegidas5"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -399,7 +354,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas6 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[5]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[5]}: {', '.join(self.partida.get("palabrasElegidas6"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -413,7 +368,7 @@ class LexiReto:
 
         self.mensajePalabrasElegidas7 = tk.Label(
             self.juego,
-            text=f"Palabras encontradas con {self.listaAleatoriaCombinaciones[6]}:",
+            text=f"Palabras encontradas con {self.partida.get('listaAleatoriaCombinaciones')[6]}: {', '.join(self.partida.get("palabrasElegidas7"))}",
             font=FUENTE_ETIQUETA_2,
             fg="white",
             bg=COLOR_TEXTO,
@@ -429,16 +384,16 @@ class LexiReto:
     def verificarPalabra(self, palabraIngresada):
         if len(palabraIngresada) < 3:
             return False
-        if self.letraCentral not in palabraIngresada:
+        if self.partida["letraCentral"] not in palabraIngresada:
             return False
         for letra in palabraIngresada:
-            if letra not in self.listaAleatoriaCombinaciones:
+            if letra not in self.partida["listaAleatoriaCombinaciones"]:
                 return False
         return True
 
     # Calcula si la palabra es Heptacrack (Contiene 7 letras distintas)
     def esHeptacrack(self, palabraIngresada):
-        letrasUnicas = self.listaAleatoriaCombinaciones[:]
+        letrasUnicas = self.partida["listaAleatoriaCombinaciones"][:]
         for letra in letrasUnicas:
             if letra not in palabraIngresada.upper():
                 return False
@@ -459,7 +414,7 @@ class LexiReto:
         else:
             return 1
 
-    """print(self.seleccionadas)
+    """print(self.partida["seleccionadas"])
     print("                               ↑                               ")
     print("Lista de seleccionados (solo de guía para completar el juego)\n")"""
 
@@ -469,61 +424,57 @@ class LexiReto:
         pal = self.letra.get().upper()
         if not self.verificarPalabra(pal):
             self.mensaje1.config(
-                text=f"La palabra no contiene la letra {self.letraCentral} o es demasiado corta."
+                text=f"La palabra no contiene la letra {self.partida['letraCentral']} o es demasiado corta."
             )
             return
-        if pal not in self.seleccionadas:
+        if pal not in self.partida["seleccionadas"]:
             self.mensaje1.config(text="Palabra inválida")
             return
-        if pal in self.palabrasElegidas0:
+        if pal in self.partida["palabrasElegidas0"]:
             self.mensaje1.config(text="Ya ingresaste esa palabra")
             return
 
         pts = self.calcularPuntaje(pal)
-        self.ptsTotal += pts
-        self.palabrasElegidas0.append(pal)
+        self.partida["ptsTotal"] += pts
+        self.partida["palabrasElegidas0"].append(pal)
         letra_inicial = pal[0]
-        if letra_inicial == self.listaAleatoriaCombinaciones[0]:
-            self.palabrasElegidas1.append(pal)
-        elif letra_inicial == self.listaAleatoriaCombinaciones[1]:
-            self.palabrasElegidas2.append(pal)
-        elif letra_inicial == self.listaAleatoriaCombinaciones[2]:
-            self.palabrasElegidas3.append(pal)
-        elif letra_inicial == self.listaAleatoriaCombinaciones[3]:
-            self.palabrasElegidas4.append(pal)
-        elif letra_inicial == self.listaAleatoriaCombinaciones[4]:
-            self.palabrasElegidas5.append(pal)
-        elif letra_inicial == self.listaAleatoriaCombinaciones[5]:
-            self.palabrasElegidas6.append(pal)
-        elif letra_inicial == self.listaAleatoriaCombinaciones[6]:
-            self.palabrasElegidas7.append(pal)
+
+        i = 0
+        while letra_inicial != self.partida["listaAleatoriaCombinaciones"][i]:
+            i += 1
+        if self.partida.get(f"palabrasElegidas{i + 1}") is None:
+            self.partida[f"palabrasElegidas{i + 1}"] = pal
+        else:
+            self.partida[f"palabrasElegidas{i + 1}"].append(pal)
 
         if self.esHeptacrack(pal):
             self.mensaje1.config(
-                text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s\nTienes {self.ptsTotal} punto/s en total"
+                text=f"ES HEPTACRACK!\nHaz obtenido {pts} punto/s\nTienes {self.partida['ptsTotal']} punto/s en total"
             )
         else:
             self.mensaje1.config(
-                text=f"Haz obtenido {pts} punto/s\nTienes {self.ptsTotal} punto/s en total"
+                text=f"Haz obtenido {pts} punto/s\nTienes {self.partida['ptsTotal']} punto/s en total"
             )
 
         self.mensaje2.config(
-            text=f"Palabras encontradas: {len(self.palabrasElegidas0)}/{len(self.seleccionadas)}"
+            text=f"Palabras encontradas: {len(self.partida['palabrasElegidas0'])}/{len(self.partida['seleccionadas'])}"
         )
-        todas_letras = self.listaAleatoriaCombinaciones
+        self.partida["listaAleatoriaCombinaciones"]
         listasPalabrasSinEspacios = [
-            self.palabrasElegidas1,
-            self.palabrasElegidas2,
-            self.palabrasElegidas3,
-            self.palabrasElegidas4,
-            self.palabrasElegidas5,
-            self.palabrasElegidas6,
-            self.palabrasElegidas7,
+            self.partida.get("palabrasElegidas1", []),
+            self.partida.get("palabrasElegidas2", []),
+            self.partida.get("palabrasElegidas3", []),
+            self.partida.get("palabrasElegidas4", []),
+            self.partida.get("palabrasElegidas5", []),
+            self.partida.get("palabrasElegidas6", []),
+            self.partida.get("palabrasElegidas7", []),
         ]
 
-        for i in range(len(todas_letras)):
+        mp.guardar_partida(self.user, self.partida, "juego2")
+
+        for i in range(len(self.partida["listaAleatoriaCombinaciones"])):
             if i < len(listasPalabrasSinEspacios):
-                texto = f"Palabras encontradas con {todas_letras[i]}: {', '.join(listasPalabrasSinEspacios[i])}"
+                texto = f"Palabras encontradas con {self.partida["listaAleatoriaCombinaciones"][i]}: {', '.join(listasPalabrasSinEspacios[i])}"
                 if i == 0:
                     self.mensajePalabrasElegidas1.config(text=texto)
                 elif i == 1:
@@ -539,7 +490,7 @@ class LexiReto:
                 elif i == 6:
                     self.mensajePalabrasElegidas7.config(text=texto)
 
-        if len(self.palabrasElegidas0) == len(self.seleccionadas):
+        if len(self.partida["palabrasElegidas0"]) == len(self.partida["seleccionadas"]):
             self.mostrarFelicitacionFinal()
 
     # Cuando se de clic al botón de "Aplicar", verificará la palabra y cambiara el
@@ -597,7 +548,7 @@ class LexiReto:
 
         mensaje = tk.Label(
             capa,
-            text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: Marcelo López\nPuntaje obtenido: {self.ptsTotal}\n",
+            text=f"¡Felicidades por ganar!🎉\nMis Estadísticas\nNombre de usuario: Marcelo López\nPuntaje obtenido: {self.partida['ptsTotal']}\n",
             font=FUENTE_ETIQUETAB,
             fg=COLOR_TEXTO,
             bg="white",
@@ -612,16 +563,20 @@ class LexiReto:
             font=("Courier", 14),
             bg=COLOR_ROJO,
             fg="white",
-            command=self.juego.destroy,
+            command=self.fin_juego,
         )
         cerrar_btn.pack(pady=20)
 
         cerrar_btn.bind("<Enter>", self.onEnterCerrar)
         cerrar_btn.bind("<Leave>", self.onLeaveCerrar)
 
+    def fin_juego(self):
+        mp.eliminar_partida(self.user, "juego2")
+        self.juego.destroy()
+
     # Función para cuando se de clic al botón de "actualizar" (Línea 476), genere una nueva letra de las elegidas para cada botón
     def mezclarLetras(self):
-        letras_nuevas = self.letras_botones[:]
+        letras_nuevas = self.partida["letras_botones"][:]
         shuffle(letras_nuevas)
         self.boton1.config(
             text=letras_nuevas[0],
@@ -650,11 +605,13 @@ class LexiReto:
 
     def actualizar_timer(self):
         if self.timer_state.activo:
-            self.partida["tiempo_transcurrido"] = int(time.time() - self.timer_state.tiempo_inicio)
+            self.partida["tiempo_transcurrido"] = int(
+                time.time() - self.timer_state.tiempo_inicio
+            )
             minutos = int(self.partida["tiempo_transcurrido"] // 60)
             segundos = int(self.partida["tiempo_transcurrido"] % 60)
-            if "label_tiempo" in self.widgets and not self.tiempo_oculto:
-                self.widgets["label_tiempo"].config(
+            if not self.tiempo_oculto:
+                self.tiempo_label.config(
                     text=f"{minutos:02d}:{segundos:02d}"
                 )
             self.timer_state.id = self.juego.after(1000, self.actualizar_timer)
@@ -679,7 +636,7 @@ class LexiReto:
     def ocultar_mostrar_tiempo(self):
         self.tiempo_oculto = not self.tiempo_oculto
         if self.tiempo_oculto:
-            self.widgets["label_tiempo"].config(text="--:--")
+            self.tiempo_label.config(text="--:--")
             self.widgets["boton_ocultar"].config(
                 text="Mostrar"
             )  # ← Cambia el texto del botón
@@ -723,12 +680,16 @@ class LexiReto:
             font=FUENTE_ETIQUETA,
             bg=COLOR_ROJO,
             fg="white",
-            command=self.juego.destroy,
+            command=self.salir,
         )
         boton_salir_pausa.pack(pady=10)
 
         boton_salir_pausa.bind("<Enter>", self.onEnterCerrar)
         boton_salir_pausa.bind("<Leave>", self.onLeaveCerrar)
+
+    def salir(self):
+        mp.guardar_partida(self.user, self.partida, "juego2")
+        self.juego.destroy()
 
     def instrucciones(self):
         instruccionesCapa = tk.Frame(self.juego, bg=COLOR_TEXTO)
@@ -768,8 +729,73 @@ class LexiReto:
         boton_continuar_instrucciones.bind("<Enter>", self.onEnterContinuar)
         boton_continuar_instrucciones.bind("<Leave>", self.onLeaveContinuar)
 
+    def iniciar_juego(self):
+        self.partida = mp.cargar_partida(self.user, "juego2")
+        
+        self.tiempo_label = tk.Label(
+            self.juego,
+            font=FUENTE_ETIQUETAB,
+            bg=COLOR_TEXTO,
+            fg="white",
+            width=5,
+            anchor="center",
+        )
+        self.tiempo_label.place(relx=0, rely=0, width=100, height=30)
+        if self.partida is None:
+            print("entro en el is none")
+            # Cosas del DICT
+            self.tiempo_oculto = False
+            self.partida = {}
+            while len(self.partida.get("seleccionadas", [])) < 3:
+                self.partida["listaAleatoriaCombinaciones"] = generar_letras()
+                self.letras_sin_repetir = self.partida["listaAleatoriaCombinaciones"][:]
+                self.partida["letraCentral"] = self.partida.get(
+                    "listaAleatoriaCombinaciones"
+                )[0]
+                self.partida["seleccionadas"] = []  # Palabras válidas
+                with open("diccionarioletras.txt", "r", encoding="utf-8") as archivo:
+                    for linea in archivo:
+                        palabra = linea.strip().upper()
+                        es_valida = self.verificarPalabra(palabra)
+                        if es_valida:
+                            self.partida["seleccionadas"].append(palabra)
+            print(self.partida.get("seleccionadas"))
+
+            # Contador para los puntos totales
+            self.partida["ptsTotal"] = 0
+            # Listas para almacenar las palabras que se vayan ingresando en el juego
+            self.partida["palabrasElegidas0"] = []
+            self.partida["palabrasElegidas1"] = []
+            self.partida["palabrasElegidas2"] = []
+            self.partida["palabrasElegidas3"] = []
+            self.partida["palabrasElegidas4"] = []
+            self.partida["palabrasElegidas5"] = []
+            self.partida["palabrasElegidas6"] = []
+            self.partida["palabrasElegidas7"] = []
+
+            self.partida["letras_botones"] = []
+            for letra in self.letras_sin_repetir:
+                if letra != self.partida["letraCentral"]:
+                    self.partida["letras_botones"].append(letra)
+
+            # Quito la letra central de la lista de sin repetidos
+            if self.partida["letraCentral"] in self.letras_sin_repetir:
+                self.letras_sin_repetir.remove(self.partida["letraCentral"])
+            
+            self.timer_state = TimerState(0)
+            self.partida["tiempo_inicio"] = self.timer_state.tiempo_inicio
+
+            mp.guardar_partida(self.user, self.partida, "juego2")
+        else:
+            self.timer_state = TimerState(self.partida.get("tiempo_inicio", 0))
+        
+        self.actualizar_timer()
+        self.tiempo_label.config(text={})
+        
+
 
 # No se si se hace de esta manera xd
 if __name__ == "__main__":
-    juego = LexiReto()
-    juego.juego.mainloop()
+    prueba = tk.Tk()
+    juego = LexiReto("prueba", prueba)
+    prueba.mainloop()
