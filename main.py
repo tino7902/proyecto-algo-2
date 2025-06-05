@@ -13,7 +13,7 @@ FUENTE_TITULO = ("Segoe UI", 36, "bold")
 FUENTE_SUBTITULO = ("Segoe UI", 20)
 FUENTE_BOTON = ("Segoe UI", 16, "bold")
 
-
+# Clase usuario
 class Usuario:
     def __init__(self, user, pw):
         self.user = user
@@ -22,15 +22,14 @@ class Usuario:
     def __str__(self):
         return f"{self.user};{self.pw}"
 
-
-def actualizar_usuarios_txt():
+def actualizar_usuarios_txt():  # Actualiza lista de usuarios
     global usuarios
     with open("usuarios.txt", mode="w") as f:
         for usuario in usuarios:
             f.write(f"{usuario}\n")
 
 
-def check_user_pw(user, pw):
+def check_user_pw(user, pw):    # Verifica la contraseña
     global usuarios
     existe_user = False
     pw_correcta = False
@@ -76,7 +75,7 @@ def lanzar_juego2(user):
     menu.focus_force()
 
 
-def elegir_juego(user):
+def elegir_juego(user): # Menú elegir juego
     global root
     global menu
     menu = tk.Toplevel()
@@ -85,6 +84,7 @@ def elegir_juego(user):
 
     frame = tk.Frame(menu, bg=COLOR_FONDO)
 
+    # Textos y botones
     tk.Label(
         frame,
         text=f"🎮 Bienvenido a LexiManía, {user}!",
@@ -143,7 +143,7 @@ def elegir_juego(user):
     root.focus_force()
 
 
-def login(entry_user, entry_pw):
+def login(entry_user, entry_pw):    # Función inciar sesión
     existe_user, pw_correcta = check_user_pw(entry_user.get(), entry_pw.get())
     if not existe_user:
         messagebox.showerror(title="error !", message="No existe el usuario !")
@@ -153,7 +153,7 @@ def login(entry_user, entry_pw):
         elegir_juego(entry_user.get())
 
 
-def crear_user(entry_user, entry_pw):
+def crear_user(entry_user, entry_pw):   # Función crear usuario
     global usuarios
     existe_user, pw_correcta = check_user_pw(entry_user.get(), entry_pw.get())
     if existe_user:
@@ -174,17 +174,17 @@ def ocultar_cargando():
     pantalla_carga.place_forget()
 
 
-def main():
+def main(): # Función principal
     global usuarios
 
     with open("usuarios.txt", mode="r") as f:
         lineas_usuarios_txt = f.readlines()
     lineas_usuarios_txt = [linea.replace("\n", "") for linea in lineas_usuarios_txt]
 
-    usuarios = [Usuario(*linea.split(";")) for linea in lineas_usuarios_txt]
+    usuarios = [Usuario(*linea.split(";")) for linea in lineas_usuarios_txt]    # Crea lista de usuarios
 
     global root
-    root = tk.Tk()
+    root = tk.Tk()  # Ventana root
     root.attributes("-fullscreen", True)
 
     # Capa negra de carga

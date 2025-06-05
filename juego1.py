@@ -14,8 +14,6 @@ FUENTE_BOTON = ("Segoe UI", 14, "bold")
 
 
 class JuegoLetras:
-    # Clase para usarla luego con el times
-
     def __init__(self, user, root):     # Iniciarlizar variables "globales" para el juego
         self.user = user
         self.juego = tk.Toplevel(root)
@@ -619,7 +617,7 @@ class JuegoLetras:
 
 
 # ------------------ Ejemplo de uso ------------------
-if __name__ == "__main__":
+if __name__ == "__main__":  # probar el juego sin el main.py
     prueba = tk.Tk()
     prueba.withdraw()  # Oculta ventana principal
     juego = JuegoLetras(

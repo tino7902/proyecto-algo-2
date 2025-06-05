@@ -15,7 +15,7 @@ FUENTE_ETIQUETAB = ("Segoe UI", 16, "bold")
 FUENTE_ETIQUETA_2 = ("Segoe UI", 14)
 FUENTE_BOTON = ("Segoe UI", 15, "bold")
 
-
+# Función generar palabras validas
 def generar_letras():
     vocales = list("AEIOU")
     consonantes = list("BCDFGHJKLMNPQRSTV")
@@ -54,7 +54,7 @@ class LexiReto:
             command=self.pausarJuego,
         )
         boton_pausa.place(relx=1.0, y=0, anchor="ne", width=130, height=40)
-
+        # Efectos visuales
         boton_pausa.bind("<Enter>", self.onEnterPausaIns)
         boton_pausa.bind("<Leave>", self.onLeavePausaIns)
 
@@ -75,7 +75,6 @@ class LexiReto:
         ingresoLetras.place(x=50, y=60, width=650, height=50)
 
         # Elimino la letra central de mi lista de "letras_sin_repetir" para mandarsela a la lista "letras_botones", ya que esa lista no necesita la letraCentral
-
         self.boton1 = tk.Button(
             self.juego,
             text=self.partida["letras_botones"][0],
@@ -210,7 +209,7 @@ class LexiReto:
         self.borrar.bind("<Enter>", self.onEnterLetrasApli)
         self.borrar.bind("<Leave>", self.onLeaveLetrasApli)
 
-        #Botón para ver las instrucciones del juego
+        # Botón para ver las instrucciones del juego
         self.comoJugar = tk.Button(
             self.juego,
             text=("Cómo se juega"),
@@ -467,7 +466,7 @@ class LexiReto:
         
 
         
-
+    # Función para actualizar la impresión de palabras encontradas
     def actualizar_tabla(self):
         self.partida["listaAleatoriaCombinaciones"]
         listasPalabrasSinEspacios = [
@@ -615,6 +614,7 @@ class LexiReto:
             command=lambda: self.actualizarLetra(letras_nuevas[5]),
         )
 
+    # Función principal para el timer
     def actualizar_timer(self):
         if not self.timer_pausado:
             if self.partida.get("tiempo_transcurrido") is None:
@@ -628,6 +628,7 @@ class LexiReto:
                 self.tiempo_label.config(text=f"{minutos:02}:{segundos:02}")
             self.timer_id = self.juego.after(1000, self.actualizar_timer)
 
+    # Ocultar tiempo del timer
     def mostrar_timer_texto(self):
         if not self.timer_pausado:
             if self.partida.get("tiempo_transcurrido") is None:
@@ -641,13 +642,13 @@ class LexiReto:
                 self.tiempo_label.config(text=f"{minutos:02}:{segundos:02}")
 
         
-    def pausar_timer(self):
+    def pausar_timer(self):  # Función pausa
         self.timer_pausado = True
         if self.timer_id:
             self.juego.after_cancel(self.timer_id)
             self.timer_id = None
 
-    def reanudar_timer(self):
+    def reanudar_timer(self):   # Función reanudar
         if self.timer_pausado:
             self.timer_pausado = False
             self.actualizar_timer()
@@ -664,10 +665,10 @@ class LexiReto:
             self.mostrar_timer_texto()
             self.widgets["boton_ocultar"].config(text="Ocultar")
 
-    def pausarJuego(self):
+    def pausarJuego(self): 
         self.pausar_timer()
         self.pausa_capa = tk.Frame(self.juego, bg=COLOR_TEXTO)
-        self.pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.pausa_capa.place(relx=0, rely=0, relwidth=1, relheight=1) # Label de pausa
         # self.overlay_pausa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         self.mensaje_pausa = tk.Label(
@@ -708,12 +709,12 @@ class LexiReto:
         boton_salir_pausa.bind("<Enter>", self.onEnterCerrar)
         boton_salir_pausa.bind("<Leave>", self.onLeaveCerrar)
 
-    def salir(self):
+    def salir(self):    # Función guardar y salir del juego
         self.pausar_timer()
         mp.guardar_partida(self.user, self.partida, "juego2")
         self.juego.destroy()
 
-    def instrucciones(self):
+    def instrucciones(self):    # Función instrucciones
         instruccionesCapa = tk.Frame(self.juego, bg=COLOR_TEXTO)
         instruccionesCapa.place(relx=0, rely=0, relwidth=1, relheight=1)
 
@@ -753,7 +754,6 @@ class LexiReto:
 
     def iniciar_juego(self):
         self.partida = mp.cargar_partida(self.user, "juego2")
-
         self.tiempo_label = tk.Label(
             self.juego,
             font=FUENTE_ETIQUETAB,
@@ -763,8 +763,8 @@ class LexiReto:
             anchor="center",
         )
         self.tiempo_label.place(relx=0, rely=0, width=100, height=40)
+        
         if self.partida is None:
-            print("entro en el is none")
             # Cosas del DICT
             self.tiempo_oculto = False
             self.partida = {}
@@ -781,8 +781,6 @@ class LexiReto:
                         es_valida = self.verificarPalabra(palabra)
                         if es_valida:
                             self.partida["seleccionadas"].append(palabra)
-
-
             print(self.partida.get("seleccionadas"))
 
             # Contador para los puntos totales
@@ -812,8 +810,7 @@ class LexiReto:
 
         self.actualizar_timer()
 
-    def simularVictoria(self):
-        print("▶ Simulando victoria...")
+    def simularVictoria(self):  # Botón para simular victoria
         self.partida["palabrasElegidas0"] = self.partida["seleccionadas"][:]
         # Vacía las listas específicas por letra
         for i in range(1, 8):
@@ -826,24 +823,16 @@ class LexiReto:
                     self.partida[f"palabrasElegidas{i+1}"].append(palabra)
                     break
         self.partida["ptsTotal"] = self.puntaje_maximo()
-        print("✔ Palabras simuladas correctamente. Ejecutando mensaje final.")
         self.actualizar_tabla()
         self.juego.after(1500, self.mostrarFelicitacionFinal)
 
-    def puntaje_maximo(self):
+    def puntaje_maximo(self):   # Calcul del máximo puntaje por partida
         for i in range(len(self.partida["palabrasElegidas0"])):
             pts = self.calcularPuntaje(self.partida["palabrasElegidas0"][i])
             self.partida["ptsTotal"] += pts
         return self.partida["ptsTotal"]
             
-
-
-    """def mostrarSeleccionadas(self):
-        print(self.partida["seleccionadas"])
-        print("                               ↑                               ")
-        print("Lista de seleccionados (desde método personalizado)\n")"""
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # probar el juego sin el main.py
     prueba = tk.Tk()
     prueba.withdraw()  # Oculta ventana principal
     juego = LexiReto("prueba", prueba)
