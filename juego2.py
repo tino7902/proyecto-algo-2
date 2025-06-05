@@ -66,7 +66,7 @@ class LexiReto:
             bg=COLOR_BOTON,
             command=self.pausarJuego,
         )
-        boton_pausa.place(x=1200, y=0, width=100, height=30)
+        boton_pausa.place(x=1440, y=0, width=100, height=30)
 
         boton_pausa.bind("<Enter>", self.onEnterPausaIns)
         boton_pausa.bind("<Leave>", self.onLeavePausaIns)
@@ -380,6 +380,18 @@ class LexiReto:
             height=5,
         )
         self.mensajePalabrasElegidas7.place(x=300, y=600, width=990, height=80)
+
+        # Botón para simular que se ganaron todas las palabras
+        boton_test = tk.Button(
+            self.juego,
+            text="🧪 Simular Victoria",
+            font=FUENTE_BOTON,
+            bg="#dddddd",
+            fg="black",
+            command=self.simularVictoria
+        )
+        boton_test.place(x=1100, y=0, width=160, height=30)
+
 
     # Verifica si la palabra es mayor a 3 letras, si contiene la letra central y si contiene algunas de las otras letras
     def verificarPalabra(self, palabraIngresada):
@@ -791,6 +803,26 @@ class LexiReto:
 
         self.actualizar_timer()
         self.tiempo_label.config(text={})
+
+    def simularVictoria(self):
+        print("▶ Simulando victoria...")
+
+        self.partida["palabrasElegidas0"] = self.partida["seleccionadas"][:]
+
+        # Vacía las listas específicas por letra
+        for i in range(1, 8):
+            self.partida[f"palabrasElegidas{i}"] = []
+
+        for palabra in self.partida["seleccionadas"]:
+            letra = palabra[0]
+            for i, letra_ref in enumerate(self.partida["listaAleatoriaCombinaciones"]):
+                if letra == letra_ref:
+                    self.partida[f"palabrasElegidas{i+1}"].append(palabra)
+                    break
+
+        print("✔ Palabras simuladas correctamente. Ejecutando mensaje final.")
+        self.mostrarFelicitacionFinal()
+
 
     """def mostrarSeleccionadas(self):
         print(self.partida["seleccionadas"])
