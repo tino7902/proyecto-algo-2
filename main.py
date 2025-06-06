@@ -3,7 +3,6 @@ from tkinter import ttk, messagebox
 import juego1 as j1
 import juego2 as j2
 
-
 global usuarios
 
 COLOR_FONDO = "#f0f4f8"
@@ -181,7 +180,14 @@ def main(): # Función principal
         lineas_usuarios_txt = f.readlines()
     lineas_usuarios_txt = [linea.replace("\n", "") for linea in lineas_usuarios_txt]
 
-    usuarios = [Usuario(*linea.split(";")) for linea in lineas_usuarios_txt]    # Crea lista de usuarios
+    usuarios = []
+    for linea in lineas_usuarios_txt:
+        linea = linea.strip()
+        if not linea:
+            continue
+        partes = linea.split(";")
+        if len(partes) == 2:
+            usuarios.append(Usuario(*partes))
 
     global root
     root = tk.Tk()  # Ventana root

@@ -520,7 +520,7 @@ class LexiReto:
         event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
 
     def onLeaveLetrasApli(self, event):
-        event.widget.config(fg="black")
+        event.widget.config(bg=COLOR_FONDO, fg="black")
 
     def onEnterPausaIns(self, event):
         event.widget.config(bg=COLOR_BOTON_HOVER, fg="white")
@@ -824,6 +824,7 @@ class LexiReto:
                     break
         self.partida["ptsTotal"] = self.puntaje_maximo()
         self.actualizar_tabla()
+        self.mensaje2.config(text=f"Palabras encontradas: {len(self.partida.get('palabrasElegidas0', []))}/{len(self.partida.get('seleccionadas', []))}",)
         self.juego.after(1500, self.mostrarFelicitacionFinal)
 
     def puntaje_maximo(self):   # Calcul del máximo puntaje por partida
